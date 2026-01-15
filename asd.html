@@ -731,7 +731,55 @@
         .replaceAll("'","&#039;");
     }
     
-    // ===== Spec Key Options (بدون ألوان) =====
+    
+    // Admin emails (للصلاحيات + مزامنة نسخة المخزون داخل قاعدة بيانات الـ Workspace)
+    const ADMIN_EMAILS = [
+      "hossamzayan10@gmail.com",
+      "an9036663@gmail.com",
+      "mr.ahmed_rashed@outlook.sa"
+    ];
+    function isAdminEmail(email){
+      const e = String(email||"").toLowerCase().trim();
+      return ADMIN_EMAILS.includes(e);
+    }
+
+    // Cache داخل قاعدة بيانات الـ Workspace (نفس مشروع الصفحة الجديدة)
+    // يتم حفظ نسخة محدثة من stock هنا لتستخدم لاحقًا بدون الاعتماد المباشر على مشروع المخزون
+    const SPEC_CACHE_DOC = doc(db, "spec_keys_cache", "v1");
+    let lastStockHash = "";
+    async function upsertSpecCache(stockArr){
+      try{
+        const email = auth.currentUser?.email || "";
+        if(!isAdminEmail(email)) return; // كتابة الكاش للأدمن فقط
+        const payload = Array.isArray(stockArr) ? stockArr : [];
+        const h = await stockHash(payload);
+        if(h && h === lastStockHash) return;
+        lastStockHash = h;
+        await setDoc(SPEC_CACHE_DOC, {
+          stock: payload,
+          updatedAt: serverTimestamp(),
+          updatedBy: email
+        }, { merge:true });
+      }catch(e){
+        console.warn("upsertSpecCache failed", e);
+      }
+    }
+    function stockHash(arr){
+      try{
+        // hash خفيف لتفادي كتابة متكررة
+        const txt = JSON.stringify(arr);
+        let hash = 0;
+        for(let i=0;i<txt.length;i++){
+          hash = ((hash<<5)-hash) + txt.charCodeAt(i);
+          hash |= 0;
+        }
+        return Promise.resolve(String(hash));
+      }catch(e){
+        return Promise.resolve("");
+      }
+    }
+
+// ===== Spec Key Options (بدون ألوان) =====
     const SPEC_DATALIST_ID = "specKeyList";
     let SPEC_KEY_OPTIONS = [];
     let agendaUnsub = null;
@@ -788,6 +836,8 @@
             if(!snap.exists()) return;
             const d = snap.data() || {};
             setSpecKeyOptionsFromStock(d.stock || []);
+            // حفظ نسخة محدثة داخل قاعدة بيانات الـ Workspace
+            upsertSpecCache(d.stock || []);
           }, (err)=>{
             console.warn("SpecKey source snapshot error", err);
             toast("⚠️ فشل تحميل Unique Spec Key (تحقق من Rules/Anonymous Auth في مشروع المخزون)");
