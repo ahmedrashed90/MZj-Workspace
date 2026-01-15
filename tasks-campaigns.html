@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>إدارة التاسكات والحملات — MZJ Workspace</title>
+
+  <link rel="icon" type="image/x-icon" href="assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="./workspace-ui.css"/>
+  <style>
+    /* small utility */
+    .hide{display:none !important}
+  </style>
+</head>
+
+<body>
+  <div class="ws">
+
+    <!-- Sidebar (NO TOPBAR) -->
+    <aside class="sidebar" id="wsSidebar">
+      <div class="brand">
+        <div class="brand-mark">MZJ</div>
+        <div class="brand-text">
+          <div class="brand-title">محمد بن ذعار العجمي للسيارات</div>
+          <div class="brand-sub">Workspace • إدارة الشغل</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="active" href="./tasks-campaigns.html"><i class="fa-solid fa-diagram-project"></i><span>إدارة التاسكات والحملات</span></a>
+        <a href="./tasks.html"><i class="fa-solid fa-list-check"></i><span>التاسكات</span></a>
+        <a href="./spec-keys.html"><i class="fa-solid fa-key"></i><span>Unique Spec Keys</span></a>
+        <a href="./dashboard.html"><i class="fa-solid fa-gauge-high"></i><span>الداش بورد</span></a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span><i class="fa-solid fa-lock" style="color:var(--beige)"></i> نسخة UI</span>
+        <span>v1</span>
+      </div>
+    </aside>
+
+    <div class="backdrop" id="wsBackdrop"></div>
+
+    <!-- Content -->
+    <main class="content">
+
+      <!-- Mobile menu button (appears on small screens) -->
+      <div style="display:none" class="mobile-row" id="mobileRow"></div>
+      <div class="page-head">
+        <div class="hgroup">
+          <h1>إدارة التاسكات والحملات</h1>
+          <p>
+            أنشئ أجندات (Boards) أو حملات، وحدد الكروت الأساسية، وبعدها كل كارت يطلع منه تاسكات مرتبطة بـ Unique Spec Key.
+            <br/>الصفحة دي UI احترافية (بدون ربط داتا) علشان تثبت الشكل وتجربة الاستخدام.
+          </p>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-ghost" id="btnMenu" type="button" style="display:none">
+            <i class="fa-solid fa-bars"></i><span>القائمة</span>
+          </button>
+          <button class="btn btn-primary" id="btnNewAgenda" type="button">
+            <i class="fa-solid fa-calendar-plus"></i><span>إنشاء أجندة</span>
+          </button>
+          <button class="btn btn-primary" id="btnNewCampaign" type="button">
+            <i class="fa-solid fa-bullhorn"></i><span>إنشاء حملة</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+
+        <!-- Agendas -->
+        <section class="card">
+          <h3>
+            <span>الأجندات</span>
+            <span class="pill">Boards</span>
+          </h3>
+          <p class="sub">كل أجندة بتكون مجموعة كروت (Columns) تشتغل عليها، ومنها هنطلع تاسكات داخل صفحة “التاسكات”.</p>
+
+          <div class="empty" id="emptyAgendas">
+            <div class="txt">
+              <b>مفيش أجندات لسه</b>
+              <span>ابدأ بإنشاء أجندة وحدد الكروت (مثال: تصوير / مونتاج / مراجعة / نشر).</span>
+            </div>
+            <button class="smallbtn" type="button" onclick="__wsOpenModal('agendaModal')">
+              <i class="fa-solid fa-plus"></i><span>إنشاء أجندة</span>
+            </button>
+          </div>
+
+          <div class="boards" id="agendasWrap"></div>
+        </section>
+
+        <!-- Campaigns -->
+        <section class="card">
+          <h3>
+            <span>الحملات</span>
+            <span class="pill">Campaigns</span>
+          </h3>
+          <p class="sub">الحملة لها اسم + وصف + فترة زمنية + كروت. ومنها هنطلع تاسكات مرتبطة وروابط وموعد تسليم.</p>
+
+          <div class="empty" id="emptyCampaigns">
+            <div class="txt">
+              <b>مفيش حملات لسه</b>
+              <span>أنشئ حملة وحدد تاريخ البداية والنهاية، وبعدها وزع التاسكات على الكروت.</span>
+            </div>
+            <button class="smallbtn" type="button" onclick="__wsOpenModal('campaignModal')">
+              <i class="fa-solid fa-plus"></i><span>إنشاء حملة</span>
+            </button>
+          </div>
+
+          <div class="boards" id="campaignsWrap"></div>
+        </section>
+
+      </div>
+
+      <!-- Agenda Modal -->
+      <div class="modal" id="agendaModal" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true">
+          <div class="modal-head">
+            <div>
+              <h4>الأجندة</h4>
+              <p id="agendaHelp">اكتب أسماء الكروت (Columns) اللي هتشتغل عليها داخل الأجندة</p>
+            </div>
+            <button class="icon-x" type="button" aria-label="إغلاق">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="field" style="grid-column:1/-1">
+                <label>اسم الأجندة</label>
+                <input class="input" id="agendaName" placeholder="مثال: أجندة فبراير 2026"/>
+                <div class="help">ده الاسم اللي هيظهر في قائمة الأجندات.</div>
+              </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>إضافة كروت (Columns)</label>
+
+                <div class="cards-builder">
+                  <div class="row">
+                    <input class="input card-name" data-card-input placeholder="اكتب اسم الكارت (مثال: تصوير) واضغط Enter"/>
+                    <button class="smallbtn" type="button" data-card-add><i class="fa-solid fa-plus"></i><span>إضافة</span></button>
+                  </div>
+
+                  <div class="cards-list" data-cards-list></div>
+                  <input type="hidden" id="agendaCards" data-cards-hidden value="">
+                  <div class="help">تقدر تزود أو تحذف الكروت قبل الحفظ.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-foot">
+            <div class="note">ملاحظة: بعد إنشاء الأجندة هنستخدمها كبورد داخل صفحة “التاسكات”.</div>
+            <div class="actions">
+              <button class="btn" type="button" onclick="__wsCloseModal('agendaModal')">
+                <i class="fa-solid fa-ban"></i><span>إلغاء</span>
+              </button>
+              <button class="btn btn-primary" id="agendaSave" type="button">
+                <i class="fa-solid fa-check"></i><span>إنشاء الأجندة</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campaign Modal -->
+      <div class="modal" id="campaignModal" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true">
+          <div class="modal-head">
+            <div>
+              <h4>الحملة</h4>
+              <p id="campHelp">حدد فترة الحملة، ثم أسماء الكروت اللي هتمشي عليها المهام</p>
+            </div>
+            <button class="icon-x" type="button" aria-label="إغلاق">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="field" style="grid-column:1/-1">
+                <label>اسم الحملة</label>
+                <input class="input" id="campName" placeholder="مثال: حملة عروض نهاية الشهر"/>
+              </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>وصف الحملة</label>
+                <textarea class="textarea" id="campDesc" placeholder="اكتب وصف مختصر يوضح هدف الحملة ونوع المحتوى المطلوب…"></textarea>
+              </div>
+
+              <div class="field">
+                <label>تاريخ البداية</label>
+                <input class="input" id="campStart" type="date"/>
+              </div>
+
+              <div class="field">
+                <label>تاريخ النهاية</label>
+                <input class="input" id="campEnd" type="date"/>
+              </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>إضافة كروت (Columns)</label>
+
+                <div class="cards-builder">
+                  <div class="row">
+                    <input class="input card-name" data-card-input placeholder="اكتب اسم الكارت (مثال: اعتماد) واضغط Enter"/>
+                    <button class="smallbtn" type="button" data-card-add><i class="fa-solid fa-plus"></i><span>إضافة</span></button>
+                  </div>
+
+                  <div class="cards-list" data-cards-list></div>
+                  <input type="hidden" id="campCards" data-cards-hidden value="">
+                  <div class="help">الكروت دي هتبقى الأعمدة الخاصة بالحملة.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-foot">
+            <div class="note">ملاحظة: إنشاء الحملة هنا تمهيدًا لإضافة تاسكات مرتبطة وروابط داخل صفحة “التاسكات”.</div>
+            <div class="actions">
+              <button class="btn" type="button" onclick="__wsCloseModal('campaignModal')">
+                <i class="fa-solid fa-ban"></i><span>إلغاء</span>
+              </button>
+              <button class="btn btn-primary" id="campSave" type="button">
+                <i class="fa-solid fa-check"></i><span>إنشاء الحملة</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="toast" class="toast">تم</div>
+
+    </main>
+  </div>
+
+  <script>
+    // Show mobile menu button only on small screens
+    (function(){
+      const btn = document.getElementById("btnMenu");
+      function sync(){
+        if(window.matchMedia("(max-width: 860px)").matches){
+          btn.style.display = "inline-flex";
+        }else{
+          btn.style.display = "none";
+          document.getElementById("wsSidebar").classList.remove("open");
+          document.getElementById("wsBackdrop").classList.remove("show");
+        }
+      }
+      window.addEventListener("resize", sync);
+      sync();
+    })();
+  </script>
+
+  <script src="./workspace-ui.js"></script>
+</body>
+</html>
