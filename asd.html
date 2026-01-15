@@ -737,7 +737,7 @@
     let agendaUnsub = null;
 
     function cleanSpec(v){
-      return String(v ?? "").replace(/[‎‏‪-‮⁦-⁩]/g,"").replace(/\s+/g," ").trim();
+      return String(v ?? "").replace(/[--]/g,"").replace(/\s+/g," ").trim();
     }
 
     function buildSpecKeyNoColors(rec){
