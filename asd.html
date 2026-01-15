@@ -395,6 +395,11 @@
           <div class="sb-ico">📣</div>
           <div class="sb-text">الحملات</div>
         </div>
+
+        <div class="sb-link" id="navStock">
+          <div class="sb-ico">🚗</div>
+          <div class="sb-text">Stock</div>
+        </div>
       </div>
 
       <div class="sb-foot">
@@ -520,6 +525,44 @@
           <div class="board" id="boardCols"></div>
         </div>
       </section>
+
+
+      <section class="panel" id="viewStock" style="display:none">
+        <div class="head">
+          <div>
+            <strong>Stock — إجمالي السيارات بدون (تحت التسليم / تم التسليم)</strong>
+            <div class="muted" style="font-size:12px;margin-top:6px" id="stockSub">...</div>
+          </div>
+          <div class="actions">
+            <input id="stockSearch" placeholder="بحث سريع داخل النتائج (VIN / السيارة / البيان / الموديل / المكان)..." style="min-width:320px;max-width:520px" />
+            <button class="btn secondary sm" id="btnStockRefresh" type="button">⟳ تحديث</button>
+          </div>
+        </div>
+        <div class="body" style="padding:0">
+          <div style="padding:12px 14px;border-bottom:1px solid #f1f1f1;background:linear-gradient(180deg,#fff,#fff8ef);display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <span class="tag"><span class="mini"></span>النتائج: <b id="stockCount">0</b></span>
+            <span class="muted" style="font-size:12px">يعرض هذا التاب نفس منطق الفلتر في صفحة المخزون: استبعاد (مباع تحت التسليم) و(مباع تم التسليم).</span>
+          </div>
+          <div style="overflow:auto;max-height:calc(100vh - 260px)">
+            <table style="width:100%;border-collapse:separate;border-spacing:0">
+              <thead style="position:sticky;top:0;z-index:2">
+                <tr style="background:#fff">
+                  <th style="text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);color:var(--brown);font-weight:900;font-size:12px">VIN</th>
+                  <th style="text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);color:var(--brown);font-weight:900;font-size:12px">السيارة</th>
+                  <th style="text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);color:var(--brown);font-weight:900;font-size:12px">البيان</th>
+                  <th style="text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);color:var(--brown);font-weight:900;font-size:12px">الموديل</th>
+                  <th style="text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);color:var(--brown);font-weight:900;font-size:12px">السنة</th>
+                  <th style="text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);color:var(--brown);font-weight:900;font-size:12px">المكان</th>
+                  <th style="text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);color:var(--brown);font-weight:900;font-size:12px">الحالة</th>
+                </tr>
+              </thead>
+              <tbody id="stockTbody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="stockEmpty" style="display:none;margin:14px">لا توجد بيانات مطابقة.</div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -688,6 +731,30 @@
       query, where, orderBy, onSnapshot, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
+
+// === ضمان وجود أدوات DOM قبل أي استخدام ===
+const $ = (id)=> document.getElementById(id);
+
+// عرض أي أخطاء مباشرة داخل Toast بدل ما الصفحة تسكت
+window.addEventListener("error", (e)=>{
+  try{
+    const msg = (e?.message || "Runtime error");
+    const t = document.getElementById("toast");
+    if(t){ t.textContent = "⚠️ " + msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 6000); }
+  }catch(_){}
+});
+window.addEventListener("unhandledrejection", (e)=>{
+  try{
+    const msg = (e?.reason?.message || String(e?.reason||"Promise error"));
+    const t = document.getElementById("toast");
+    if(t){ t.textContent = "⚠️ " + msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 6000); }
+  }catch(_){}
+});
+
+
+window.addEventListener('DOMContentLoaded', async ()=>{
+try{
+
     const firebaseConfig = {
       apiKey: "AIzaSyDXXDsJKnKb_0HynSTnP22QYc0yrUdx-cw",
       authDomain: "mzj-workspace-c7d4e.firebaseapp.com",
@@ -713,7 +780,13 @@
     const auth = getAuth();
     const db = getFirestore();
 
-    const $ = (id)=> document.getElementById(id);
+    
+    // Second app: mzj-agenda (مصدر stock / Unique Spec Key)
+    const agendaApp = initializeApp(agendaFirebaseConfig, "agendaApp");
+    const agendaAuth = getAuth(agendaApp);
+    const agendaDb  = getFirestore(agendaApp);
+
+const $ = (id)=> document.getElementById(id);
     const appEl = $("app");
     const toastEl = $("toast");
 
@@ -730,73 +803,13 @@
         .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
     }
-    
-    
-    // Admin emails (للصلاحيات + مزامنة نسخة المخزون داخل قاعدة بيانات الـ Workspace)
-    const ADMIN_EMAILS = [
-      "hossamzayan10@gmail.com",
-      "an9036663@gmail.com",
-      "mr.ahmed_rashed@outlook.sa"
-    ];
-    function isAdminEmail(email){
-      const e = String(email||"").toLowerCase().trim();
-      return ADMIN_EMAILS.includes(e);
-    }
 
-    // Cache داخل قاعدة بيانات الـ Workspace (نفس مشروع الصفحة الجديدة)
-    // يتم حفظ نسخة محدثة من stock هنا لتستخدم لاحقًا بدون الاعتماد المباشر على مشروع المخزون
-    const SPEC_CACHE_DOC = doc(db, "spec_keys_cache", "v1");
-    let lastStockHash = "";
-    async function upsertSpecCache(stockArr){
-      try{
-        const email = auth.currentUser?.email || "";
-        if(!isAdminEmail(email)) return; // كتابة الكاش للأدمن فقط
-        const payload = Array.isArray(stockArr) ? stockArr : [];
-        const h = await stockHash(payload);
-        if(h && h === lastStockHash) return;
-        lastStockHash = h;
-        await setDoc(SPEC_CACHE_DOC, {
-          stock: payload,
-          updatedAt: serverTimestamp(),
-          updatedBy: email
-        }, { merge:true });
-      }catch(e){
-        console.warn("upsertSpecCache failed", e);
-      }
-    }
-    function stockHash(arr){
-      try{
-        // hash خفيف لتفادي كتابة متكررة
-        const txt = JSON.stringify(arr);
-        let hash = 0;
-        for(let i=0;i<txt.length;i++){
-          hash = ((hash<<5)-hash) + txt.charCodeAt(i);
-          hash |= 0;
-        }
-        return Promise.resolve(String(hash));
-      }catch(e){
-        return Promise.resolve("");
-      }
-    }
-
-// ===== Spec Key Options (بدون ألوان) =====
+    // ===== Spec Key Options (بدون ألوان) =====
     const SPEC_DATALIST_ID = "specKeyList";
     let SPEC_KEY_OPTIONS = [];
     let agendaUnsub = null;
 
-    function cleanSpec(v){
-      return String(v ?? "").replace(/[--]/g,"").replace(/\s+/g," ").trim();
-    }
-
-    function buildSpecKeyNoColors(rec){
-      const car = cleanSpec(rec.car);
-      const variant = cleanSpec(rec.variant);
-      const year = cleanSpec(rec.modelYear);
-      const parts = [car, variant, year].map(x=> x || "-");
-      return parts.join(" | ");
-    }
-
-    const SOLD_STATES_SPEC = ["مباع تحت التسليم","مباع تم التسليم","الوكالة"];
+    const SOLD_STATES_SPEC = ["مباع تحت التسليم","مباع تم التسليم","الوكالة"]; = ["مباع تحت التسليم","مباع تم التسليم","الوكالة"];
     function isSoldRowForSpec(rec){
       const placeRaw = cleanSpec(rec.place || rec.location || rec["المكان"] || "");
       if(!placeRaw) return false;
@@ -852,7 +865,7 @@ function initSpecKeySource(){
             const d = snap.data() || {};
             setSpecKeyOptionsFromStock(d.stock || []);
             // حفظ نسخة محدثة داخل قاعدة بيانات الـ Workspace
-            upsertSpecCache(d.stock || []);
+            
           }, (err)=>{
             console.warn("SpecKey source snapshot error", err);
             toast("⚠️ فشل تحميل Unique Spec Key (تحقق من Rules/Anonymous Auth في مشروع المخزون)");
@@ -881,7 +894,7 @@ function initials(name){
     });
     if(localStorage.getItem("ws_sb_collapsed")==="1") appEl.classList.add("collapsed");
 
-    const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard") };
+    const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard"), stock: $("viewStock") };
     function showView(key){
       Object.values(views).forEach(v=> v.style.display="none");
       views[key].style.display="";
@@ -906,13 +919,14 @@ function initials(name){
     });
 
     function setNavActive(which){
-      ["navHome","navAgendas","navCampaigns"].forEach(id=>{
+      ["navHome","navAgendas","navCampaigns","navStock"].forEach(id=>{
         $(id).classList.toggle("active", id===which);
       });
     }
     $("navHome").addEventListener("click", ()=> openHome());
     $("navAgendas").addEventListener("click", ()=> openList("agenda"));
     $("navCampaigns").addEventListener("click", ()=> openList("campaign"));
+    $("navStock").addEventListener("click", ()=> openStock());
 
     $("goAgendas").addEventListener("click", ()=> openList("agenda"));
     $("goCampaigns").addEventListener("click", ()=> openList("campaign"));
@@ -941,6 +955,7 @@ function initials(name){
       $("avatar").textContent = initials(displayName);
 
       await loadUsers();
+      initSpecKeySource();
       openHome();
       listenKPIs();
     });
@@ -1013,6 +1028,123 @@ function initials(name){
       $("homeMeta").textContent = "متصل بقاعدة البيانات الجديدة (mzj-workspace-c7d4e)";
       showView("home");
     }
+
+    // ===== Stock Tab (من قاعدة البيانات الأخرى) =====
+    let STOCK_ALL = [];
+    let STOCK_VIEW = [];
+    let stockUnsub = null;
+
+    function isExcludedDelivery(place){
+      const p = cleanSpec(place || "");
+      return p.includes("مباع تحت التسليم") || p.includes("مباع تم التسليم");
+    }
+
+    function normalizeRow(r){
+      const vin = cleanSpec(r.vin || r.VIN || r.chassis || r.chassisNo || r["رقم الهيكل"] || "");
+      const car = cleanSpec(r.car || r.make || r.brand || r["السيارة"] || "");
+      const variant = cleanSpec(r.variant || r.trim || r["البيان"] || "");
+      const model = cleanSpec(r.model || r.modelName || r["الموديل"] || "");
+      const year = cleanSpec(r.modelYear || r.year || r["السنة"] || "");
+      const place = cleanSpec(r.place || r.location || r["المكان"] || "");
+      const status = cleanSpec(r.status || r.state || r["الحالة"] || "");
+      return { vin, car, variant, model, year, place, status, _raw: r };
+    }
+
+    function openStock(){
+      MODE="stock"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+
+      setNavActive("navStock");
+      $("pageTitle").textContent = "Stock";
+      $("pageDesc").textContent = "يعرض السيارات الموجودة في المخزون مع استبعاد (تحت التسليم) و(تم التسليم) — نفس الفلتر الذي حسب رقم 395.";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+
+      showView("stock");
+
+      $("stockSearch").value = "";
+      $("stockSub").textContent = "تحميل البيانات من قاعدة المخزون...";
+      listenStock();
+    }
+
+    function listenStock(){
+      if(stockUnsub){ stockUnsub(); stockUnsub=null; }
+
+      // Anonymous auth على مشروع المخزون
+      signInAnonymously(agendaAuth).then(()=>{
+        const stateRef = doc(agendaDb, "mzj_admin_state", "v1");
+        stockUnsub = onSnapshot(stateRef, (snap)=>{
+          if(!snap.exists()){
+            $("stockSub").textContent = "لا يوجد mzj_admin_state/v1 في مشروع المخزون.";
+            STOCK_ALL = []; STOCK_VIEW = [];
+            renderStockTable();
+            return;
+          }
+          const d = snap.data() || {};
+          const stock = Array.isArray(d.stock) ? d.stock : [];
+          // نفس منطق الفلتر: استبعاد تحت التسليم/تم التسليم
+          STOCK_ALL = stock.map(normalizeRow).filter(x=> !isExcludedDelivery(x.place));
+          STOCK_VIEW = STOCK_ALL.slice();
+
+          $("stockSub").textContent = "تم التحميل — آخر تحديث من مشروع المخزون.";
+          renderStockTable();
+        }, (err)=>{
+          console.error(err);
+          $("stockSub").textContent = "فشل تحميل البيانات (تحقق من Rules/Anonymous Auth في مشروع المخزون).";
+          toast("⚠️ فشل تحميل القائمة");
+        });
+      }).catch((err)=>{
+        console.error(err);
+        $("stockSub").textContent = "Anonymous Auth غير مفعّل في مشروع المخزون.";
+        toast("⚠️ فشل تحميل القائمة");
+      });
+    }
+
+    function renderStockTable(){
+      const tb = $("stockTbody");
+      const empty = $("stockEmpty");
+      const q = cleanSpec($("stockSearch").value || "").toLowerCase();
+
+      let rows = STOCK_ALL;
+      if(q){
+        rows = STOCK_ALL.filter(r=>{
+          const hay = [r.vin,r.car,r.variant,r.model,r.year,r.place,r.status].join(" | ").toLowerCase();
+          return hay.includes(q);
+        });
+      }
+      STOCK_VIEW = rows;
+
+      $("stockCount").textContent = String(rows.length);
+
+      tb.innerHTML = "";
+      if(!rows.length){
+        empty.style.display = "";
+        return;
+      }
+      empty.style.display = "none";
+
+      const frag = document.createDocumentFragment();
+      rows.forEach(r=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="padding:10px 12px;border-bottom:1px solid #f1f1f1;white-space:nowrap;font-weight:800;color:var(--brown)">${escapeHtml(r.vin||"—")}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #f1f1f1">${escapeHtml(r.car||"—")}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #f1f1f1">${escapeHtml(r.variant||"—")}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #f1f1f1">${escapeHtml(r.model||"—")}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #f1f1f1;white-space:nowrap">${escapeHtml(r.year||"—")}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #f1f1f1">${escapeHtml(r.place||"—")}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #f1f1f1">${escapeHtml(r.status||"—")}</td>
+        `;
+        frag.appendChild(tr);
+      });
+      tb.appendChild(frag);
+    }
+
+    $("btnStockRefresh").addEventListener("click", ()=> listenStock());
+    $("stockSearch").addEventListener("input", ()=> renderStockTable());
+
 
     $("btnRefresh").addEventListener("click", ()=> { if(LIST_TYPE) openList(LIST_TYPE); });
 
@@ -1573,6 +1705,8 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
         toast("⚠️ فشل حذف التاسك");
       }
     });
-  </script>
+}catch(err){ console.error(err); const t=document.getElementById('toast'); if(t){ t.textContent='⚠️ '+(err?.message||err); t.classList.add('show'); } }
+});
+</script>
 </body>
 </html>
