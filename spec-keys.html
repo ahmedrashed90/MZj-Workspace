@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>MZJ Workspace — spec-keys.html</title>
+  <title>MZJ Workspace — Unique Spec Keys</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
@@ -19,17 +19,18 @@
           <div class="brand-sub">Workspace • Spec Keys</div>
         </div>
       </div>
-      
+
       <nav class="nav">
-        <a class="" href="./tasks-campaigns.html"><i class="fa-solid fa-diagram-project"></i><span>إدارة التاسكات والحملات</span></a>
-        <a class="" href="./tasks.html"><i class="fa-solid fa-list-check"></i><span>التاسكات</span></a>
-        <a class="" href="./media.html"><i class="fa-solid fa-clapperboard"></i><span>media.html (المصدر)</span></a>
-        <a class="active" href="./spec-keys.html"><i class="fa-solid fa-key"></i><span>spec-keys.html</span></a>
+        <a href="./tasks-campaigns.html"><i class="fa-solid fa-diagram-project"></i><span>إدارة التاسكات والحملات</span></a>
+        <a href="./tasks.html"><i class="fa-solid fa-list-check"></i><span>التاسكات</span></a>
+        <a class="active" href="./spec-keys.html"><i class="fa-solid fa-key"></i><span>Unique Spec Keys</span></a>
+        <a href="./dashboard.html"><i class="fa-solid fa-gauge-high"></i><span>الداش بورد</span></a>
+        <a href="./sync-bridge.html"><i class="fa-solid fa-arrows-rotate"></i><span>Sync Bridge</span></a>
       </nav>
 
       <div class="sidebar-footer">
         <span><i class="fa-solid fa-circle-info" style="color:var(--beige)"></i> Live</span>
-        <span class="badge"><span class="dot warn" id="connDot"></span><span id="connText">جارِ الاتصال…</span></span>
+        <span class="badge"><span class="dot warn" id="connDot"></span><span id="connText">جارِ التحميل…</span></span>
       </div>
     </aside>
 
@@ -38,95 +39,76 @@
     <main class="content">
       <div class="page-head">
         <div class="hgroup">
-          <h1>spec-keys.html</h1>
-          <p>الصفحة دي بتقرأ <b>media_specs</b> مباشرة (Live). أي تحديث من media.html يظهر هنا فورًا.</p>
+          <h1>Unique Spec Keys</h1>
+          <p>قراءة Live من <b>collection: media_specs</b> داخل مشروع <b>mzj-workspace-c7d4e</b>.</p>
         </div>
+
         <div class="actions">
           <button class="btn btn-ghost" id="btnMenu" type="button" style="display:none"><i class="fa-solid fa-bars"></i><span>القائمة</span></button>
-          <button class="btn" id="btnOpenMedia" type="button"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>فتح media.html</span></button>
+          <button class="btn" id="btnRefresh" type="button"><i class="fa-solid fa-rotate"></i><span>تحديث</span></button>
           <button class="btn btn-danger" id="btnLogout" type="button"><i class="fa-solid fa-right-from-bracket"></i><span>خروج</span></button>
         </div>
       </div>
 
-      <div id="authGate" class="auth-wrap">
-        <div class="auth-card">
-          <h2>تسجيل الدخول</h2>
-          <div class="hint" style="margin-top:6px">سجّل دخول بالإيميل علشان تظهر البيانات.</div>
-          <div style="margin-top:12px">
-            <label class="small">الإيميل</label>
-            <input id="email" class="input" type="email" placeholder="name@company.com"/>
-          </div>
-          <div style="margin-top:10px">
-            <label class="small">كلمة المرور</label>
-            <input id="password" class="input" type="password" placeholder="••••••••"/>
-          </div>
-          <div class="auth-actions">
-            <button class="btn btn-primary" id="btnLogin" type="button"><i class="fa-solid fa-right-to-bracket"></i><span>دخول</span></button>
-          </div>
-          <div class="hint" id="authMsg" style="margin-top:10px"></div>
-        </div>
-      </div>
-
-      <div id="app" style="display:none">
-        <div class="grid-2" style="margin-bottom:14px">
-          <div class="card">
-            <h3><i class="fa-solid fa-chart-simple" style="color:var(--beige)"></i> ملخص</h3>
-            <div class="row">
-              <span class="badge">Docs: <b id="docsCount">0</b></span>
-              <span class="badge">ناقص تصوير: <b id="missingShoot">0</b></span>
-              <span class="badge">داخل الأجندة: <b id="inAgenda">0</b></span>
-            </div>
-            <div class="hint" style="margin-top:10px">
-              دي قراءة فقط من media_specs. التعديل يتم من media.html (المصدر) أو من صفحات التاسكات لاحقًا.
-            </div>
-          </div>
-
-          <div class="card">
-            <h3><i class="fa-solid fa-filter" style="color:var(--beige)"></i> فلاتر</h3>
-            <div class="row">
-              <input id="search" class="input" placeholder="بحث في الـ Key" style="flex:1;min-width:260px"/>
-              <select id="shootFilter" class="select" style="width:180px">
-                <option value="">تصوير (الكل)</option>
-                <option value="نعم">نعم</option>
-                <option value="لا">لا</option>
-              </select>
-              <select id="inAgendaFilter" class="select" style="width:180px">
-                <option value="">داخل الأجندة (الكل)</option>
-                <option value="نعم">نعم</option>
-                <option value="لا">لا</option>
-              </select>
-              <button class="btn" id="btnClear" type="button"><i class="fa-solid fa-rotate-left"></i><span>تصفير</span></button>
-            </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3><span><i class="fa-solid fa-filter" style="color:var(--beige)"></i> فلاتر</span><span class="pill" id="rowsBadge">0</span></h3>
+          <div class="hint">ابحث أو فلتر حسب (تصوير / مونتاج / داخل الأجندة).</div>
+          <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+            <input class="input" id="search" placeholder="بحث في Key…" style="flex:1;min-width:260px"/>
+            <select class="select" id="shootFilter" style="width:180px">
+              <option value="">تصوير (الكل)</option>
+              <option value="نعم">نعم</option>
+              <option value="لا">لا</option>
+            </select>
+            <select class="select" id="editFilter" style="width:180px">
+              <option value="">مونتاج (الكل)</option>
+              <option value="نعم">نعم</option>
+              <option value="لا">لا</option>
+            </select>
+            <select class="select" id="agendaFilter" style="width:200px">
+              <option value="">داخل الأجندة (الكل)</option>
+              <option value="نعم">نعم</option>
+              <option value="لا">لا</option>
+            </select>
+            <button class="btn" id="btnClear" type="button"><i class="fa-solid fa-rotate-left"></i><span>تصفير</span></button>
           </div>
         </div>
 
         <div class="card">
-          <div class="row" style="justify-content:space-between">
-            <h3 style="margin:0"><i class="fa-solid fa-table" style="color:var(--beige)"></i> media_specs</h3>
-            <span class="badge" id="rowsBadge">0 صف</span>
+          <h3><span><i class="fa-solid fa-chart-simple" style="color:var(--beige)"></i> ملخص</span></h3>
+          <div class="row" style="display:flex;gap:10px;flex-wrap:wrap">
+            <span class="badge">Docs: <b id="docsCount">0</b></span>
+            <span class="badge">ناقص تصوير: <b id="missingShoot">0</b></span>
+            <span class="badge">ناقص مونتاج: <b id="missingEdit">0</b></span>
+            <span class="badge">داخل الأجندة: <b id="inAgenda">0</b></span>
           </div>
-          <div class="table-wrap" style="margin-top:10px">
-            <table class="table" id="tbl">
-              <thead>
-                <tr>
-                  <th>م</th>
-                  <th>docId</th>
-                  <th>Unique Spec Key</th>
-                  <th>تصوير</th>
-                  <th>مونتاج</th>
-                  <th>تفاصيل المونتاج</th>
-                  <th>داخل الأجندة</th>
-                  <th>شهر</th>
-                  <th>سنة</th>
-                  <th>آخر تحديث</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <div class="hint" style="margin-top:8px">اضغط على الـ Key لنسخه.</div>
+          <div class="hint" style="margin-top:10px">اضغط على الـ Key لنسخه.</div>
         </div>
       </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3><span><i class="fa-solid fa-table" style="color:var(--beige)"></i> media_specs</span></h3>
+        <div class="table-wrap" style="margin-top:10px">
+          <table class="table" id="tbl">
+            <thead>
+              <tr>
+                <th>م</th>
+                <th>docId</th>
+                <th>Unique Spec Key</th>
+                <th>تصوير</th>
+                <th>مونتاج</th>
+                <th>داخل الأجندة</th>
+                <th>شهر</th>
+                <th>سنة</th>
+                <th>آخر تحديث</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
     </main>
   </div>
 
