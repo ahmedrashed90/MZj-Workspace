@@ -3,23 +3,18 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>إدارة التاسكات والحملات — MZJ Workspace</title>
+  <title>MZJ Workspace — إدارة التاسكات والحملات</title>
 
-  <link rel="icon" type="image/x-icon" href="assets/favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
 
-  <link rel="stylesheet" href="./workspace-ui.css"/>
-  <style>
-    /* small utility */
-    .hide{display:none !important}
-  </style>
+  <link rel="stylesheet" href="./styles.css"/>
 </head>
 
 <body>
   <div class="ws">
 
-    <!-- Sidebar (NO TOPBAR) -->
+    <!-- Sidebar ONLY (no topbar) -->
     <aside class="sidebar" id="wsSidebar">
       <div class="brand">
         <div class="brand-mark">MZJ</div>
@@ -37,25 +32,27 @@
       </nav>
 
       <div class="sidebar-footer">
-        <span><i class="fa-solid fa-lock" style="color:var(--beige)"></i> نسخة UI</span>
+        <span><i class="fa-solid fa-shield-halved" style="color:var(--beige)"></i> Firebase Ready</span>
         <span>v1</span>
       </div>
     </aside>
 
     <div class="backdrop" id="wsBackdrop"></div>
 
-    <!-- Content -->
+    <!-- Main content -->
     <main class="content">
 
-      <!-- Mobile menu button (appears on small screens) -->
-      <div style="display:none" class="mobile-row" id="mobileRow"></div>
       <div class="page-head">
         <div class="hgroup">
           <h1>إدارة التاسكات والحملات</h1>
           <p>
-            أنشئ أجندات (Boards) أو حملات، وحدد الكروت الأساسية، وبعدها كل كارت يطلع منه تاسكات مرتبطة بـ Unique Spec Key.
-            <br/>الصفحة دي UI احترافية (بدون ربط داتا) علشان تثبت الشكل وتجربة الاستخدام.
+            أنشئ أجندات أو حملات + كروت (Columns). افتح أي بورد واضف تاسكات مرتبطة بـ Unique Spec Key (بدون الألوان الداخلية/الخارجية).
           </p>
+
+          <div class="tabs">
+            <button class="tab active" id="tabAgendas" type="button"><i class="fa-solid fa-calendar-days"></i> الأجندات</button>
+            <button class="tab" id="tabCampaigns" type="button"><i class="fa-solid fa-bullhorn"></i> الحملات</button>
+          </div>
         </div>
 
         <div class="actions">
@@ -71,63 +68,71 @@
         </div>
       </div>
 
-      <div class="grid-2">
+      <!-- Lists View -->
+      <section id="listsView">
+        <div class="grid-2" id="agendasSection">
+          <!-- Agendas -->
+          <section class="card" id="agendasCard">
+            <h3><span>الأجندات</span><span class="pill">Boards</span></h3>
+            <p class="sub">كل أجندة = بورد فيه كروت. افتح البورد لإضافة تاسكات.</p>
 
-        <!-- Agendas -->
-        <section class="card">
-          <h3>
-            <span>الأجندات</span>
-            <span class="pill">Boards</span>
-          </h3>
-          <p class="sub">كل أجندة بتكون مجموعة كروت (Columns) تشتغل عليها، ومنها هنطلع تاسكات داخل صفحة “التاسكات”.</p>
-
-          <div class="empty" id="emptyAgendas">
-            <div class="txt">
-              <b>مفيش أجندات لسه</b>
-              <span>ابدأ بإنشاء أجندة وحدد الكروت (مثال: تصوير / مونتاج / مراجعة / نشر).</span>
+            <div class="empty" id="emptyAgendas">
+              <div class="txt">
+                <b>مفيش أجندات لسه</b>
+                <span>اضغط "إنشاء أجندة" وحدد الكروت (مثال: تصوير / مونتاج / مراجعة / نشر).</span>
+              </div>
+              <button class="smallbtn" type="button" id="btnNewAgenda2">
+                <i class="fa-solid fa-plus"></i><span>إنشاء أجندة</span>
+              </button>
             </div>
-            <button class="smallbtn" type="button" onclick="__wsOpenModal('agendaModal')">
-              <i class="fa-solid fa-plus"></i><span>إنشاء أجندة</span>
-            </button>
-          </div>
 
-          <div class="boards" id="agendasWrap"></div>
-        </section>
+            <div class="boards" id="agendasWrap"></div>
+          </section>
 
-        <!-- Campaigns -->
-        <section class="card">
-          <h3>
-            <span>الحملات</span>
-            <span class="pill">Campaigns</span>
-          </h3>
-          <p class="sub">الحملة لها اسم + وصف + فترة زمنية + كروت. ومنها هنطلع تاسكات مرتبطة وروابط وموعد تسليم.</p>
+          <!-- Campaigns -->
+          <section class="card" id="campaignsCard">
+            <h3><span>الحملات</span><span class="pill">Campaigns</span></h3>
+            <p class="sub">الحملة = اسم + وصف + فترة + كروت. افتح الحملة لإضافة تاسكات وروابط.</p>
 
-          <div class="empty" id="emptyCampaigns">
-            <div class="txt">
-              <b>مفيش حملات لسه</b>
-              <span>أنشئ حملة وحدد تاريخ البداية والنهاية، وبعدها وزع التاسكات على الكروت.</span>
+            <div class="empty" id="emptyCampaigns">
+              <div class="txt">
+                <b>مفيش حملات لسه</b>
+                <span>اضغط "إنشاء حملة" وحدد تاريخ البداية والنهاية والكروت.</span>
+              </div>
+              <button class="smallbtn" type="button" id="btnNewCampaign2">
+                <i class="fa-solid fa-plus"></i><span>إنشاء حملة</span>
+              </button>
             </div>
-            <button class="smallbtn" type="button" onclick="__wsOpenModal('campaignModal')">
-              <i class="fa-solid fa-plus"></i><span>إنشاء حملة</span>
-            </button>
+
+            <div class="boards" id="campaignsWrap"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- Board View -->
+      <section class="board-view" id="boardView">
+        <div class="board-header">
+          <div class="breadcrumb">
+            <button class="btn" type="button" id="boardBackBtn"><i class="fa-solid fa-arrow-right"></i><span>رجوع</span></button>
+            <span class="sep">/</span>
+            <span class="crumb" id="boardTitle">—</span>
+            <span class="badge" id="boardBadge">—</span>
           </div>
+          <div class="badge" id="boardMeta">—</div>
+        </div>
 
-          <div class="boards" id="campaignsWrap"></div>
-        </section>
-
-      </div>
+        <div class="kanban" id="kanbanWrap"></div>
+      </section>
 
       <!-- Agenda Modal -->
-      <div class="modal" id="agendaModal" aria-hidden="true">
+      <div class="modal" id="agendaModal">
         <div class="modal-card" role="dialog" aria-modal="true">
           <div class="modal-head">
             <div>
-              <h4>الأجندة</h4>
-              <p id="agendaHelp">اكتب أسماء الكروت (Columns) اللي هتشتغل عليها داخل الأجندة</p>
+              <h4 id="agendaModalTitle">إنشاء أجندة</h4>
+              <p id="agendaModalHint">اكتب اسم الأجندة وأضف الكروت (Columns).</p>
             </div>
-            <button class="icon-x" type="button" aria-label="إغلاق">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
+            <button class="icon-x" type="button" data-close="agendaModal"><i class="fa-solid fa-xmark"></i></button>
           </div>
 
           <div class="modal-body">
@@ -135,129 +140,156 @@
               <div class="field" style="grid-column:1/-1">
                 <label>اسم الأجندة</label>
                 <input class="input" id="agendaName" placeholder="مثال: أجندة فبراير 2026"/>
-                <div class="help">ده الاسم اللي هيظهر في قائمة الأجندات.</div>
               </div>
 
               <div class="field" style="grid-column:1/-1">
-                <label>إضافة كروت (Columns)</label>
-
-                <div class="cards-builder">
+                <label>أسماء الكروت (Columns)</label>
+                <div class="builder">
                   <div class="row">
-                    <input class="input card-name" data-card-input placeholder="اكتب اسم الكارت (مثال: تصوير) واضغط Enter"/>
-                    <button class="smallbtn" type="button" data-card-add><i class="fa-solid fa-plus"></i><span>إضافة</span></button>
+                    <input class="input" id="agendaCardsInput" placeholder="اكتب اسم الكارت واضغط Enter"/>
+                    <button class="smallbtn" type="button" id="agendaCardsAdd"><i class="fa-solid fa-plus"></i><span>إضافة</span></button>
                   </div>
-
-                  <div class="cards-list" data-cards-list></div>
-                  <input type="hidden" id="agendaCards" data-cards-hidden value="">
-                  <div class="help">تقدر تزود أو تحذف الكروت قبل الحفظ.</div>
+                  <div class="list" id="agendaCardsList"></div>
+                  <div class="help">أضف كل كارت مرة واحدة. تقدر تحذف أي كارت قبل الحفظ.</div>
                 </div>
               </div>
             </div>
+            <div class="error" id="agendaError"></div>
           </div>
 
           <div class="modal-foot">
-            <div class="note">ملاحظة: بعد إنشاء الأجندة هنستخدمها كبورد داخل صفحة “التاسكات”.</div>
+            <div class="note">سيتم حفظ الأجندة في Firestore: collection = agendas</div>
             <div class="actions">
-              <button class="btn" type="button" onclick="__wsCloseModal('agendaModal')">
-                <i class="fa-solid fa-ban"></i><span>إلغاء</span>
-              </button>
-              <button class="btn btn-primary" id="agendaSave" type="button">
-                <i class="fa-solid fa-check"></i><span>إنشاء الأجندة</span>
-              </button>
+              <button class="btn" type="button" data-close="agendaModal"><i class="fa-solid fa-ban"></i><span>إلغاء</span></button>
+              <button class="btn btn-primary" id="agendaSave" type="button"><i class="fa-solid fa-check"></i><span>إنشاء</span></button>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Campaign Modal -->
-      <div class="modal" id="campaignModal" aria-hidden="true">
+      <div class="modal" id="campaignModal">
         <div class="modal-card" role="dialog" aria-modal="true">
           <div class="modal-head">
             <div>
-              <h4>الحملة</h4>
-              <p id="campHelp">حدد فترة الحملة، ثم أسماء الكروت اللي هتمشي عليها المهام</p>
+              <h4 id="campaignModalTitle">إنشاء حملة</h4>
+              <p id="campaignModalHint">حدد بيانات الحملة وفترتها ثم أضف الكروت.</p>
             </div>
-            <button class="icon-x" type="button" aria-label="إغلاق">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
+            <button class="icon-x" type="button" data-close="campaignModal"><i class="fa-solid fa-xmark"></i></button>
           </div>
 
           <div class="modal-body">
             <div class="form-grid">
               <div class="field" style="grid-column:1/-1">
                 <label>اسم الحملة</label>
-                <input class="input" id="campName" placeholder="مثال: حملة عروض نهاية الشهر"/>
+                <input class="input" id="cpName" placeholder="مثال: حملة عروض نهاية الشهر"/>
               </div>
 
               <div class="field" style="grid-column:1/-1">
                 <label>وصف الحملة</label>
-                <textarea class="textarea" id="campDesc" placeholder="اكتب وصف مختصر يوضح هدف الحملة ونوع المحتوى المطلوب…"></textarea>
+                <textarea class="textarea" id="cpDesc" placeholder="وصف مختصر…"></textarea>
               </div>
 
               <div class="field">
                 <label>تاريخ البداية</label>
-                <input class="input" id="campStart" type="date"/>
+                <input class="input" id="cpStart" type="date"/>
               </div>
 
               <div class="field">
                 <label>تاريخ النهاية</label>
-                <input class="input" id="campEnd" type="date"/>
+                <input class="input" id="cpEnd" type="date"/>
               </div>
 
               <div class="field" style="grid-column:1/-1">
-                <label>إضافة كروت (Columns)</label>
-
-                <div class="cards-builder">
+                <label>أسماء الكروت (Columns)</label>
+                <div class="builder">
                   <div class="row">
-                    <input class="input card-name" data-card-input placeholder="اكتب اسم الكارت (مثال: اعتماد) واضغط Enter"/>
-                    <button class="smallbtn" type="button" data-card-add><i class="fa-solid fa-plus"></i><span>إضافة</span></button>
+                    <input class="input" id="cpCardsInput" placeholder="اكتب اسم الكارت واضغط Enter"/>
+                    <button class="smallbtn" type="button" id="cpCardsAdd"><i class="fa-solid fa-plus"></i><span>إضافة</span></button>
                   </div>
-
-                  <div class="cards-list" data-cards-list></div>
-                  <input type="hidden" id="campCards" data-cards-hidden value="">
+                  <div class="list" id="cpCardsList"></div>
                   <div class="help">الكروت دي هتبقى الأعمدة الخاصة بالحملة.</div>
                 </div>
               </div>
             </div>
+            <div class="error" id="cpError"></div>
           </div>
 
           <div class="modal-foot">
-            <div class="note">ملاحظة: إنشاء الحملة هنا تمهيدًا لإضافة تاسكات مرتبطة وروابط داخل صفحة “التاسكات”.</div>
+            <div class="note">سيتم حفظ الحملة في Firestore: collection = campaigns</div>
             <div class="actions">
-              <button class="btn" type="button" onclick="__wsCloseModal('campaignModal')">
-                <i class="fa-solid fa-ban"></i><span>إلغاء</span>
-              </button>
-              <button class="btn btn-primary" id="campSave" type="button">
-                <i class="fa-solid fa-check"></i><span>إنشاء الحملة</span>
-              </button>
+              <button class="btn" type="button" data-close="campaignModal"><i class="fa-solid fa-ban"></i><span>إلغاء</span></button>
+              <button class="btn btn-primary" id="cpSave" type="button"><i class="fa-solid fa-check"></i><span>إنشاء</span></button>
             </div>
           </div>
         </div>
       </div>
 
-      <div id="toast" class="toast">تم</div>
+      <!-- Task Modal -->
+      <div class="modal" id="taskModal">
+        <div class="modal-card" role="dialog" aria-modal="true">
+          <div class="modal-head">
+            <div>
+              <h4 id="taskModalTitle">إضافة تاسك</h4>
+              <p id="taskHint">اختار Unique Spec Key (بدون الألوان) + وصف + موعد + المسؤول.</p>
+            </div>
+            <button class="icon-x" type="button" data-close="taskModal"><i class="fa-solid fa-xmark"></i></button>
+          </div>
 
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="field" style="grid-column:1/-1">
+                <label>Unique Spec Key (بدون ألوان)</label>
+                <select class="select" id="tSpec"></select>
+                <div class="help">المصدر: collection = media_specs (سيتم عرض السيارة + البيان + الموديل فقط).</div>
+              </div>
+
+              <div class="field" style="grid-column:1/-1">
+                <label>وصف التاسك</label>
+                <textarea class="textarea" id="tDesc" placeholder="اكتب وصف واضح للمطلوب…"></textarea>
+              </div>
+
+              <div class="field">
+                <label>تاريخ التسليم</label>
+                <input class="input" id="tDue" type="date"/>
+              </div>
+
+              <div class="field">
+                <label>المسؤول</label>
+                <select class="select" id="tUser"></select>
+                <div class="help">المصدر: collection = users (ولو فاضية بيظهر ديفولت).</div>
+              </div>
+
+              <div class="field" id="tLinksWrap" style="grid-column:1/-1; display:none">
+                <label>روابط مرتبطة (للحملات فقط)</label>
+                <div class="builder">
+                  <div class="row">
+                    <input class="input" id="tLinkInput" placeholder="الصق الرابط واضغط Enter"/>
+                    <button class="smallbtn" type="button" id="tLinkAdd"><i class="fa-solid fa-link"></i><span>إضافة</span></button>
+                  </div>
+                  <div class="list" id="tLinksList"></div>
+                  <div class="help">مثال: رابط تصميم Canva / Drive / Brief / إعلان…</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="error" id="tError"></div>
+          </div>
+
+          <div class="modal-foot">
+            <div class="note">سيتم حفظ التاسك في Firestore: collection = tasks</div>
+            <div class="actions">
+              <button class="btn" type="button" data-close="taskModal"><i class="fa-solid fa-ban"></i><span>إلغاء</span></button>
+              <button class="btn btn-primary" id="tSave" type="button"><i class="fa-solid fa-check"></i><span>إضافة</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="toast" class="toast">جاهز</div>
     </main>
   </div>
 
-  <script>
-    // Show mobile menu button only on small screens
-    (function(){
-      const btn = document.getElementById("btnMenu");
-      function sync(){
-        if(window.matchMedia("(max-width: 860px)").matches){
-          btn.style.display = "inline-flex";
-        }else{
-          btn.style.display = "none";
-          document.getElementById("wsSidebar").classList.remove("open");
-          document.getElementById("wsBackdrop").classList.remove("show");
-        }
-      }
-      window.addEventListener("resize", sync);
-      sync();
-    })();
-  </script>
-
-  <script src="./workspace-ui.js"></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
