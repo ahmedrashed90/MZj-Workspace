@@ -1137,18 +1137,21 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
 
     function listenTasksForWorkspace(workspaceId){
       if(unsubTasks){unsubTasks();unsubTasks=null;}
+      // ملاحظة: where + orderBy يحتاج Composite Index، فهنسحب بدون orderBy ونرتّب محليًا لتفادي الـ Index
       const qy = query(
         collection(db,"workspace_tasks"),
-        where("workspaceId","==", workspaceId),
-        orderBy("createdAt","desc")
+        where("workspaceId","==", workspaceId)
       );
       unsubTasks = onSnapshot(qy, (snap)=>{
-        const tasks=[];
+        let tasks=[];
         snap.forEach(d=> tasks.push({ id:d.id, ...(d.data()||{}) }));
+        // ترتيب محلي بالأحدث (createdAt)
+        tasks.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
         renderBoardColumns(CURRENT_WORKSPACE, tasks);
       }, (err)=>{
         console.error(err);
-        toast("⚠️ فشل تحميل التاسكات");
+        const msg = (err?.code ? (err.code + " — ") : "") + (err?.message || "");
+        toast("⚠️ فشل تحميل التاسكات: " + (msg || "تحقق من الصلاحيات/Rules"));
       });
     }
 
