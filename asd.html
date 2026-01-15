@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -357,6 +358,36 @@
     .kpi span{color:var(--muted);font-size:12px}
     .kpi .num{font-weight:900;font-size:18px;color:var(--brown)}
 
+
+
+    /* ===== Stock Table ===== */
+    .table-wrap{overflow:auto;border:1px solid rgba(62,36,32,.08);border-radius:16px}
+    .stock-table{width:100%;border-collapse:separate;border-spacing:0;min-width:860px;background:#fff}
+    .stock-table thead th{
+      position:sticky;top:0;z-index:1;
+      background:linear-gradient(180deg,#fff8ef,#fff);
+      color:var(--brown);
+      font-weight:900;
+      font-size:12px;
+      text-align:right;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(62,36,32,.10);
+      white-space:nowrap;
+    }
+    .stock-table tbody td{
+      padding:10px 12px;
+      border-bottom:1px solid rgba(62,36,32,.06);
+      font-size:12px;
+      color:var(--text);
+      vertical-align:top;
+      max-width:420px;
+      word-break:break-word;
+      background:#fff;
+    }
+    .stock-table td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;direction:ltr;text-align:left;white-space:nowrap}
+    .stock-table tbody tr:hover td{background:#fff8ef}
+    .stock-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
     /* ===== Auth Gate (Inline Login) ===== */
     .auth-gate{
       position:fixed; inset:0; z-index:3000;
@@ -466,6 +497,13 @@
           <div class="sb-ico">📣</div>
           <div class="sb-text">الحملات</div>
         </div>
+
+
+        <div class="sb-link" id="navStock">
+          <div class="sb-ico">🚗</div>
+          <div class="sb-text">stock</div>
+        </div>
+
       </div>
 
       <div class="sb-foot">
@@ -591,6 +629,22 @@
           <div class="board" id="boardCols"></div>
         </div>
       </section>
+
+      <section class="panel" id="viewStock" style="display:none">
+        <div class="head">
+          <div class="stock-meta">
+            <strong>stock</strong>
+            <span class="muted">الإجمالي: <b id="stockCount">0</b> سيارة</span>
+          </div>
+        </div>
+        <div class="body">
+          <div class="empty" id="stockEmpty" style="display:none">لا توجد بيانات حالياً.</div>
+          <div class="table-wrap" id="stockTableWrap" style="display:none">
+            <table class="stock-table" id="stockTable"></table>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -884,6 +938,8 @@
     let SPEC_KEY_OPTIONS = [];
     let agendaUnsub = null;
 
+    let AGENDA_STOCK = [];
+
     function cleanSpec(v){
       return String(v ?? "").replace(/[--]/g,"").replace(/\s+/g," ").trim();
     }
@@ -951,6 +1007,8 @@ function initSpecKeySource(){
             if(!snap.exists()) return;
             const d = snap.data() || {};
             setSpecKeyOptionsFromStock(d.stock || []);
+            AGENDA_STOCK = Array.isArray(d.stock) ? d.stock : [];
+            if(MODE==="stock") renderStockTab();
             // حفظ نسخة محدثة داخل قاعدة بيانات الـ Workspace
             upsertSpecCache(d.stock || []);
           }, (err)=>{
@@ -981,7 +1039,7 @@ function initials(name){
     });
     if(localStorage.getItem("ws_sb_collapsed")==="1") appEl.classList.add("collapsed");
 
-    const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard") };
+    const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard"), stock: $("viewStock") };
     function showView(key){
       Object.values(views).forEach(v=> v.style.display="none");
       views[key].style.display="";
@@ -1006,13 +1064,15 @@ function initials(name){
     });
 
     function setNavActive(which){
-      ["navHome","navAgendas","navCampaigns"].forEach(id=>{
+      ["navHome","navAgendas","navCampaigns","navStock"].forEach(id=>{
         $(id).classList.toggle("active", id===which);
       });
     }
     $("navHome").addEventListener("click", ()=> openHome());
     $("navAgendas").addEventListener("click", ()=> openList("agenda"));
     $("navCampaigns").addEventListener("click", ()=> openList("campaign"));
+
+    $("navStock").addEventListener("click", ()=> openStock());
 
     $("goAgendas").addEventListener("click", ()=> openList("agenda"));
     $("goCampaigns").addEventListener("click", ()=> openList("campaign"));
@@ -1135,6 +1195,112 @@ function initials(name){
         $("kpiAgendaTasks").textContent = a;
         $("kpiCampaignTasks").textContent = c;
       });
+    }
+
+
+
+    function openStock(){
+      MODE="stock"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+
+      setNavActive("navStock");
+      $("pageTitle").textContent = "stock";
+      $("pageDesc").textContent  = "";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+
+      showView("stock");
+      renderStockTab();
+    }
+
+    // نفس منطق فلتر صفحة المخزون:
+    // استبعاد السيارات اللي مكانها يحتوي على:
+    // (مباع تحت التسليم) أو (مباع تم التسليم)
+    function isExcludedByInventoryFilter(rec){
+      // نطابق صفحة المخزون: الاعتماد الأساسي على الحقل location
+      // مع تنظيف بسيط (مسافات/أسطر)
+      const locRaw = (rec && (rec.location ?? rec.place ?? rec["المكان"] ?? rec["place"] ?? rec["Location"])) || "";
+      // ملاحظة: بعض الداتا تأتي بصيغ مختلفة (مسافات متعددة / underscore / حروف لاتينية)
+      const loc = String(locRaw || "");
+      if(!loc) return false;
+
+      // نطبّع النص: نوحّد المسافات + نحول (_) لمسافة عشان "مباع_تم_التسليم" تتحول لمطابقة
+      const s = cleanSpec(loc).replace(/_/g, " ");
+      const s2 = loc.replace(/_/g, " ");
+
+      // نفس منطق صفحة المخزون (حرفيًا):
+      // !includes('مباع تم التسليم') && !includes('مباع تحت التسليم')
+      // لكن مع مطابقة مرنة في حال وجود تنسيقات مختلفة.
+      return (
+        s.includes("مباع تم التسليم") ||
+        s.includes("مباع تحت التسليم") ||
+        s2.includes("مباع تم التسليم") ||
+        s2.includes("مباع تحت التسليم") ||
+        // fallback بسيط لو كانت الكلمات بدون "مباع" أو بمسافات غريبة
+        /تم\s*التسليم/.test(s) ||
+        /تحت\s*التسليم/.test(s)
+      );
+    }
+
+    function renderStockTab(){
+      const emptyEl = $("stockEmpty");
+      const wrapEl  = $("stockTableWrap");
+      const tableEl = $("stockTable");
+
+      const arr = Array.isArray(AGENDA_STOCK) ? AGENDA_STOCK : [];
+      // فلتر 395 (حسب صفحة المخزون)
+      const rows = arr.filter(r => !isExcludedByInventoryFilter(r));
+
+      $("stockCount").textContent = rows.length;
+
+      if(!rows.length){
+        emptyEl.style.display = "";
+        wrapEl.style.display = "none";
+        tableEl.innerHTML = "";
+        return;
+      }
+
+      emptyEl.style.display = "none";
+      wrapEl.style.display = "";
+
+      // الأعمدة المطلوبة فقط
+      const cols = [
+        { key:"car",       label:"السيارة" },
+        { key:"variant",   label:"البيان" },
+        { key:"extColor",  label:"اللون الخارجي" },
+        { key:"intColor",  label:"اللون الداخلي" },
+        { key:"modelYear", label:"الموديل" },
+        { key:"vin",       label:"رقم الهيكل" }
+      ];
+
+      const pick = (r, k) => {
+        if(!r || typeof r !== "object") return "";
+        // دعم عربي/قديم
+        const mapAr = {
+          car: r.car ?? r["السيارة"],
+          variant: r.variant ?? r["البيان"],
+          extColor: r.extColor ?? r["اللون الخارجي"],
+          intColor: r.intColor ?? r["اللون الداخلي"],
+          modelYear: r.modelYear ?? r["الموديل"],
+          vin: r.vin ?? r["رقم الهيكل"],
+        };
+        const v = mapAr[k];
+        return (v===null || v===undefined) ? "" : String(v);
+      };
+
+      const thead = `<thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label)}</th>`).join("")}</tr></thead>`;
+      const tbody = `<tbody>${rows.map(r=>{
+        const tds = cols.map(c=>{
+          const v = pick(r, c.key);
+          const cls = (c.key === "vin") ? ' class="mono"' : '';
+          return `<td${cls}>${escapeHtml(v)}</td>`;
+        }).join("");
+        return `<tr>${tds}</tr>`;
+      }).join("")}</tbody>`;
+
+      tableEl.innerHTML = thead + tbody;
     }
 
     function openHome(){
