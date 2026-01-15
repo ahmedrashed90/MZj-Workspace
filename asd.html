@@ -361,31 +361,56 @@
 
 
     /* ===== Stock Table ===== */
-    .table-wrap{overflow:auto;border:1px solid rgba(62,36,32,.08);border-radius:16px}
-    .stock-table{width:100%;border-collapse:separate;border-spacing:0;min-width:860px;background:#fff}
+    /* Tajawal for stock tab */
+    #viewStock, #viewStock *{font-family:"Tajawal",system-ui,Arial !important;}
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid #e6ded6;
+      border-radius:14px;
+      background:#fff;
+      box-shadow: 0 10px 28px rgba(62,36,32,.08);
+    }
+
+    .stock-table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:860px;
+      background:#fff;
+      table-layout:fixed;
+      font-size:13px;
+    }
+
     .stock-table thead th{
-      position:sticky;top:0;z-index:1;
-      background:linear-gradient(180deg,#fff8ef,#fff);
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#f9f4ef;
       color:var(--brown);
-      font-weight:900;
-      font-size:12px;
+      font-weight:800;
+      padding:12px 10px;
+      border-bottom:1px solid #e6ded6;
       text-align:right;
-      padding:10px 12px;
-      border-bottom:1px solid rgba(62,36,32,.10);
       white-space:nowrap;
     }
+
     .stock-table tbody td{
-      padding:10px 12px;
-      border-bottom:1px solid rgba(62,36,32,.06);
-      font-size:12px;
+      padding:11px 10px;
+      border-bottom:1px solid #f0ebe6;
       color:var(--text);
-      vertical-align:top;
-      max-width:420px;
-      word-break:break-word;
+      vertical-align:middle;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
       background:#fff;
     }
-    .stock-table td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;direction:ltr;text-align:left;white-space:nowrap}
-    .stock-table tbody tr:hover td{background:#fff8ef}
+
+    .stock-table tbody tr:nth-child(even) td{background:#fffaf5;}
+    .stock-table tbody tr:hover td{background:#f3ece6;}
+
+    .stock-table td.wrap{white-space:normal;line-height:1.7;}
+    .stock-table td.center{text-align:center;font-weight:700;}
+    .stock-table td.mono{direction:ltr;text-align:left;white-space:nowrap;font-family:inherit;}
     .stock-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
     /* ===== Auth Gate (Inline Login) ===== */
@@ -1218,30 +1243,46 @@ function initials(name){
     // نفس منطق فلتر صفحة المخزون:
     // استبعاد السيارات اللي مكانها يحتوي على:
     // (مباع تحت التسليم) أو (مباع تم التسليم)
+    // ملاحظة: أحيانًا بيكون النص فيه مسافات غير مرئية/تشكيل/كشيدة، فنعمل Normalization قوي.
+    function normalizeArabicText(input){
+      const s = String(input ?? "")
+        .replace(/\u00A0/g, " ")               // NBSP
+        .replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, "") // اتجاهات
+        .replace(/[\u064B-\u065F\u0670]/g, "") // تشكيل
+        .replace(/\u0640/g, "")               // كشيدة
+        .replace(/_/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      return s;
+    }
+
+    function extractLocationValue(rec){
+      if(!rec || typeof rec !== "object") return "";
+      const raw = (rec.location ?? rec.place ?? rec["المكان"] ?? rec["place"] ?? rec["Location"] ?? rec["LOC"] ?? rec["loc"]);
+      if(raw == null) return "";
+      if(typeof raw === "string" || typeof raw === "number") return String(raw);
+      if(Array.isArray(raw)) return raw.map(x=> String(x ?? "")).join(" ");
+      if(typeof raw === "object"){
+        // بعض الداتا بتكون Object بدل نص
+        const cand = raw.name ?? raw.label ?? raw.value ?? raw.text ?? raw.title;
+        if(cand != null) return String(cand);
+        try{ return JSON.stringify(raw); }catch(e){ return ""; }
+      }
+      return String(raw);
+    }
+
     function isExcludedByInventoryFilter(rec){
-      // نطابق صفحة المخزون: الاعتماد الأساسي على الحقل location
-      // مع تنظيف بسيط (مسافات/أسطر)
-      const locRaw = (rec && (rec.location ?? rec.place ?? rec["المكان"] ?? rec["place"] ?? rec["Location"])) || "";
-      // ملاحظة: بعض الداتا تأتي بصيغ مختلفة (مسافات متعددة / underscore / حروف لاتينية)
-      const loc = String(locRaw || "");
+      // نفس منطق صفحة المخزون مع إضافة شرط "بدون الوكالة" حسب طلبك:
+      // استبعاد:
+      // 1) أي مكان يبدأ بـ "الوكالة :"
+      // 2) أي مكان يحتوي "مباع تحت التسليم" أو "مباع تم التسليم"
+      const locRaw = extractLocationValue(rec);
+      const loc = normalizeArabicText(locRaw);
       if(!loc) return false;
-
-      // نطبّع النص: نوحّد المسافات + نحول (_) لمسافة عشان "مباع_تم_التسليم" تتحول لمطابقة
-      const s = cleanSpec(loc).replace(/_/g, " ");
-      const s2 = loc.replace(/_/g, " ");
-
-      // نفس منطق صفحة المخزون (حرفيًا):
-      // !includes('مباع تم التسليم') && !includes('مباع تحت التسليم')
-      // لكن مع مطابقة مرنة في حال وجود تنسيقات مختلفة.
-      return (
-        s.includes("مباع تم التسليم") ||
-        s.includes("مباع تحت التسليم") ||
-        s2.includes("مباع تم التسليم") ||
-        s2.includes("مباع تحت التسليم") ||
-        // fallback بسيط لو كانت الكلمات بدون "مباع" أو بمسافات غريبة
-        /تم\s*التسليم/.test(s) ||
-        /تحت\s*التسليم/.test(s)
-      );
+      const isAgency = loc.startsWith("الوكالة :");
+      const isUnder  = loc.includes("مباع تحت التسليم");
+      const isDone   = loc.includes("مباع تم التسليم");
+      return isAgency || isUnder || isDone;
     }
 
     function renderStockTab(){
@@ -1267,12 +1308,12 @@ function initials(name){
 
       // الأعمدة المطلوبة فقط
       const cols = [
-        { key:"car",       label:"السيارة" },
-        { key:"variant",   label:"البيان" },
-        { key:"extColor",  label:"اللون الخارجي" },
-        { key:"intColor",  label:"اللون الداخلي" },
-        { key:"modelYear", label:"الموديل" },
-        { key:"vin",       label:"رقم الهيكل" }
+        { key:"car",       label:"السيارة",       w:150, cls:"" },
+        { key:"variant",   label:"البيان",        w:420, cls:"wrap" },
+        { key:"extColor",  label:"اللون الخارجي", w:140, cls:"" },
+        { key:"intColor",  label:"اللون الداخلي", w:140, cls:"" },
+        { key:"modelYear", label:"الموديل",       w:90,  cls:"center" },
+        { key:"vin",       label:"رقم الهيكل",    w:170, cls:"mono" }
       ];
 
       const pick = (r, k) => {
@@ -1290,17 +1331,18 @@ function initials(name){
         return (v===null || v===undefined) ? "" : String(v);
       };
 
+      const colgroup = `<colgroup>${cols.map(c=>`<col style=\"width:${c.w}px\">`).join("")}</colgroup>`;
       const thead = `<thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label)}</th>`).join("")}</tr></thead>`;
       const tbody = `<tbody>${rows.map(r=>{
         const tds = cols.map(c=>{
           const v = pick(r, c.key);
-          const cls = (c.key === "vin") ? ' class="mono"' : '';
+          const cls = c.cls ? ` class=\"${c.cls}\"` : '';
           return `<td${cls}>${escapeHtml(v)}</td>`;
         }).join("");
         return `<tr>${tds}</tr>`;
       }).join("")}</tbody>`;
 
-      tableEl.innerHTML = thead + tbody;
+      tableEl.innerHTML = colgroup + thead + tbody;
     }
 
     function openHome(){
