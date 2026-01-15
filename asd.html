@@ -684,7 +684,7 @@
     import { getAuth, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
     import {
       getFirestore, collection, doc, getDoc, getDocs,
-      addDoc, updateDoc, deleteDoc,
+      addDoc, setDoc, updateDoc, deleteDoc,
       query, where, orderBy, onSnapshot, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
@@ -825,7 +825,22 @@
     }
 
     // init live source
-    function initSpecKeySource(){
+    
+    function initLocalSpecCache(){
+      try{
+        onSnapshot(SPEC_CACHE_DOC, (snap)=>{
+          if(!snap.exists()) return;
+          const d = snap.data() || {};
+          if(Array.isArray(d.stock) && d.stock.length){
+            setSpecKeyOptionsFromStock(d.stock);
+          }
+        });
+      }catch(e){
+        console.warn("initLocalSpecCache failed", e);
+      }
+    }
+
+function initSpecKeySource(){
       try{
         // لازم يكون في Auth داخل مشروع المخزون (Firebase Project مختلف)
         // هنستخدم Anonymous Auth علشان نقدر نقرأ الداتا (لو Anonymous مفعّل في المشروع).
