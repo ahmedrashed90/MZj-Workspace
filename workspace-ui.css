@@ -191,14 +191,7 @@ button,input,select,textarea{font-family:inherit}
     border-right:1px solid var(--line);
   }
   .sidebar.open{transform:translateX(0)}
-  .backdrop{
-    position:fixed; inset:0;
-    background:rgba(0,0,0,.35);
-    display:none;
-    z-index:49;
-  }
-  .backdrop.show{display:block}
-  .content{padding:16px}
+    .content{padding:16px}
 }
 
 /* Cards */
