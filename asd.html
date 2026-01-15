@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -355,10 +356,80 @@
     .kpi strong{display:block;color:var(--brown);font-weight:900;font-size:13px}
     .kpi span{color:var(--muted);font-size:12px}
     .kpi .num{font-weight:900;font-size:18px;color:var(--brown)}
+
+    /* ===== Auth Gate (Inline Login) ===== */
+    .auth-gate{
+      position:fixed; inset:0; z-index:3000;
+      background:linear-gradient(180deg, rgba(62,36,32,.92), rgba(47,28,25,.92));
+      display:none; place-items:center; padding:16px;
+    }
+    .auth-gate.show{display:grid}
+    .auth-card{
+      width:min(520px, 100%);
+      background:#fff;
+      border-radius:20px;
+      box-shadow: 0 22px 70px rgba(0,0,0,.35);
+      border:1px solid rgba(62,36,32,.10);
+      overflow:hidden;
+    }
+    .auth-head{
+      padding:14px 16px;
+      background:linear-gradient(180deg, #fff, #fff8ef);
+      border-bottom:1px solid #f1f1f1;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .auth-head strong{color:var(--brown);font-weight:900}
+    .auth-body{padding:16px; display:grid; gap:10px}
+    .auth-foot{padding:12px 16px; background:#fff8ef; border-top:1px solid #f1f1f1; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap}
+    .auth-note{color:var(--muted); font-size:12px; line-height:1.7}
+    .auth-err{color:var(--danger); font-weight:900; font-size:13px; display:none}
+    .auth-err.show{display:block}
+    .auth-brand{
+      display:flex; align-items:center; gap:10px;
+    }
+    .auth-badge{
+      inline-size:38px; block-size:38px;
+      border-radius:14px;
+      background:linear-gradient(135deg,var(--beige),#d9b39a);
+      box-shadow: 0 12px 24px rgba(188,143,116,.25);
+    }
+    .hide-app{display:none !important}
   </style>
 </head>
 
 <body>
+  <!-- Inline Login Gate (بديل login.html) -->
+  <div class="auth-gate" id="authGate">
+    <div class="auth-card">
+      <div class="auth-head">
+        <div class="auth-brand">
+          <div class="auth-badge"></div>
+          <div>
+            <strong>MZJ Workspace</strong>
+            <div class="auth-note">تسجيل الدخول بالبريد وكلمة المرور</div>
+          </div>
+        </div>
+        <span class="pill" style="margin:0"><span class="dot"></span> Secure</span>
+      </div>
+      <div class="auth-body">
+        <div class="auth-err" id="authErr">…</div>
+        <div>
+          <label>البريد الإلكتروني</label>
+          <input id="loginEmail" type="email" autocomplete="username" placeholder="name@email.com" />
+        </div>
+        <div>
+          <label>كلمة المرور</label>
+          <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••" />
+        </div>
+        <div class="auth-note">ملاحظة: نفس الإيميل/الباسورد الموجودين في Firebase Auth للمشروع <b>mzj-workspace-c7d4e</b>.</div>
+      </div>
+      <div class="auth-foot">
+        <button class="btn secondary" id="btnLoginDemo" type="button" style="display:none">دخول تجريبي</button>
+        <button class="btn" id="btnLogin" type="button">تسجيل الدخول</button>
+      </div>
+    </div>
+  </div>
+
   <div class="app" id="app">
     <aside class="sidebar">
       <div class="sb-top">
@@ -681,7 +752,10 @@
 
   <script type="module">
     import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+    import {
+      getAuth, onAuthStateChanged, signOut, signInAnonymously,
+      signInWithEmailAndPassword, setPersistence, browserLocalPersistence
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
     import {
       getFirestore, collection, doc, getDoc, getDocs,
       addDoc, setDoc, updateDoc, deleteDoc,
@@ -709,13 +783,39 @@
   };
 
 
+    // Workspace App (الصفحة الحالية)
     if(!getApps().length) initializeApp(firebaseConfig);
     const auth = getAuth();
     const db = getFirestore();
 
+    // Agenda/Stock App (مشروع مختلف) — لتعبئة Unique Spec Key
+    // ملاحظة: لازم Anonymous Auth يكون مفعّل في مشروع mzj-agenda + Rules تسمح بالقراءة.
+    const agendaApp = initializeApp(agendaFirebaseConfig, "agenda");
+    const agendaAuth = getAuth(agendaApp);
+    const agendaDb = getFirestore(agendaApp);
+
     const $ = (id)=> document.getElementById(id);
     const appEl = $("app");
     const toastEl = $("toast");
+
+    // ===== Auth Gate helpers (بدون صفحة login.html) =====
+    const authGate = $("authGate");
+    const authErr = $("authErr");
+    const loginEmail = $("loginEmail");
+    const loginPass = $("loginPass");
+    const btnLogin = $("btnLogin");
+
+    function showAuth(msg=null){
+      authErr.classList.toggle("show", !!msg);
+      authErr.textContent = msg || "";
+      authGate.classList.add("show");
+      appEl.classList.add("hide-app");
+    }
+    function hideAuth(){
+      authGate.classList.remove("show");
+      appEl.classList.remove("hide-app");
+      authErr.classList.remove("show");
+    }
 
     function toast(msg){
       toastEl.textContent = msg;
@@ -919,12 +1019,46 @@ function initials(name){
 
     $("btnLogout").addEventListener("click", async ()=>{
       await signOut(auth);
-      location.href = "login.html";
+      showAuth("تم تسجيل الخروج. سجّل دخول مرة أخرى.");
     });
 
+    // تثبيت الجلسة محليًا (علشان الريفريش مايرجعك لأي صفحة)
+    setPersistence(auth, browserLocalPersistence).catch((e)=>{
+      console.warn("setPersistence failed", e);
+    });
+
+    async function doLogin(){
+      const email = (loginEmail.value||"").trim();
+      const pass = (loginPass.value||"").trim();
+      if(!email || !pass) return showAuth("اكتب البريد وكلمة المرور");
+      btnLogin.disabled = true;
+      btnLogin.textContent = "جاري الدخول...";
+      try{
+        await signInWithEmailAndPassword(auth, email, pass);
+        hideAuth();
+      }catch(err){
+        console.warn("login failed", err);
+        const code = err?.code || "";
+        let msg = "فشل تسجيل الدخول. تحقق من البيانات.";
+        if(code.includes("auth/invalid-credential")) msg = "البريد أو كلمة المرور غير صحيحة.";
+        if(code.includes("auth/user-not-found")) msg = "هذا البريد غير موجود.";
+        if(code.includes("auth/wrong-password")) msg = "كلمة المرور غير صحيحة.";
+        if(code.includes("auth/too-many-requests")) msg = "محاولات كثيرة. جرّب بعد قليل.";
+        showAuth(msg);
+      }finally{
+        btnLogin.disabled = false;
+        btnLogin.textContent = "تسجيل الدخول";
+      }
+    }
+
+    btnLogin.addEventListener("click", doLogin);
+    loginPass.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
+    loginEmail.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
+
     onAuthStateChanged(auth, async (user)=>{
-      if(!user){ location.href="login.html"; return; }
+      if(!user){ showAuth(); return; }
       CURRENT_USER = user;
+      hideAuth();
 
       let displayName = user.email || "مستخدم";
       try{
@@ -943,6 +1077,10 @@ function initials(name){
       await loadUsers();
       openHome();
       listenKPIs();
+
+      // مصادر الـ Spec Key (1) كاش محلي داخل مشروع الـ Workspace + (2) مصدر حي من مشروع الـ Agenda
+      initLocalSpecCache();
+      initSpecKeySource();
     });
 
     async function loadUsers(){
