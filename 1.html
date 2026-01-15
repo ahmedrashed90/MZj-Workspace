@@ -681,7 +681,7 @@
 
   <script type="module">
     import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
     import {
       getFirestore, collection, doc, getDoc, getDocs,
       addDoc, updateDoc, deleteDoc,
@@ -779,17 +779,26 @@
     // init live source
     function initSpecKeySource(){
       try{
-        const stateRef = doc(agendaDb, "mzj_admin_state", "v1");
-        if(agendaUnsub) agendaUnsub();
-        agendaUnsub = onSnapshot(stateRef, (snap)=>{
-          if(!snap.exists()) return;
-          const d = snap.data() || {};
-          setSpecKeyOptionsFromStock(d.stock || []);
-        }, (err)=>{
-          console.warn("SpecKey source snapshot error", err);
+        // لازم يكون في Auth داخل مشروع المخزون (Firebase Project مختلف)
+        // هنستخدم Anonymous Auth علشان نقدر نقرأ الداتا (لو Anonymous مفعّل في المشروع).
+        signInAnonymously(agendaAuth).then(()=>{
+          const stateRef = doc(agendaDb, "mzj_admin_state", "v1");
+          if(agendaUnsub) agendaUnsub();
+          agendaUnsub = onSnapshot(stateRef, (snap)=>{
+            if(!snap.exists()) return;
+            const d = snap.data() || {};
+            setSpecKeyOptionsFromStock(d.stock || []);
+          }, (err)=>{
+            console.warn("SpecKey source snapshot error", err);
+            toast("⚠️ فشل تحميل Unique Spec Key (تحقق من Rules/Anonymous Auth في مشروع المخزون)");
+          });
+        }).catch((err)=>{
+          console.warn("agenda anonymous auth failed", err);
+          toast("⚠️ فشل تحميل Unique Spec Key (Anonymous Auth غير مفعّل في مشروع المخزون)");
         });
       }catch(e){
         console.warn("initSpecKeySource failed", e);
+        toast("⚠️ فشل تحميل Unique Spec Key");
       }
     }
 
