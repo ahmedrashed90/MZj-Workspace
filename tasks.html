@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MZJ Workspace — Tasks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--brown:#3e2420;--beige:#bc8f74;--cream:#fff8ef;--line:#e5e7eb;--shadow:0 12px 35px rgba(0,0,0,.10);--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Tajawal",system-ui; background:var(--cream); color:#111827}
+    .wrap{min-height:100vh;display:grid;place-items:center;padding:18px}
+    .card{width:min(720px,96vw);background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:18px}
+    h1{margin:0;color:var(--brown);font-weight:1000;font-size:20px}
+    p{margin:8px 0 0;color:var(--muted);font-weight:800;line-height:1.6}
+    .row{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;border-radius:14px;padding:10px 12px;font-weight:1000;cursor:pointer}
+    .primary{background:var(--beige);color:#fff}
+    .ghost{background:#fff;border:1px solid #f1d0bd;color:var(--brown)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>صفحة التاسكات (tasks.html)</h1>
+      <p>دي صفحة الدخول بعد تسجيل الدخول. حالياً Placeholder — هنركب عليها بورد التاسكات بالكامل.</p>
+      <div class="row">
+        <button class="btn primary" id="goManage" type="button">افتح إدارة التاسكات والحملات</button>
+        <button class="btn ghost" id="logout" type="button">تسجيل خروج</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { requireAuth, doLogout } from "./guard.js";
+    await requireAuth({ redirectTo:"./index.html" });
+
+    document.getElementById("goManage").addEventListener("click", ()=>{
+      window.location.href = "./tasks-campaigns.html";
+    });
+    document.getElementById("logout").addEventListener("click", doLogout);
+  </script>
+</body>
+</html>
