@@ -892,12 +892,11 @@
       if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
 
       const qy = query(
-        collection(db,"workspaces"),
-        where("type","==", type),
-        where("active","!=", false),
-        orderBy("active"),
-        orderBy("createdAt","desc")
-      );
+  collection(db,"workspaces"),
+  where("type","==", type),
+  where("active","==", true),
+  orderBy("createdAt","desc")
+);
 
       unsubWorkspaces = onSnapshot(qy, (snap)=>{
         const items=[];
