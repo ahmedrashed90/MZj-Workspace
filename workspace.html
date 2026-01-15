@@ -892,11 +892,11 @@
       if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
 
       const qy = query(
-  collection(db,"workspaces"),
-  where("type","==", type),
-  where("active","==", true),
-  orderBy("createdAt","desc")
-);
+        collection(db,"workspaces"),
+        where("type","==", type),
+        where("active","==", true),
+        orderBy("createdAt","desc")
+      );
 
       unsubWorkspaces = onSnapshot(qy, (snap)=>{
         const items=[];
@@ -1188,7 +1188,8 @@
         closeBoardModal();
       }catch(err){
         console.error(err);
-        toast("⚠️ فشل الحفظ");
+        const msg = (err?.code ? (err.code + " — ") : "") + (err?.message || "");
+        toast("⚠️ فشل الحفظ: " + (msg || "تحقق من الصلاحيات (Firestore Rules)"));
       }
     });
 
@@ -1346,7 +1347,8 @@
         closeTaskModal();
       }catch(err){
         console.error(err);
-        toast("⚠️ فشل حفظ التاسك");
+        const msg = (err?.code ? (err.code + " — ") : "") + (err?.message || "");
+        toast("⚠️ فشل حفظ التاسك: " + (msg || "تحقق من الصلاحيات (Firestore Rules)"));
       }
     });
 
