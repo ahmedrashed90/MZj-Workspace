@@ -681,7 +681,7 @@
 
   <script type="module">
     import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut, signInAnonymously, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
     import {
       getFirestore, collection, doc, getDoc, getDocs,
       addDoc, setDoc, updateDoc, deleteDoc,
@@ -721,6 +721,33 @@
       toastEl.textContent = msg;
       toastEl.classList.add("show");
       setTimeout(()=> toastEl.classList.remove("show"), 2200);
+    }
+
+    function showLoginOverlay(show, errMsg){
+      const ov = $("loginOverlay");
+      if(!ov) return;
+      ov.style.display = show ? "flex" : "none";
+      const e = $("loginErr");
+      if(e){
+        if(errMsg){
+          e.style.display = "";
+          e.textContent = errMsg;
+        }else{
+          e.style.display = "none";
+          e.textContent = "";
+        }
+      }
+    }
+
+    async function doGoogleLogin(){
+      try{
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        showLoginOverlay(false);
+      }catch(e){
+        console.error(e);
+        showLoginOverlay(true, "فشل تسجيل الدخول. جرّب مرة ثانية أو افتح الصفحة في نافذة عادية (بدون Incognito).");
+      }
     }
     function escapeHtml(s){
       return String(s??"")
@@ -919,12 +946,16 @@ function initials(name){
 
     $("btnLogout").addEventListener("click", async ()=>{
       await signOut(auth);
-      location.href = "login.html";
+      showLoginOverlay(true);
     });
 
+    // زر تسجيل الدخول
+    $("btnLoginGoogle") && $("btnLoginGoogle").addEventListener("click", doGoogleLogin);
+
     onAuthStateChanged(auth, async (user)=>{
-      if(!user){ location.href="login.html"; return; }
+      if(!user){ showLoginOverlay(true); return; }
       CURRENT_USER = user;
+      showLoginOverlay(false);
 
       let displayName = user.email || "مستخدم";
       try{
@@ -1574,5 +1605,32 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
       }
     });
   </script>
+
+  <!-- Login Overlay (بدون صفحة منفصلة) -->
+  <div id="loginOverlay" style="position:fixed;inset:0;background:rgba(255,248,239,.92);backdrop-filter: blur(6px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
+    <div style="width:min(520px,100%);background:#fff;border:1px solid rgba(62,36,32,.12);border-radius:16px;box-shadow:0 18px 55px rgba(0,0,0,.10);padding:18px 18px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,rgba(62,36,32,.16),rgba(188,143,116,.18));display:grid;place-items:center;color:rgb(62,36,32);font-weight:900">MZJ</div>
+          <div>
+            <div style="font-weight:900;color:rgb(62,36,32)">تسجيل الدخول</div>
+            <div class="muted" style="font-size:12px">لازم تسجّل دخول علشان تستخدم الـ Workspace.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="loginErr" class="muted" style="display:none;margin:10px 0 12px;padding:10px 12px;border-radius:12px;border:1px solid rgba(220,38,38,.25);background:rgba(220,38,38,.06);color:#b91c1c;font-weight:800;font-size:12px"></div>
+
+      <button id="btnLoginGoogle" class="btn" type="button" style="width:100%;justify-content:center">
+        <span style="font-size:16px">🔐</span>
+        <span>تسجيل الدخول بحساب Google</span>
+      </button>
+
+      <div class="muted" style="font-size:12px;margin-top:10px;line-height:1.7">
+        لو ظهرت لك مشكلة صلاحيات، تأكد إن حسابك موجود في <b>users</b> داخل Firestore ومحدد له role مناسب.
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
