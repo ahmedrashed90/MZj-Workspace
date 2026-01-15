@@ -893,14 +893,14 @@
 
       const qy = query(
         collection(db,"workspaces"),
-        where("type","==", type),
-        where("active","==", true),
-        orderBy("createdAt","desc")
+        where("type","==", type)
       );
-
-      unsubWorkspaces = onSnapshot(qy, (snap)=>{
-        const items=[];
+unsubWorkspaces = onSnapshot(qy, (snap)=>{
+        let items=[];
         snap.forEach(d=> items.push({ id:d.id, ...(d.data()||{}) }));
+        // تصفية العناصر غير النشطة + ترتيب محلي لتفادي متطلبات الـ Composite Index
+        items = items.filter(x=> x.active !== false);
+        items.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
         renderList(type, items);
       }, (err)=>{
         console.error(err);
