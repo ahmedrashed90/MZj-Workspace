@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -696,6 +697,7 @@
             <strong>stock</strong>
             <span class="muted">الإجمالي: <b id="stockCount">0</b> سيارة</span>
             <input id="stockSearch" class="inp" style="min-width:260px" placeholder="بحث داخل stock (Unique Spec Key)…" />
+            <button class="btn secondary sm" id="btnStockExport" type="button">⬇️ تصدير Excel</button>
           </div>
         </div>
         <div class="body">
@@ -865,6 +867,7 @@
 
   <div class="toast" id="toast">...</div>
 
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script type="module">
     import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
     import {
@@ -1102,6 +1105,10 @@ function initials(name){
 
     const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard"), stock: $("viewStock") };
 
+    // Last rendered rows for Excel export (stock tab)
+    let __LAST_STOCK_ROWS = [];
+
+
     // stock tab search (فلتر فوري داخل جدول stock)
     const stockSearchEl = document.getElementById('stockSearch');
     if(stockSearchEl){
@@ -1109,6 +1116,49 @@ function initials(name){
         if(MODE==='stock') renderStockTab();
       });
     }
+
+    // Export Excel (stock tab)
+    const btnStockExport = document.getElementById('btnStockExport');
+    if(btnStockExport){
+      btnStockExport.addEventListener('click', ()=>{
+        try{
+          exportStockToExcel(__LAST_STOCK_ROWS);
+        }catch(err){
+          console.error(err);
+          toast('⚠️ تعذر تصدير Excel');
+        }
+      });
+    }
+
+    function exportStockToExcel(rows){
+      if(!rows || !rows.length){
+        toast('لا توجد بيانات للتصدير');
+        return;
+      }
+      if(typeof XLSX==='undefined'){
+        toast('⚠️ مكتبة Excel لم يتم تحميلها');
+        return;
+      }
+      const data = rows.map((r,i)=>({
+        'م': i+1,
+        'Unique Spec Key': r.specKey||'',
+        'العدد': r.count||0,
+        'تصوير': r.photo||'',
+        'مونتاج': r.montage||'',
+        'تفاصيل المونتاج': r.montageDetails||'',
+        'داخل الأجندة': r.inAgenda||'',
+        'الشهر': r.agendaMonth||'',
+        'السنة': r.agendaYear||''
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'stock');
+      const now = new Date();
+      const pad = (n)=> String(n).padStart(2,'0');
+      const fname = `stock_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.xlsx`;
+      XLSX.writeFile(wb, fname);
+    }
+
     function showView(key){
       Object.values(views).forEach(v=> v.style.display="none");
       views[key].style.display="";
@@ -1484,6 +1534,22 @@ function initials(name){
       const colgroup = `<colgroup>${cols.map(c=>`<col style="width:${c.w}px">`).join('')}</colgroup>`;
       const thead = `<thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label)}</th>`).join('')}</tr></thead>`;
 
+
+
+      // Prepare rows for Excel export (merge saved controls)
+      __LAST_STOCK_ROWS = rows.map(r=>{
+        const saved = STOCK_TASKS_MAP.get(r.specKey) || {};
+        return {
+          specKey: r.specKey,
+          count: r.count || 0,
+          photo: saved.photo || '',
+          montage: saved.montage || '',
+          montageDetails: saved.montageDetails || '',
+          inAgenda: saved.inAgenda || '',
+          agendaMonth: saved.agendaMonth || '',
+          agendaYear: saved.agendaYear || ''
+        };
+      });
       const tbody = `<tbody>${rows.map((r,i)=>{
         const specKey = r.specKey;
         const saved = STOCK_TASKS_MAP.get(specKey) || {};
