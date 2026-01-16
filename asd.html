@@ -10,6 +10,32 @@
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 
   <style>
+    /* Tajawal for the whole file */
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+    html, body, button, input, select, textarea {
+      font-family: 'Tajawal', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Make Unique Spec Key inputs wider + more readable (all modals) */
+    .modal input[list],
+    .modal input[type="text"],
+    .modal select {
+      font-size: 15px;
+    }
+    /* Specifically: Unique Spec Key fields */
+    #taskSpecKey, #dSpecKey {
+      font-size: 16px;
+      padding: 12px 12px;
+      height: 46px;
+    }
+    /* Let the Unique Spec Key field take full row in the modal */
+    #taskModal .grid2 .speckey-full { grid-column: 1 / -1; }
+    /* VIN hint under the dropdown */
+    .vin-hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
     :root{
       --brown:#3e2420;
       --beige:#bc8f74;
@@ -375,7 +401,7 @@
     .stock-table{
       width:100%;
       border-collapse:collapse;
-      min-width:860px;
+      min-width:1550px;
       background:#fff;
       table-layout:fixed;
       font-size:13px;
@@ -411,6 +437,15 @@
     .stock-table td.wrap{white-space:normal;line-height:1.7;}
     .stock-table td.center{text-align:center;font-weight:700;}
     .stock-table td.mono{direction:ltr;text-align:left;white-space:nowrap;font-family:inherit;}
+
+    /* Stock table controls */
+    .stock-ctrl{width:100%;padding:8px 10px;border:1px solid #e6ded6;border-radius:10px;background:#fff;font-size:13px;outline:none}
+    .stock-ctrl:focus{border-color: var(--beige); box-shadow: 0 0 0 3px rgba(188,143,116,.18)}
+    .stock-ctrl.small{padding:7px 10px;font-size:12px}
+    .stock-ctrl[disabled]{background:#f7f3ef;color:#9aa3af}
+    .stock-badge-mini{display:inline-block;padding:4px 10px;border-radius:999px;background:#f1e7dd;color:#3e2420;font-size:12px;white-space:nowrap}
+    .stock-count{font-weight:800}
+
     .stock-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
     /* ===== Auth Gate (Inline Login) ===== */
@@ -660,6 +695,7 @@
           <div class="stock-meta">
             <strong>stock</strong>
             <span class="muted">الإجمالي: <b id="stockCount">0</b> سيارة</span>
+            <input id="stockSearch" class="inp" style="min-width:260px" placeholder="بحث داخل stock (Unique Spec Key)…" />
           </div>
         </div>
         <div class="body">
@@ -741,7 +777,7 @@
       </div>
       <div class="m-body">
         <div class="grid2">
-          <div>
+          <div class="speckey-full">
             <label>Unique Spec Key</label>
             <input id="taskSpecKey" list="specKeyList" placeholder="ابحث واختر (السيارة | البيان | الموديل)…"/>
             <datalist id="specKeyList"></datalist>
@@ -1065,6 +1101,14 @@ function initials(name){
     if(localStorage.getItem("ws_sb_collapsed")==="1") appEl.classList.add("collapsed");
 
     const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard"), stock: $("viewStock") };
+
+    // stock tab search (فلتر فوري داخل جدول stock)
+    const stockSearchEl = document.getElementById('stockSearch');
+    if(stockSearchEl){
+      stockSearchEl.addEventListener('input', ()=>{
+        if(MODE==='stock') renderStockTab();
+      });
+    }
     function showView(key){
       Object.values(views).forEach(v=> v.style.display="none");
       views[key].style.display="";
@@ -1285,16 +1329,115 @@ function initials(name){
       return isAgency || isUnder || isDone;
     }
 
-    function renderStockTab(){
+    // ===== Stock Aggregation (SpecKey) + Tasks Meta (Workspace DB) =====
+    let STOCK_TASKS_MAP = new Map();
+    let STOCK_TASKS_LOADED = false;
+
+    const MONTHS_AR = [
+      "يناير","فبراير","مارس","أبريل","مايو","يونيو",
+      "يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"
+    ];
+
+    function stockTaskDocId(specKey){
+      // Firestore doc ids cannot contain '/'
+      return encodeURIComponent(String(specKey||""));
+    }
+
+    async function loadStockTasksOnce(){
+      if(STOCK_TASKS_LOADED) return;
+      STOCK_TASKS_LOADED = true;
+      STOCK_TASKS_MAP = new Map();
+      try{
+        const snap = await getDocs(collection(db, "stock_tasks"));
+        snap.forEach(d=>{
+          const v = d.data() || {};
+          const k = v.specKey || decodeURIComponent(d.id);
+          if(k) STOCK_TASKS_MAP.set(String(k), { ...v, _id: d.id });
+        });
+      }catch(e){
+        console.warn('loadStockTasksOnce', e);
+      }
+    }
+
+    let stockSaveTimers = new Map();
+    function scheduleSaveStockTask(specKey, patch){
+      const key = String(specKey||"");
+      if(!key) return;
+      const prev = STOCK_TASKS_MAP.get(key) || { specKey: key };
+      const next = { ...prev, ...patch, specKey: key, updatedAt: serverTimestamp() };
+      STOCK_TASKS_MAP.set(key, next);
+
+      // debounce per row
+      if(stockSaveTimers.has(key)) clearTimeout(stockSaveTimers.get(key));
+      stockSaveTimers.set(key, setTimeout(async ()=>{
+        try{
+          await setDoc(doc(db, "stock_tasks", stockTaskDocId(key)), next, { merge:true });
+        }catch(e){
+          console.warn('saveStockTask', e);
+        }
+      }, 350));
+    }
+
+    function ynSelect(value=""){
+      const v = String(value||"");
+      const y = v === "نعم" ? "selected" : "";
+      const n = v === "لا" ? "selected" : "";
+      return `<select class="stock-ctrl small" data-type="yn"><option value="">—</option><option value="نعم" ${y}>نعم</option><option value="لا" ${n}>لا</option></select>`;
+    }
+
+    function montageDetailsSelect(value=""){
+      const v = String(value||"");
+      const a = v === "صور + ريل مواصفات" ? "selected" : "";
+      const b = v === "صور فقط" ? "selected" : "";
+      return `<select class="stock-ctrl small" data-type="montageDetails"><option value="">—</option><option value="صور + ريل مواصفات" ${a}>صور + ريل مواصفات</option><option value="صور فقط" ${b}>صور فقط</option></select>`;
+    }
+
+    function monthSelect(value=""){
+      const v = String(value||"");
+      return `<select class="stock-ctrl small" data-type="month"><option value="">—</option>${MONTHS_AR.map(m=>`<option value="${escapeAttr(m)}" ${(m===v)?'selected':''}>${escapeHtml(m)}</option>`).join('')}</select>`;
+    }
+
+    function yearInput(value=""){
+      const v = String(value||"");
+      return `<input class="stock-ctrl small" data-type="year" inputmode="numeric" placeholder="السنة" value="${escapeAttr(v)}" />`;
+    }
+
+    async function renderStockTab(){
       const emptyEl = $("stockEmpty");
       const wrapEl  = $("stockTableWrap");
       const tableEl = $("stockTable");
+      const searchEl = document.getElementById('stockSearch');
 
       const arr = Array.isArray(AGENDA_STOCK) ? AGENDA_STOCK : [];
-      // فلتر 395 (حسب صفحة المخزون)
-      const rows = arr.filter(r => !isExcludedByInventoryFilter(r));
+      // فلتر stock (بدون الوكالة + بدون مباع تحت/تم التسليم)
+      const filtered = arr.filter(r => !isExcludedByInventoryFilter(r));
 
-      $("stockCount").textContent = rows.length;
+      // تجميع حسب Unique Spec Key (بدون ألوان)
+      const groups = new Map();
+      for(const r of filtered){
+        const key = buildSpecKeyNoColors({
+          car: r.car ?? r["السيارة"],
+          variant: r.variant ?? r["البيان"],
+          modelYear: r.modelYear ?? r["الموديل"],
+        });
+        if(!key || key === "- | - | -") continue;
+        const g = groups.get(key) || { specKey:key, count:0 };
+        g.count += 1;
+        groups.set(key, g);
+      }
+
+      let rows = Array.from(groups.values());
+
+      // بحث داخل الـ SpecKey
+      const q = normalizeArabicText(searchEl?.value || "");
+      if(q){
+        rows = rows.filter(r => normalizeArabicText(r.specKey).includes(q));
+      }
+
+      // ترتيب أبجدي
+      rows.sort((a,b)=> a.specKey.localeCompare(b.specKey,'ar',{numeric:true,sensitivity:'base'}));
+
+      $("stockCount").textContent = rows.reduce((s,r)=> s + (r.count||0), 0);
 
       if(!rows.length){
         emptyEl.style.display = "";
@@ -1306,43 +1449,150 @@ function initials(name){
       emptyEl.style.display = "none";
       wrapEl.style.display = "";
 
-      // الأعمدة المطلوبة فقط
-      const cols = [
-        { key:"car",       label:"السيارة",       w:150, cls:"" },
-        { key:"variant",   label:"البيان",        w:420, cls:"wrap" },
-        { key:"extColor",  label:"اللون الخارجي", w:140, cls:"" },
-        { key:"intColor",  label:"اللون الداخلي", w:140, cls:"" },
-        { key:"modelYear", label:"الموديل",       w:90,  cls:"center" },
-        { key:"vin",       label:"رقم الهيكل",    w:170, cls:"mono" }
+      // حمل بيانات التحكم المحفوظة (مرة واحدة)
+      await loadStockTasksOnce();
+
+      const months = [
+        "يناير","فبراير","مارس","أبريل","مايو","يونيو",
+        "يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"
       ];
 
-      const pick = (r, k) => {
-        if(!r || typeof r !== "object") return "";
-        // دعم عربي/قديم
-        const mapAr = {
-          car: r.car ?? r["السيارة"],
-          variant: r.variant ?? r["البيان"],
-          extColor: r.extColor ?? r["اللون الخارجي"],
-          intColor: r.intColor ?? r["اللون الداخلي"],
-          modelYear: r.modelYear ?? r["الموديل"],
-          vin: r.vin ?? r["رقم الهيكل"],
-        };
-        const v = mapAr[k];
-        return (v===null || v===undefined) ? "" : String(v);
-      };
+      const yesNoOptions = (val)=>
+        `
+          <option value="" ${!val?'selected':''}>-</option>
+          <option value="نعم" ${val==='نعم'?'selected':''}>نعم</option>
+          <option value="لا" ${val==='لا'?'selected':''}>لا</option>`;
 
-      const colgroup = `<colgroup>${cols.map(c=>`<col style=\"width:${c.w}px\">`).join("")}</colgroup>`;
-      const thead = `<thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label)}</th>`).join("")}</tr></thead>`;
-      const tbody = `<tbody>${rows.map(r=>{
-        const tds = cols.map(c=>{
-          const v = pick(r, c.key);
-          const cls = c.cls ? ` class=\"${c.cls}\"` : '';
-          return `<td${cls}>${escapeHtml(v)}</td>`;
-        }).join("");
-        return `<tr>${tds}</tr>`;
-      }).join("")}</tbody>`;
+      const montageDetailsOptions = (val)=>
+        `
+          <option value="" ${!val?'selected':''}>-</option>
+          <option value="صور + ريل مواصفات: نعم" ${val==='صور + ريل مواصفات: نعم'?'selected':''}>صور + ريل مواصفات: نعم</option>
+          <option value="صور + ريل مواصفات: لا" ${val==='صور + ريل مواصفات: لا'?'selected':''}>صور + ريل مواصفات: لا</option>`;
+
+      const cols = [
+        {k:'idx',  label:'م', w:70},
+        {k:'spec', label:'Unique Spec Key (الضغط للنسخ)', w:520},
+        {k:'count',label:'العدد', w:90},
+        {k:'photo',label:'تصوير', w:140},
+        {k:'montage',label:'مونتاج', w:140},
+        {k:'montageDetails',label:'تفاصيل المونتاج', w:240},
+        {k:'inAgenda',label:'داخل الأجندة', w:170},
+        {k:'agendaMonth',label:'الشهر', w:160},
+        {k:'agendaYear',label:'السنة', w:120},
+      ];
+
+      const colgroup = `<colgroup>${cols.map(c=>`<col style="width:${c.w}px">`).join('')}</colgroup>`;
+      const thead = `<thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label)}</th>`).join('')}</tr></thead>`;
+
+      const tbody = `<tbody>${rows.map((r,i)=>{
+        const specKey = r.specKey;
+        const saved = STOCK_TASKS_MAP.get(specKey) || {};
+        const photo = saved.photo || '';
+        const montage = saved.montage || '';
+        const montageDetails = saved.montageDetails || '';
+        const inAgenda = saved.inAgenda || '';
+        const agendaMonth = saved.agendaMonth || '';
+        const agendaYear = saved.agendaYear || '';
+
+        const montageDisabled = montage !== 'نعم';
+        const agendaDisabled = inAgenda !== 'نعم';
+
+        return `
+          <tr data-spec="${escapeAttr(specKey)}">
+            <td class="center">${i+1}</td>
+            <td class="wrap">
+              <button type="button" class="btn secondary xs" data-copy="1" style="width:100%;justify-content:space-between;gap:8px">
+                <span style="text-align:right;white-space:normal;line-height:1.6">${escapeHtml(specKey)}</span>
+                <span class="stock-badge-mini">نسخ</span>
+              </button>
+            </td>
+            <td class="center"><span class="stock-badge-mini stock-count">${r.count}</span></td>
+            <td>
+              <select class="stock-ctrl" data-field="photo">${yesNoOptions(photo)}</select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="montage">${yesNoOptions(montage)}</select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="montageDetails" ${montageDisabled ? 'disabled' : ''}>
+                ${montageDetailsOptions(montageDetails)}
+              </select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="inAgenda">${yesNoOptions(inAgenda)}</select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="agendaMonth" ${agendaDisabled ? 'disabled' : ''}>
+                <option value="" ${!agendaMonth?'selected':''}>-</option>
+                ${months.map(m=>`<option value="${escapeAttr(m)}" ${agendaMonth===m?'selected':''}>${escapeHtml(m)}</option>`).join('')}
+              </select>
+            </td>
+            <td>
+              <input class="stock-ctrl small" data-field="agendaYear" type="number" min="2000" max="2100" placeholder="YYYY" value="${escapeAttr(agendaYear)}" ${agendaDisabled ? 'disabled' : ''}/>
+            </td>
+          </tr>`;
+      }).join('')}</tbody>`;
 
       tableEl.innerHTML = colgroup + thead + tbody;
+
+      // Delegation: copy + save
+      tableEl.onclick = (ev)=>{
+        const btn = ev.target.closest('[data-copy]');
+        if(!btn) return;
+        const tr = btn.closest('tr');
+        const key = tr?.getAttribute('data-spec') || '';
+        if(key){
+          navigator.clipboard.writeText(key).then(()=> toast('تم النسخ')).catch(()=> toast('لم يتم النسخ'));
+        }
+      };
+
+      tableEl.onchange = (ev)=>{
+        const el = ev.target;
+        if(!(el instanceof HTMLSelectElement)) return;
+        const tr = el.closest('tr');
+        const key = tr?.getAttribute('data-spec') || '';
+        const field = el.getAttribute('data-field');
+        if(!key || !field) return;
+
+        const value = el.value || '';
+        scheduleSaveStockTask(key, { [field]: value });
+
+        // تفعيل/تعطيل الحقول التابعة
+        if(field === 'montage'){
+          const md = tr.querySelector('[data-field="montageDetails"]');
+          if(md){
+            md.disabled = (value !== 'نعم');
+            if(md.disabled){
+              md.value = '';
+              scheduleSaveStockTask(key, { montageDetails: '' });
+            }
+          }
+        }
+        if(field === 'inAgenda'){
+          const m = tr.querySelector('[data-field="agendaMonth"]');
+          const y = tr.querySelector('[data-field="agendaYear"]');
+          const dis = (value !== 'نعم');
+          if(m){
+            m.disabled = dis;
+            if(dis){ m.value=''; scheduleSaveStockTask(key,{agendaMonth:''}); }
+          }
+          if(y){
+            y.disabled = dis;
+            if(dis){ y.value=''; scheduleSaveStockTask(key,{agendaYear:''}); }
+          }
+        }
+      };
+
+      tableEl.oninput = (ev)=>{
+        const el = ev.target;
+        if(!(el instanceof HTMLInputElement)) return;
+        const tr = el.closest('tr');
+        const key = tr?.getAttribute('data-spec') || '';
+        const field = el.getAttribute('data-field');
+        if(!key || field !== 'agendaYear') return;
+        const v = String(el.value || '').trim();
+        scheduleSaveStockTask(key, { agendaYear: v });
+      };
     }
 
     function openHome(){
@@ -1468,6 +1718,8 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
         $("boardSub").textContent = `عدد الأعمدة: ${(workspace.columns||[]).length}`;
       }
 
+      // show VIN for the selected spec key
+      
       showView("board");
 
       $("btnEditBoard").onclick = ()=> openBoardModal(workspace.type, "edit", workspace);
@@ -1710,7 +1962,7 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
     // Task modal
     const taskModal = $("taskModal");
     const taskSpecKey = $("taskSpecKey");
-    const taskDesc = $("taskDesc");
+const taskDesc = $("taskDesc");
     const taskDue = $("taskDue");
     const taskAssignee = $("taskAssignee");
     const taskColumn = $("taskColumn");
@@ -1774,6 +2026,7 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
         taskDue.value = "";
         taskAssignee.value = "";
 
+        
         const isCampaign = TASK_CTX.workspace.type==="campaign";
         taskLinksWrap.style.display = isCampaign ? "" : "none";
         LINKS_TMP = [];
@@ -1791,6 +2044,7 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
         taskDue.value = CURRENT_TASK.due || "";
         taskAssignee.value = CURRENT_TASK.assigneeUid || "";
 
+        
         const isCampaign = CURRENT_TASK.type==="campaign";
         taskLinksWrap.style.display = isCampaign ? "" : "none";
         LINKS_TMP = Array.isArray(CURRENT_TASK.links) ? [...CURRENT_TASK.links] : [];
