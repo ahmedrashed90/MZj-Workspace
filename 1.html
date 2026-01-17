@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -481,11 +482,11 @@
     /* ===== Daily Task ===== */
     .daily-weeks{
       display:grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
+      /* Wider columns: avoid squeezing the 3 inner columns */
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
       gap:10px;
     }
-    @media(max-width:1100px){ .daily-weeks{grid-template-columns: repeat(2, minmax(0,1fr));} }
-    @media(max-width:680px){ .daily-weeks{grid-template-columns: 1fr;} }
+    @media(max-width:420px){ .daily-weeks{grid-template-columns: 1fr;} }
     .week-card{
       background:#fff;
       border:1px solid rgba(62,36,32,.10);
@@ -506,6 +507,28 @@
       gap:10px;
     }
     .week-head strong{color:var(--brown);font-weight:900;font-size:13px}
+    .week-done{
+      padding:10px 12px;
+      background:#f0fdf4;
+      border-bottom:1px solid rgba(22,163,74,.18);
+      display:grid;
+      gap:8px;
+    }
+    .week-done .hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .week-done .hd .ttl{font-weight:900;color:#0f5a2a;font-size:12px}
+    .week-done .items{display:grid;gap:6px;max-height:180px;overflow:auto;padding-right:2px}
+    .week-done .item{
+      background:#fff;
+      border:1px solid rgba(22,163,74,.18);
+      border-radius:12px;
+      padding:8px 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .week-done .item .t{font-weight:900;color:var(--brown);font-size:12px;line-height:1.5}
+    .week-done .item .m{color:var(--muted);font-size:11px;white-space:nowrap}
     .week-body{padding:10px 10px 12px;display:grid;gap:10px}
     .day-block{
       border:1px solid rgba(62,36,32,.08);
@@ -526,8 +549,11 @@
       gap:8px;
       align-content:start;
     }
+    .day-col.notes{background:#fff;border-style:solid;border-color: rgba(62,36,32,.10)}
     .day-col.done{background:#f0fdf4;border-color: rgba(22,163,74,.22)}
     .day-col .col-label{font-size:11px;color:var(--muted);font-weight:900}
+
+    
     .daily-task{
       background:#fff;
       border:1px solid rgba(62,36,32,.10);
@@ -928,6 +954,7 @@
             </select>
             <select id="dailyYear" class="inp" style="min-width:160px"></select>
             <button class="btn secondary sm" id="dailyRefresh" type="button">⟳ تحديث</button>
+            <button class="btn ghost sm" id="dailyDocsBtn" type="button">📝 محرر النصوص</button>
           </div>
         </div>
         <div class="body">
@@ -1271,6 +1298,63 @@
       <div class="m-foot">
         <button class="btn secondary" id="dailyTaskCancel" type="button">إلغاء</button>
         <button class="btn" id="dailyTaskSave" type="button">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Task: Standalone Rich Text Documents (مثل Word) -->
+  <div class="modal" id="dailyDocModal">
+    <div class="sheet" style="max-width:1040px">
+      <div class="m-head">
+        <strong>📝 محرر النصوص</strong>
+        <button class="btn secondary sm" id="dailyDocClose" type="button">✖</button>
+      </div>
+      <div class="m-body">
+        <div class="grid2" style="align-items:end">
+          <div>
+            <label>المستندات المحفوظة</label>
+            <select id="dailyDocSelect" class="inp" style="width:100%">
+              <option value="">مستند جديد...</option>
+            </select>
+            <div class="hint" style="color:var(--muted);margin-top:6px">* يتم حفظ المستند داخل نفس الشهر المختار في Daily Task.</div>
+          </div>
+          <div>
+            <label>عنوان المستند</label>
+            <input id="dailyDocTitle" class="inp" placeholder="مثال: خطة الأسبوع / ملاحظات اجتماع" />
+          </div>
+        </div>
+
+        <div class="rtf-toolbar" style="margin:12px 0 10px">
+          <select id="dailyDocFont" title="الخط">
+            <option value="Tajawal">Tajawal</option>
+            <option value="Arial">Arial</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+          </select>
+          <select id="dailyDocSize" title="الحجم">
+            <option value="2">صغير</option>
+            <option value="3" selected>عادي</option>
+            <option value="4">كبير</option>
+            <option value="5">أكبر</option>
+          </select>
+          <input id="dailyDocColor" type="color" value="#3e2420" title="اللون"/>
+          <button class="btn secondary xs" data-doc-rtf="bold" type="button"><b>B</b></button>
+          <button class="btn secondary xs" data-doc-rtf="italic" type="button"><i>I</i></button>
+          <button class="btn secondary xs" data-doc-rtf="underline" type="button"><u>U</u></button>
+          <button class="btn secondary xs" data-doc-rtf="justifyleft" type="button">يسار</button>
+          <button class="btn secondary xs" data-doc-rtf="justifycenter" type="button">وسط</button>
+          <button class="btn secondary xs" data-doc-rtf="justifyright" type="button">يمين</button>
+          <button class="btn secondary xs" data-doc-rtf="insertunorderedlist" type="button">• قائمة</button>
+          <button class="btn secondary xs" data-doc-rtf="insertorderedlist" type="button">1) قائمة</button>
+          <button class="btn secondary xs" data-doc-rtf="removeFormat" type="button">مسح تنسيق</button>
+        </div>
+
+        <div class="rtf-editor" id="dailyDocEditor" contenteditable="true"></div>
+      </div>
+      <div class="m-foot">
+        <button class="btn secondary" id="dailyDocNew" type="button">مستند جديد</button>
+        <button class="btn danger" id="dailyDocDelete" type="button">حذف</button>
+        <button class="btn" id="dailyDocSave" type="button">حفظ</button>
       </div>
     </div>
   </div>
@@ -2257,10 +2341,21 @@ let unsubKpiWs=null, unsubKpiTasks=null;
       }
 
       const weeksHtml = [1,2,3,4].map(w=>{
+        const weekDoneAll = docs
+          .filter(x=> Number(x.weekIndex||0)===w && String(x.status||"")==="done")
+          .map(x=> ({...x, _dayName: days[Number(x.dayIndex||0)] || ""}));
+
+        const weekDoneHtml = weekDoneAll.length
+          ? weekDoneAll.map(t=>{
+              const title = escapeHtml(t.title||"");
+              const meta  = escapeHtml(t._dayName||"");
+              return `<div class="item"><div class="t">${title || "(بدون عنوان)"}</div><div class="m">${meta}</div></div>`;
+            }).join("")
+          : `<div class="hint" style="color:var(--muted)">—</div>`;
+
         const daysHtml = days.map((dn, di)=>{
           const list = (byWeekDay[`${w}-${di}`]||[]);
           const todo = list.filter(x=> String(x.status||"todo")!=="done");
-          const done = list.filter(x=> String(x.status||"")==="done");
 
           const renderTask = (t, isDone)=>{
             const title = escapeHtml(t.title||"");
@@ -2280,23 +2375,15 @@ let unsubKpiWs=null, unsubKpiTasks=null;
           const renderNote = (t)=>{
             const title = escapeHtml(t.title||"");
             const notes = escapeHtml(t.notes||"");
-            const rtf = String(t.richNoteHtml || t.richHtml || t.richText || "").trim();
-            const badge = rtf ? `<span class="rtf-badge">📝 نص منسق</span>` : `<span class="muted" style="font-size:11px">—</span>`;
             return `
               <div class="daily-note" data-task="${escapeAttr(t.id)}">
                 <div class="tt">${title}</div>
                 <textarea class="inp" data-act="note" data-id="${escapeAttr(t.id)}" placeholder="ملاحظات...">${notes}</textarea>
-                <div class="row">
-                  <button class="btn secondary xs" data-act="rtf" data-id="${escapeAttr(t.id)}" type="button">✍️ تحرير نص</button>
-                  <button class="btn danger xs" data-act="rtf-clear" data-id="${escapeAttr(t.id)}" type="button">مسح</button>
-                  ${badge}
-                </div>
               </div>
             `;
           };
 
           const todoHtml = todo.map(t=> renderTask(t,false)).join("") || `<div class="hint" style="color:var(--muted)">—</div>`;
-          const doneHtml = done.map(t=> renderTask(t,true)).join("") || `<div class="hint" style="color:var(--muted)">—</div>`;
           const notesHtml = list.map(t=> renderNote(t)).join("") || `<div class="hint" style="color:var(--muted)">—</div>`;
 
           return `
@@ -2309,10 +2396,6 @@ let unsubKpiWs=null, unsubKpiTasks=null;
                 <div class="day-col">
                   <div class="col-label">قائمة المهام</div>
                   ${todoHtml}
-                </div>
-                <div class="day-col done">
-                  <div class="col-label">تم الانتهاء</div>
-                  ${doneHtml}
                 </div>
                 <div class="day-col notes">
                   <div class="col-label">ملاحظات</div>
@@ -2328,6 +2411,13 @@ let unsubKpiWs=null, unsubKpiTasks=null;
             <div class="week-head">
               <strong>الأسبوع ${w}</strong>
               <span class="muted" style="font-size:12px">${escapeHtml(monthKey)}</span>
+            </div>
+            <div class="week-done">
+              <div class="hd">
+                <div class="ttl">تم الانتهاء (الأسبوع ${w})</div>
+                <div class="m" style="font-weight:900;color:var(--muted);font-size:11px">${weekDoneAll.length}</div>
+              </div>
+              <div class="items">${weekDoneHtml}</div>
             </div>
             <div class="week-body">${daysHtml}</div>
           </div>
@@ -2381,31 +2471,6 @@ let unsubKpiWs=null, unsubKpiTasks=null;
         });
       });
 
-      // Rich Text editor (formatted text)
-      wrap.querySelectorAll("[data-act='rtf']").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const id = btn.getAttribute("data-id");
-          if(!id) return;
-          openRtfModal(id);
-        });
-      });
-
-      wrap.querySelectorAll("[data-act='rtf-clear']").forEach(btn=>{
-        btn.addEventListener("click", async ()=>{
-          const id = btn.getAttribute("data-id");
-          if(!id) return;
-          btn.disabled = true;
-          try{
-            await updateDoc(doc(db,"daily_tasks", id), { richNoteHtml: "" });
-            toast("تم مسح النص المنسق");
-          }catch(e){
-            console.error(e);
-            toast("⚠️ لم يتم مسح النص");
-          }finally{
-            btn.disabled = false;
-          }
-        });
-      });
     }
 
     function openDailyTaskModal(ctx){
@@ -2438,6 +2503,7 @@ let unsubKpiWs=null, unsubKpiTasks=null;
           dayIndex: Number(DAILY_CTX.dayIndex||0),
           title, desc,
           notes: "",
+          richNoteHtml: "",
           status: "todo",
           createdBy: CURRENT_USER ? CURRENT_USER.uid : "",
           createdAt: serverTimestamp()
@@ -2455,6 +2521,182 @@ let unsubKpiWs=null, unsubKpiTasks=null;
     $("dailyMonth").addEventListener("change", ()=>{ if(MODE==="daily") loadDaily(); });
     $("dailyYear").addEventListener("change", ()=>{ if(MODE==="daily") loadDaily(); });
     $("dailyRefresh").addEventListener("click", ()=>{ if(MODE==="daily") loadDaily(); });
+
+
+
+    // ===== Daily Task: Standalone Rich Text Documents (مثل Word) =====
+    let DAILY_DOCS_UNSUB = null;
+    let DAILY_DOC_ITEMS = [];
+    let DAILY_DOC_ID = null;
+
+    function closeDailyDocModal(){
+      $("dailyDocModal").classList.remove("show");
+      DAILY_DOC_ID = null;
+      DAILY_DOC_ITEMS = [];
+      try{ if(DAILY_DOCS_UNSUB){ DAILY_DOCS_UNSUB(); DAILY_DOCS_UNSUB=null; } }catch(e){}
+    }
+
+    function resetDailyDocEditor(){
+      DAILY_DOC_ID = null;
+      $("dailyDocSelect").value = "";
+      $("dailyDocTitle").value = "";
+      $("dailyDocEditor").innerHTML = "";
+    }
+
+    function renderDailyDocSelect(){
+      const sel = $("dailyDocSelect");
+      const opts = [`<option value="">مستند جديد...</option>`];
+      for(const d of (DAILY_DOC_ITEMS||[])){
+        const t = escapeHtml(d.title||"(بدون عنوان)");
+        opts.push(`<option value="${escapeAttr(d.id)}">${t}</option>`);
+      }
+      sel.innerHTML = opts.join("");
+      sel.value = DAILY_DOC_ID || "";
+    }
+
+    function openDailyDocModal(){
+      const monthKey = getDailyMonthKey();
+      if(!monthKey){
+        toast("اختر الشهر والسنة أولاً ثم افتح محرر النصوص");
+        return;
+      }
+
+      // Open modal
+      $("dailyDocModal").classList.add("show");
+      resetDailyDocEditor();
+
+      // Close on backdrop
+      const modal = $("dailyDocModal");
+      modal.addEventListener("click", (e)=>{ if(e.target===modal) closeDailyDocModal(); }, { once:true });
+
+      // Live list (month scoped)
+      try{ if(DAILY_DOCS_UNSUB){ DAILY_DOCS_UNSUB(); DAILY_DOCS_UNSUB=null; } }catch(e){}
+      const qd = query(collection(db,"daily_docs"), where("monthKey","==", monthKey));
+      DAILY_DOCS_UNSUB = onSnapshot(qd, (snap)=>{
+        const items=[];
+        snap.forEach(d=> items.push({id:d.id, ...(d.data()||{})}));
+        items.sort((a,b)=> (b.updatedAt?.seconds||b.createdAt?.seconds||0) - (a.updatedAt?.seconds||a.createdAt?.seconds||0));
+        DAILY_DOC_ITEMS = items;
+        renderDailyDocSelect();
+      }, (err)=>{
+        console.error(err);
+        toast("⚠️ فشل تحميل المستندات");
+      });
+
+      setTimeout(()=>{ try{ $("dailyDocEditor").focus(); }catch(e){} }, 50);
+    }
+
+    function docExec(cmd, val=null){
+      try{ document.execCommand(cmd, false, val); }catch(e){}
+      try{ $("dailyDocEditor").focus(); }catch(e){}
+    }
+
+    function initDailyDocs(){
+      const btn = $("dailyDocsBtn");
+      if(btn) btn.addEventListener("click", ()=>{ if(MODE==="daily") openDailyDocModal(); });
+
+      $("dailyDocClose").addEventListener("click", closeDailyDocModal);
+
+      // Select existing doc
+      $("dailyDocSelect").addEventListener("change", ()=>{
+        const id = $("dailyDocSelect").value || "";
+        DAILY_DOC_ID = id || null;
+        if(!id){
+          $("dailyDocTitle").value = "";
+          $("dailyDocEditor").innerHTML = "";
+          return;
+        }
+        const d = (DAILY_DOC_ITEMS||[]).find(x=> x.id===id) || {};
+        $("dailyDocTitle").value = String(d.title||"");
+        $("dailyDocEditor").innerHTML = String(d.html||d.contentHtml||"");
+      });
+
+      // New
+      $("dailyDocNew").addEventListener("click", resetDailyDocEditor);
+
+      // Paste as plain text
+      $("dailyDocEditor").addEventListener("paste", (e)=>{
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+        try{ document.execCommand("insertText", false, text); }catch(err){
+          $("dailyDocEditor").textContent += text;
+        }
+      });
+
+      // Toolbar
+      $("dailyDocFont").addEventListener("change", ()=> docExec("fontName", $("dailyDocFont").value));
+      $("dailyDocSize").addEventListener("change", ()=> docExec("fontSize", $("dailyDocSize").value));
+      $("dailyDocColor").addEventListener("input", ()=> docExec("foreColor", $("dailyDocColor").value));
+
+      $("dailyDocModal").querySelectorAll("[data-doc-rtf]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          let cmd = (btn.getAttribute("data-doc-rtf")||"").trim();
+          if(!cmd) return;
+          const map = {
+            "justifyleft": "justifyLeft",
+            "justifycenter": "justifyCenter",
+            "justifyright": "justifyRight",
+            "insertunorderedlist": "insertUnorderedList",
+            "insertorderedlist": "insertOrderedList",
+          };
+          cmd = map[cmd.toLowerCase()] || cmd;
+          docExec(cmd);
+        });
+      });
+
+      // Save
+      $("dailyDocSave").addEventListener("click", async ()=>{
+        const monthKey = getDailyMonthKey();
+        if(!monthKey){ toast("اختر الشهر والسنة أولاً"); return; }
+        const title = String($("dailyDocTitle").value||"").trim();
+        const html  = String($("dailyDocEditor").innerHTML||"").trim();
+        if(!title && !html){ toast("اكتب عنوان أو محتوى ثم احفظ"); return; }
+
+        $("dailyDocSave").disabled = true;
+        try{
+          if(DAILY_DOC_ID){
+            await updateDoc(doc(db,"daily_docs", DAILY_DOC_ID), {
+              title: title || "(بدون عنوان)",
+              html,
+              updatedAt: serverTimestamp()
+            });
+          }else{
+            const ref = await addDoc(collection(db,"daily_docs"), {
+              monthKey,
+              title: title || "(بدون عنوان)",
+              html,
+              createdBy: CURRENT_USER ? CURRENT_USER.uid : "",
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+            DAILY_DOC_ID = ref.id;
+          }
+          toast("تم حفظ المستند");
+        }catch(e){
+          console.error(e);
+          toast("⚠️ لم يتم حفظ المستند");
+        }finally{
+          $("dailyDocSave").disabled = false;
+        }
+      });
+
+      // Delete
+      $("dailyDocDelete").addEventListener("click", async ()=>{
+        if(!DAILY_DOC_ID){ toast("اختر مستندًا للحذف"); return; }
+        $("dailyDocDelete").disabled = true;
+        try{
+          await deleteDoc(doc(db,"daily_docs", DAILY_DOC_ID));
+          toast("تم حذف المستند");
+          resetDailyDocEditor();
+        }catch(e){
+          console.error(e);
+          toast("⚠️ لم يتم حذف المستند");
+        }finally{
+          $("dailyDocDelete").disabled = false;
+        }
+      });
+    }
+    initDailyDocs();
 
 
 
@@ -2504,8 +2746,25 @@ let unsubKpiWs=null, unsubKpiTasks=null;
       $("rtfSize").addEventListener("change", ()=> rtfExec("fontSize", $("rtfSize").value));
       $("rtfColor").addEventListener("input", ()=> rtfExec("foreColor", $("rtfColor").value));
 
-      modal.querySelectorAll("[data-cmd]").forEach(btn=>{
-        btn.addEventListener("click", ()=> rtfExec(btn.getAttribute("data-cmd")));
+      // Toolbar buttons
+      // We use data-rtf in HTML (bold/italic/underline/justify/list/removeFormat)
+      modal.querySelectorAll("[data-rtf]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          let cmd = (btn.getAttribute("data-rtf")||"").trim();
+          if(!cmd) return;
+
+          // Normalize common commands to execCommand naming
+          const map = {
+            "justifyleft": "justifyLeft",
+            "justifycenter": "justifyCenter",
+            "justifyright": "justifyRight",
+            "insertunorderedlist": "insertUnorderedList",
+            "insertorderedlist": "insertOrderedList",
+          };
+          cmd = map[cmd.toLowerCase()] || cmd;
+
+          rtfExec(cmd);
+        });
       });
 
       $("rtfSave").addEventListener("click", async ()=>{
