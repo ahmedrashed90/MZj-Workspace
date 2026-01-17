@@ -1,0 +1,3286 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <link rel="icon" type="image/x-icon" href="assets/favicon.png">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MZJ-WORKSPACE</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* Tajawal for the whole file */
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+    html, body, button, input, select, textarea {
+      font-family: 'Tajawal', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Make Unique Spec Key inputs wider + more readable (all modals) */
+    .modal input[list],
+    .modal input[type="text"],
+    .modal select {
+      font-size: 15px;
+    }
+    /* Specifically: Unique Spec Key fields */
+    #taskSpecKey, #dSpecKey {
+      font-size: 16px;
+      padding: 12px 12px;
+      height: 46px;
+    }
+    /* Let the Unique Spec Key field take full row in the modal */
+    #taskModal .grid2 .speckey-full { grid-column: 1 / -1; }
+    /* VIN hint under the dropdown */
+    .vin-hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    :root{
+      --brown:#3e2420;
+      --beige:#bc8f74;
+      --cream:#fff8ef;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --line:#e5e7eb;
+      --radius:16px;
+      --shadow: 0 12px 30px rgba(62,36,32,.12);
+      --shadow2: 0 18px 50px rgba(62,36,32,.18);
+      --danger:#b91c1c;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--cream);
+      color:var(--text);
+      font-family:"Tajawal",system-ui,Arial;
+    }
+    a{color:inherit;text-decoration:none}
+    button,input,select,textarea{font-family:inherit}
+
+    /* ===== Layout ===== */
+    .app{
+      height:100%;
+      display:grid;
+      grid-template-columns: 300px 1fr;
+      transition: grid-template-columns .18s ease;
+    }
+    .app.collapsed{ grid-template-columns: 88px 1fr; }
+
+    /* ===== Sidebar ===== */
+    .sidebar{
+      background: linear-gradient(180deg, var(--brown), #2f1c19);
+      color:#fff;
+      padding:14px;
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    }
+    .sb-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:6px 4px 14px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      margin-bottom:12px;
+    }
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .brand-badge{
+      inline-size:34px;
+      block-size:34px;
+      border-radius:12px;
+      background:linear-gradient(135deg,var(--beige),#d9b39a);
+      flex:0 0 auto;
+      box-shadow: 0 12px 24px rgba(188,143,116,.25);
+    }
+    .brand-title{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .brand-title strong{
+      font-size:14px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .brand-title span{
+      font-size:12px;opacity:.85;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .toggle-btn{
+      border:0;
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      padding:10px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:.15s;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .toggle-btn:hover{background:rgba(255,255,255,.18)}
+    .app.collapsed .brand-title{display:none}
+
+    .sb-user{
+      margin:10px 0 14px;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      background:rgba(255,255,255,.06);
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .avatar{
+      width:36px;height:36px;border-radius:12px;
+      background:rgba(255,255,255,.14);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:800;
+      flex:0 0 auto;
+    }
+    .sb-user .meta{min-width:0}
+    .sb-user .meta .name{
+      font-weight:800;font-size:13px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .sb-user .meta .role{
+      font-size:12px;opacity:.85;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .app.collapsed .sb-user .meta{display:none}
+
+    .sb-nav{display:grid;gap:8px;margin-top:10px}
+    .sb-link{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.06);
+      cursor:pointer;transition:.15s;user-select:none;
+    }
+    .sb-link:hover{background:rgba(255,255,255,.10)}
+    .sb-link.active{
+      background:rgba(255,255,255,.16);
+      border-color:rgba(255,255,255,.16);
+    }
+    .sb-ico{
+      width:34px;height:34px;border-radius:12px;
+      background:rgba(255,255,255,.12);
+      display:flex;align-items:center;justify-content:center;
+      flex:0 0 auto;font-size:16px;
+    }
+    .sb-text{font-weight:800}
+    .app.collapsed .sb-text{display:none}
+
+    .sb-foot{
+      margin-top:14px;padding-top:12px;
+      border-top:1px solid rgba(255,255,255,.12);
+      display:grid;gap:8px;
+    }
+    .hint{font-size:12px;line-height:1.6}
+
+    /* ===== Dashboard ===== */
+    .dash-wrap{display:grid;gap:14px}
+    .dash-controls{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      box-shadow: 0 10px 24px rgba(62,36,32,.08);
+    }
+    .dash-kpis{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));}
+    .dash-table{width:100%;border-collapse:separate;border-spacing:0}
+    .dash-table th{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:10px;font-size:12px;text-align:right;color:var(--muted)}
+    .dash-table td{padding:10px;border-bottom:1px solid #f0ebe6;font-size:13px;vertical-align:top}
+    .pill-mini{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:800;font-size:12px}
+    .pill-mini.done{border-color:#86efac;background:#f0fdf4;color:#166534}
+    .pill-mini.open{border-color:#fde68a;background:#fffbeb;color:#92400e}
+
+    /* ===== Daily Tasks ===== */
+    .daily-grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+    .week-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      box-shadow: 0 10px 24px rgba(62,36,32,.08);
+      min-height:260px;
+    }
+    .week-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .week-head strong{font-size:14px}
+    .week-cols{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+    .week-col{border:1px dashed #e7dfd7;border-radius:16px;padding:10px;background:#fffaf3;min-height:140px}
+    .week-col h4{margin:0 0 10px;font-size:12px;color:var(--muted)}
+    .dtask{
+      background:#fff;
+      border:1px solid #efe7df;
+      border-radius:16px;
+      padding:10px;
+      margin-bottom:10px;
+    }
+    .dtask .top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .dtask .title{font-weight:900;font-size:13px}
+    .dtask .desc{font-size:12px;color:var(--muted);margin-top:6px;white-space:pre-wrap}
+    .dtask .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .dtask .notes{margin-top:10px}
+    .dtask textarea{width:100%;min-height:54px}
+
+    @media (max-width:980px){
+      .dash-kpis{grid-template-columns:1fr}
+      .daily-grid{grid-template-columns:1fr}
+    }
+
+    /* ===== Main ===== */
+    .main{padding:18px;min-width:0}
+    .page-head{
+      display:flex;align-items:flex-start;justify-content:space-between;
+      gap:14px;margin-bottom:14px;
+    }
+    .title-wrap h1{margin:0;font-size:20px;color:var(--brown);letter-spacing:.2px}
+    .title-wrap p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{
+      padding:10px 12px;border-radius:14px;border:0;
+      background:var(--brown);color:#fff;cursor:pointer;font-weight:800;
+      box-shadow: 0 10px 24px rgba(62,36,32,.18);transition:.15s;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn.secondary{background:#fff;color:var(--brown);border:1px solid var(--brown);box-shadow:none}
+    .btn.danger{background:var(--danger);box-shadow: 0 10px 24px rgba(185,28,28,.18)}
+    .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--brown);box-shadow:none}
+    .btn.sm{padding:8px 10px;border-radius:12px;font-size:13px}
+    .btn.xs{padding:6px 9px;border-radius:999px;font-size:12px}
+
+    .panel{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:1px solid rgba(62,36,32,.06);
+      overflow:hidden;
+    }
+    .panel .head{
+      padding:12px 14px;border-bottom:1px solid #f1f1f1;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      background: linear-gradient(180deg, #fff, #fff8ef);
+    }
+    .panel .body{padding:14px}
+    .muted{color:var(--muted)}
+
+    /* ===== Home cards ===== */
+    .home-grid{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:14px}
+    @media(max-width:980px){.home-grid{grid-template-columns:1fr}}
+    .hero-card{
+      border-radius:18px;border:1px solid rgba(62,36,32,.10);
+      background: linear-gradient(140deg, #fff, #fff8ef 60%, rgba(188,143,116,.10));
+      box-shadow: var(--shadow);
+      padding:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+      position:relative;overflow:hidden;min-height:150px;cursor:pointer;
+    }
+    .hero-card::before{
+      content:"";position:absolute;inset:auto -40px -40px auto;
+      width:160px;height:160px;border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, rgba(188,143,116,.35), transparent 60%);
+      transform: rotate(12deg);
+    }
+    .hero-left{position:relative;z-index:1;min-width:0}
+    .hero-title{margin:0;font-size:18px;color:var(--brown);font-weight:900}
+    .hero-desc{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.7;max-width:560px}
+    .hero-actions{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;background:#fff;
+      border:1px solid rgba(62,36,32,.10);color:var(--brown);
+      font-weight:800;font-size:12px;box-shadow: 0 8px 18px rgba(62,36,32,.10);
+    }
+    .pill .dot{width:8px;height:8px;border-radius:999px;background:var(--beige)}
+
+    /* ===== Lists ===== */
+    .list{display:grid;gap:10px}
+    .list-item{
+      border:1px solid rgba(62,36,32,.10);border-radius:16px;padding:12px;
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+      background:#fff;transition:.15s;cursor:pointer;
+    }
+    .list-item:hover{transform:translateY(-1px);box-shadow: 0 14px 36px rgba(62,36,32,.12)}
+    .li-main{min-width:0}
+    .li-title{
+      margin:0;font-size:14px;font-weight:900;color:var(--brown);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .li-sub{
+      margin:6px 0 0;font-size:12px;color:var(--muted);line-height:1.6;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    }
+    .li-right{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
+    .tag{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:999px;background:#fff8ef;
+      border:1px solid rgba(188,143,116,.30);color:var(--brown);
+      font-size:12px;font-weight:800;
+    }
+    .tag .mini{width:6px;height:6px;border-radius:999px;background:var(--beige)}
+
+    /* ===== Board ===== */
+    .board{display:grid;gap:14px;grid-template-columns:repeat(4, minmax(0, 1fr));margin-top:12px}
+    @media(max-width:1400px){.board{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:980px){.board{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.board{grid-template-columns:1fr}}
+
+    .col{
+      background:#fff;border:1px solid rgba(62,36,32,.08);
+      border-radius:16px;box-shadow: 0 10px 28px rgba(62,36,32,.08);
+      overflow:hidden;display:flex;flex-direction:column;min-height:220px;
+    }
+    .col-head{
+      background: linear-gradient(180deg, #fff8ef, #fff);
+      border-bottom:1px solid rgba(62,36,32,.06);
+      padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    }
+    .col-title{
+      font-weight:900;color:var(--brown);font-size:13px;
+      display:flex;align-items:center;gap:8px;min-width:0;
+    }
+    .col-title span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .count-badge{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:24px;height:24px;padding:0 8px;border-radius:999px;
+      background:#fff;border:1px solid rgba(62,36,32,.12);
+      font-size:12px;font-weight:900;color:var(--brown);
+    }
+    .col-body{padding:10px;display:grid;gap:10px}
+
+    .task-card{
+      border:1px solid rgba(62,36,32,.10);border-radius:14px;padding:10px;
+      background:#fff;box-shadow: 0 10px 22px rgba(62,36,32,.08);
+      cursor:pointer;transition:.15s;
+    }
+    .task-card:hover{transform:translateY(-1px)}
+    .t-title{margin:0;font-size:13px;font-weight:900;color:var(--brown);line-height:1.5}
+    .t-meta{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:12px}
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:999px;background:#fff8ef;
+      border:1px solid rgba(188,143,116,.25);color:var(--brown);
+      font-weight:800;font-size:12px;
+    }
+    .badge .dot{width:8px;height:8px;border-radius:999px;background:var(--beige)}
+
+    /* ===== Modal ===== */
+    .modal{
+      position:fixed;inset:0;background:rgba(0,0,0,.40);
+      display:none;place-items:center;padding:16px;z-index:999;
+    }
+    .modal.show{display:grid}
+    .sheet{
+      width:min(900px, 100%);background:#fff;border-radius:18px;box-shadow: var(--shadow2);
+      overflow:hidden;display:flex;flex-direction:column;max-height:92vh;
+    }
+    .sheet .m-head{
+      padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+      border-bottom:1px solid #f1f1f1;background: linear-gradient(180deg, #fff, #fff8ef);
+    }
+    .sheet .m-head strong{color:var(--brown);font-size:14px;font-weight:900}
+    .sheet .m-body{padding:14px;overflow:auto;display:grid;gap:10px}
+    .sheet .m-foot{
+      padding:12px 14px;border-top:1px solid #f1f1f1;background: #fff8ef;
+      display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;
+    }
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(max-width:860px){.grid2{grid-template-columns:1fr}}
+    label{display:block;margin:4px 0 6px;font-size:12px;font-weight:900;color:var(--brown)}
+    input,select,textarea{
+      width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);
+      outline:none;background:#fff;font-size:14px;
+    }
+    textarea{min-height:110px;resize:vertical;line-height:1.8}
+    input:focus,select:focus,textarea:focus{
+      border-color: rgba(188,143,116,.65);
+      box-shadow: 0 0 0 4px rgba(188,143,116,.18);
+    }
+
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;border:1px solid rgba(62,36,32,.10);
+      background:#fff;font-size:12px;color:var(--brown);font-weight:800;
+    }
+    .chip button{
+      border:0;background:#fff8ef;color:var(--brown);
+      border-radius:10px;cursor:pointer;padding:4px 8px;font-weight:900;
+    }
+
+    .divider{height:1px;background: #f1f1f1;margin:4px 0}
+    .empty{
+      padding:14px;border:1px dashed rgba(62,36,32,.18);
+      border-radius:16px;background:#fff;color:var(--muted);
+      line-height:1.8;font-size:13px;
+    }
+
+    .toast{
+      position:fixed;left:16px;bottom:16px;background:#111827;color:#fff;
+      padding:10px 12px;border-radius:14px;box-shadow: 0 14px 40px rgba(0,0,0,.25);
+      display:none;z-index:2000;font-size:13px;
+    }
+    .toast.show{display:block}
+
+    .kpi-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .kpi{
+      flex:1 1 220px;background:#fff;border-radius:16px;border:1px solid rgba(62,36,32,.08);
+      box-shadow: 0 10px 28px rgba(62,36,32,.08);padding:12px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .kpi strong{display:block;color:var(--brown);font-weight:900;font-size:13px}
+    .kpi span{color:var(--muted);font-size:12px}
+    .kpi .num{font-weight:900;font-size:18px;color:var(--brown)}
+
+
+
+    /* ===== Stock Table ===== */
+    /* Tajawal for stock tab */
+    #viewStock, #viewStock *{font-family:"Tajawal",system-ui,Arial !important;}
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid #e6ded6;
+      border-radius:14px;
+      background:#fff;
+      box-shadow: 0 10px 28px rgba(62,36,32,.08);
+    }
+
+    .stock-table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1550px;
+      background:#fff;
+      table-layout:fixed;
+      font-size:13px;
+    }
+
+    .stock-table thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#f9f4ef;
+      color:var(--brown);
+      font-weight:800;
+      padding:12px 10px;
+      border-bottom:1px solid #e6ded6;
+      text-align:right;
+      white-space:nowrap;
+    }
+
+    .stock-table tbody td{
+      padding:11px 10px;
+      border-bottom:1px solid #f0ebe6;
+      color:var(--text);
+      vertical-align:middle;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      background:#fff;
+    }
+
+    .stock-table tbody tr:nth-child(even) td{background:#fffaf5;}
+    .stock-table tbody tr:hover td{background:#f3ece6;}
+
+    .stock-table td.wrap{white-space:normal;line-height:1.7;}
+    .stock-table td.center{text-align:center;font-weight:700;}
+    .stock-table td.mono{direction:ltr;text-align:left;white-space:nowrap;font-family:inherit;}
+
+    /* Stock table controls */
+    .stock-ctrl{width:100%;padding:8px 10px;border:1px solid #e6ded6;border-radius:10px;background:#fff;font-size:13px;outline:none}
+    .stock-ctrl:focus{border-color: var(--beige); box-shadow: 0 0 0 3px rgba(188,143,116,.18)}
+    .stock-ctrl.small{padding:7px 10px;font-size:12px}
+    .stock-ctrl[disabled]{background:#f7f3ef;color:#9aa3af}
+    .stock-badge-mini{display:inline-block;padding:4px 10px;border-radius:999px;background:#f1e7dd;color:#3e2420;font-size:12px;white-space:nowrap}
+    .stock-count{font-weight:800}
+
+    .stock-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+    /* ===== Auth Gate (Inline Login) ===== */
+    .auth-gate{
+      position:fixed; inset:0; z-index:3000;
+      background:linear-gradient(180deg, rgba(62,36,32,.92), rgba(47,28,25,.92));
+      display:none; place-items:center; padding:16px;
+    }
+    .auth-gate.show{display:grid}
+    .auth-card{
+      width:min(520px, 100%);
+      background:#fff;
+      border-radius:20px;
+      box-shadow: 0 22px 70px rgba(0,0,0,.35);
+      border:1px solid rgba(62,36,32,.10);
+      overflow:hidden;
+    }
+    .auth-head{
+      padding:14px 16px;
+      background:linear-gradient(180deg, #fff, #fff8ef);
+      border-bottom:1px solid #f1f1f1;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .auth-head strong{color:var(--brown);font-weight:900}
+    .auth-body{padding:16px; display:grid; gap:10px}
+    .auth-foot{padding:12px 16px; background:#fff8ef; border-top:1px solid #f1f1f1; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap}
+    .auth-note{color:var(--muted); font-size:12px; line-height:1.7}
+    .auth-err{color:var(--danger); font-weight:900; font-size:13px; display:none}
+    .auth-err.show{display:block}
+    .auth-brand{
+      display:flex; align-items:center; gap:10px;
+    }
+    .auth-badge{
+      inline-size:38px; block-size:38px;
+      border-radius:14px;
+      background:linear-gradient(135deg,var(--beige),#d9b39a);
+      box-shadow: 0 12px 24px rgba(188,143,116,.25);
+    }
+    .hide-app{display:none !important}
+  </style>
+</head>
+
+<body>
+  <!-- Inline Login Gate (بديل login.html) -->
+  <div class="auth-gate" id="authGate">
+    <div class="auth-card">
+      <div class="auth-head">
+        <div class="auth-brand">
+          <div class="auth-badge"></div>
+          <div>
+            <strong>MZJ Workspace</strong>
+            <div class="auth-note">تسجيل الدخول بالبريد وكلمة المرور</div>
+          </div>
+        </div>
+        <span class="pill" style="margin:0"><span class="dot"></span> Secure</span>
+      </div>
+      <div class="auth-body">
+        <div class="auth-err" id="authErr">…</div>
+        <div>
+          <label>البريد الإلكتروني</label>
+          <input id="loginEmail" type="email" autocomplete="username" placeholder="name@email.com" />
+        </div>
+        <div>
+          <label>كلمة المرور</label>
+          <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••" />
+        </div>
+        <div class="auth-note">ملاحظة: نفس الإيميل/الباسورد الموجودين في Firebase Auth للمشروع <b>mzj-workspace-c7d4e</b>.</div>
+      </div>
+      <div class="auth-foot">
+        <button class="btn secondary" id="btnLoginDemo" type="button" style="display:none">دخول تجريبي</button>
+        <button class="btn" id="btnLogin" type="button">تسجيل الدخول</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app" id="app">
+    <aside class="sidebar">
+      <div class="sb-top">
+        <div class="brand">
+          <div class="brand-badge"></div>
+          <div class="brand-title">
+            <strong>MZJ Workspace</strong>
+            <span>Tasks & Campaigns</span>
+          </div>
+        </div>
+        <button class="toggle-btn" id="sbToggle" title="فتح / قفل القائمة">☰</button>
+      </div>
+
+      <div class="sb-user">
+        <div class="avatar" id="avatar">M</div>
+        <div class="meta">
+          <div class="name" id="whoName">...</div>
+          <div class="role" id="whoRole">...</div>
+        </div>
+      </div>
+
+      <div class="sb-nav">
+        <div class="sb-link active" id="navHome">
+          <div class="sb-ico">🏠</div>
+          <div class="sb-text">الداش بورد</div>
+        </div>
+
+        <div class="sb-link" id="navAgendas">
+          <div class="sb-ico">🗂️</div>
+          <div class="sb-text">الأجندات</div>
+        </div>
+
+        <div class="sb-link" id="navCampaigns">
+          <div class="sb-ico">📣</div>
+          <div class="sb-text">الحملات</div>
+        </div>
+
+
+        <div class="sb-link" id="navStock">
+          <div class="sb-ico">🚗</div>
+          <div class="sb-text">stock</div>
+        </div>
+
+        <div class="sb-link" id="navDaily" style="display:none">
+          <div class="sb-ico">🗓️</div>
+          <div class="sb-text">Daily Task</div>
+        </div>
+
+        <div class="sb-link" id="navAdmin" style="display:none">
+          <div class="sb-ico">🛡️</div>
+          <div class="sb-text">admin</div>
+        </div>
+
+      </div>
+
+      <div class="sb-foot">
+        <a class="sb-link" href="javascript:void(0)" id="btnLogout">
+          <div class="sb-ico">🚪</div>
+          <div class="sb-text">تسجيل الخروج</div>
+        </a>
+        <div class="hint" style="color:rgba(255,255,255,.75);padding:6px 6px 0">
+          © مجموعة محمد بن ذعار العجمي للسيارات — نجم الطريق
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="page-head">
+        <div class="title-wrap">
+          <h1 id="pageTitle">Workspace — إدارة الأجندات والحملات</h1>
+          <p id="pageDesc">أنشئ أجندات لتقسيم المهام اليومية/الأسبوعية، وأنشئ حملات بتواريخ ووصف وأعمدة… ثم أضف تاسكات داخل كل عمود بسهولة.</p>
+        </div>
+
+        <div class="actions" id="topActions">
+          <button class="btn secondary sm" id="btnBack" style="display:none">⬅ رجوع</button>
+          <button class="btn sm" id="btnCreateAgenda">➕ أجندة جديدة</button>
+          <button class="btn secondary sm" id="btnCreateCampaign">➕ حملة جديدة</button>
+        </div>
+      </div>
+
+      <section class="panel" id="viewHome">
+        <div class="head">
+          <strong>الداش بورد</strong>
+          <span class="muted" id="homeMeta">نظرة سريعة على الشغل + تقارير حسب الأجندة/الحملة/Daily Task</span>
+        </div>
+        <div class="body">
+          <div class="home-grid">
+            <div class="hero-card" id="goAgendas">
+              <div class="hero-left">
+                <h3 class="hero-title">الأجندات (Tasks)</h3>
+                <p class="hero-desc">
+                  أنشئ أجندة باسم وحدد أعمدة الكروت، ثم أضف تاسكات لكل عمود.
+                  التاسك يحتوي Unique Spec Key + وصف + تاريخ تسليم + مسؤول.
+                </p>
+                <div class="kpi-row">
+                  <div class="kpi">
+                    <div>
+                      <strong>عدد الأجندات</strong>
+                      <span class="muted">Active</span>
+                    </div>
+                    <div class="num" id="kpiAgendas">0</div>
+                  </div>
+                  <div class="kpi">
+                    <div>
+                      <strong>تاسكات الأجندات</strong>
+                      <span class="muted">الإجمالي</span>
+                    </div>
+                    <div class="num" id="kpiAgendaTasks">0</div>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-actions">
+                <div class="pill"><span class="dot"></span> Board مرتب</div>
+                <button class="btn sm" type="button">فتح الأجندات</button>
+              </div>
+            </div>
+
+            <div class="hero-card" id="goCampaigns">
+              <div class="hero-left">
+                <h3 class="hero-title">الحملات (Campaigns)</h3>
+                <p class="hero-desc">
+                  أنشئ حملة باسم ووصف + تاريخ بداية/نهاية + أعمدة، ثم أضف تاسكات لكل عمود.
+                  التاسك يحتوي Unique Spec Key + وصف + تاريخ تسليم + روابط + مسؤول.
+                </p>
+                <div class="kpi-row">
+                  <div class="kpi">
+                    <div>
+                      <strong>عدد الحملات</strong>
+                      <span class="muted">Active</span>
+                    </div>
+                    <div class="num" id="kpiCampaigns">0</div>
+                  </div>
+                  <div class="kpi">
+                    <div>
+                      <strong>تاسكات الحملات</strong>
+                      <span class="muted">الإجمالي</span>
+                    </div>
+                    <div class="num" id="kpiCampaignTasks">0</div>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-actions">
+                <div class="pill"><span class="dot"></span> تواريخ + روابط</div>
+                <button class="btn sm" type="button">فتح الحملات</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="dash-wrap" id="dashWrap">
+            <div class="dash-controls">
+              <div class="grid2" style="gap:12px;align-items:end">
+                <div>
+                  <label>اختيار القسم</label>
+                  <select id="dashSource">
+                    <option value="agenda">الأجندات</option>
+                    <option value="campaign">الحملات</option>
+                    <option value="daily">Daily Task</option>
+                  </select>
+                </div>
+                <div id="dashPickBoardWrap">
+                  <label>اختيار (أجندة/حملة)</label>
+                  <select id="dashBoard"></select>
+                </div>
+              </div>
+
+              <div class="grid2" id="dashDailyWrap" style="gap:12px;align-items:end;margin-top:10px;display:none">
+                <div>
+                  <label>الشهر</label>
+                  <select id="dashDailyMonth">
+                    <option value="1">يناير</option><option value="2">فبراير</option><option value="3">مارس</option><option value="4">أبريل</option><option value="5">مايو</option><option value="6">يونيو</option><option value="7">يوليو</option><option value="8">أغسطس</option><option value="9">سبتمبر</option><option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+                  </select>
+                </div>
+                <div>
+                  <label>السنة</label>
+                  <input id="dashDailyYear" type="number" value="2026" />
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px">
+                <button class="btn secondary sm" id="btnDashRefresh" type="button">⟳ تحديث</button>
+                <button class="btn sm" id="btnDashPdf" type="button">🧾 تصدير PDF</button>
+              </div>
+            </div>
+
+            <div class="dash-kpis" id="dashKpis">
+              <div class="kpi">
+                <div>
+                  <strong>إجمالي المهام</strong>
+                  <span class="muted">كل الشغل</span>
+                </div>
+                <div class="num" id="dashTotal">0</div>
+              </div>
+              <div class="kpi">
+                <div>
+                  <strong>تم الانتهاء</strong>
+                  <span class="muted">Done</span>
+                </div>
+                <div class="num" id="dashDone">0</div>
+              </div>
+              <div class="kpi">
+                <div>
+                  <strong>لم يتم الانتهاء</strong>
+                  <span class="muted">Open</span>
+                </div>
+                <div class="num" id="dashOpen">0</div>
+              </div>
+            </div>
+
+            <div class="grid2" style="margin-top:14px">
+              <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                  <div style="font-weight:900">الأعضاء</div>
+                  <span class="muted" style="font-size:12px">إجمالي/تم/باقي</span>
+                </div>
+                <div class="table-wrap" style="margin-top:10px">
+                  <table class="stock-table" id="dashMembers"></table>
+                </div>
+              </div>
+
+              <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                  <div style="font-weight:900">المهام</div>
+                  <input id="dashTaskSearch" class="inp" style="min-width:220px" placeholder="بحث (SpecKey/وصف/مسؤول)" />
+                </div>
+                <div class="table-wrap" style="margin-top:10px">
+                  <table class="stock-table" id="dashTasks"></table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Dashboard Analytics (Admin only) -->
+          <div id="dashWrap" style="display:none">
+            <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+                <select id="dashType" class="inp" style="min-width:160px">
+                  <option value="agenda">الأجندة</option>
+                  <option value="campaign">الحملة</option>
+                  <option value="daily">Daily Task</option>
+                </select>
+                <select id="dashWorkspace" class="inp" style="min-width:260px"></select>
+                <select id="dashMonth" class="inp" style="min-width:170px;display:none">
+                  <option value="1">يناير</option><option value="2">فبراير</option><option value="3">مارس</option><option value="4">أبريل</option>
+                  <option value="5">مايو</option><option value="6">يونيو</option><option value="7">يوليو</option><option value="8">أغسطس</option>
+                  <option value="9">سبتمبر</option><option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+                </select>
+                <input id="dashYear" class="inp" type="number" style="min-width:120px;display:none" placeholder="السنة" value="2026"/>
+                <button class="btn secondary sm" id="btnDashRefresh" type="button">⟳ تحديث</button>
+              </div>
+              <button class="btn sm" id="btnDashPdf" type="button">⬇️ تصدير PDF</button>
+            </div>
+
+            <div class="kpi-row" style="margin:0 0 12px 0">
+              <div class="kpi">
+                <div><strong>إجمالي المهام</strong><span class="muted">All</span></div>
+                <div class="num" id="dashTotal">0</div>
+              </div>
+              <div class="kpi">
+                <div><strong>تم الانتهاء</strong><span class="muted">Done</span></div>
+                <div class="num" id="dashDone">0</div>
+              </div>
+              <div class="kpi">
+                <div><strong>لم يتم الانتهاء</strong><span class="muted">Pending</span></div>
+                <div class="num" id="dashPending">0</div>
+              </div>
+            </div>
+
+            <div class="grid2" style="align-items:start">
+              <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                  <div style="font-weight:900">الأعضاء</div>
+                  <span class="muted" style="font-size:12px">إجمالي/تم/متبقي</span>
+                </div>
+                <div class="table-wrap" style="margin-top:12px">
+                  <table class="stock-table" id="dashMembersTable"></table>
+                </div>
+              </div>
+              <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
+                <div style="font-weight:900">المهام</div>
+                <div class="table-wrap" style="margin-top:12px">
+                  <table class="stock-table" id="dashTasksTable"></table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="viewList" style="display:none">
+        <div class="head">
+          <strong id="listTitle">...</strong>
+          <div class="actions">
+            <button class="btn secondary sm" id="btnRefresh" type="button">⟳ تحديث</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="empty" id="listEmpty" style="display:none">لا يوجد عناصر حتى الآن. استخدم زر الإنشاء بالأعلى.</div>
+          <div class="list" id="listContainer"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="viewBoard" style="display:none">
+        <div class="head">
+          <div>
+            <strong id="boardTitle">...</strong>
+            <div class="muted" id="boardSub" style="font-size:12px;margin-top:6px"></div>
+          </div>
+          <div class="actions">
+            <button class="btn ghost sm" id="btnEditBoard" type="button">✏️ تعديل</button>
+            <button class="btn danger sm" id="btnDeleteBoard" type="button">🗑️ حذف</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="board" id="boardCols"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="viewStock" style="display:none">
+        <div class="head">
+          <div class="stock-meta">
+            <strong>stock</strong>
+            <span class="muted">الإجمالي: <b id="stockCount">0</b> سيارة</span>
+            <input id="stockSearch" class="inp" style="min-width:260px" placeholder="بحث داخل stock (Unique Spec Key)…" />
+            <button class="btn secondary sm" id="btnStockExport" type="button">⬇️ تصدير Excel</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="empty" id="stockEmpty" style="display:none">لا توجد بيانات حالياً.</div>
+          <div class="table-wrap" id="stockTableWrap" style="display:none">
+            <table class="stock-table" id="stockTable"></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Daily Task (Admin only) -->
+      <section class="panel" id="viewDaily" style="display:none">
+        <div class="head">
+          <div class="stock-meta" style="flex-wrap:wrap">
+            <strong>Daily Task</strong>
+            <span class="muted">مهام يومية مقسمة 4 أسابيع (السبت → الخميس) + عمود تم الانتهاء</span>
+
+            <select id="dailyMonth" class="inp" style="min-width:170px">
+              <option value="1">يناير</option>
+              <option value="2">فبراير</option>
+              <option value="3">مارس</option>
+              <option value="4">أبريل</option>
+              <option value="5">مايو</option>
+              <option value="6">يونيو</option>
+              <option value="7">يوليو</option>
+              <option value="8">أغسطس</option>
+              <option value="9">سبتمبر</option>
+              <option value="10">أكتوبر</option>
+              <option value="11">نوفمبر</option>
+              <option value="12">ديسمبر</option>
+            </select>
+            <input id="dailyYear" class="inp" style="min-width:120px" type="number" placeholder="السنة" value="2026" />
+
+            <button class="btn secondary sm" id="btnDailyRefresh" type="button">⟳ تحديث</button>
+            <button class="btn sm" id="btnDailyNew" type="button">➕ مهمة يومية</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="daily-grid" id="dailyWeeks"></div>
+          <div class="empty" id="dailyEmpty" style="display:none">لا توجد مهام لهذا الشهر/السنة.</div>
+        </div>
+      </section>
+
+      <!-- Admin (Admin only) -->
+      <section class="panel" id="viewAdmin" style="display:none">
+        <div class="head">
+          <strong>admin</strong>
+          <div class="actions">
+            <button class="btn secondary sm" id="btnAdminRefresh" type="button">⟳ تحديث</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="grid2">
+            <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
+              <div style="font-weight:900;margin-bottom:10px">إضافة مستخدم جديد</div>
+              <div class="grid2" style="margin-top:10px">
+                <div>
+                  <label>البريد</label>
+                  <input id="adminNewEmail" placeholder="email@example.com" />
+                </div>
+                <div>
+                  <label>كلمة المرور</label>
+                  <input id="adminNewPass" type="password" placeholder="********" />
+                </div>
+              </div>
+              <div class="grid2" style="margin-top:10px">
+                <div>
+                  <label>الاسم (اختياري)</label>
+                  <input id="adminNewName" placeholder="اسم المستخدم" />
+                </div>
+                <div>
+                  <label>الصلاحية</label>
+                  <select id="adminNewRole">
+                    <option value="member">member</option>
+                    <option value="finisher">finisher</option>
+                    <option value="admin">admin</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+                <button class="btn" id="btnAdminCreate" type="button">حفظ المستخدم</button>
+              </div>
+              <div class="hint" style="color:var(--muted);margin-top:10px">سيتم إنشاء المستخدم في Authentication + حفظ بياناته داخل <b>users/{uid}</b>.</div>
+            </div>
+
+            <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <div style="font-weight:900">الأعضاء</div>
+                <input id="adminUserSearch" class="inp" style="min-width:220px" placeholder="بحث (اسم/إيميل/UID)" />
+              </div>
+              <div class="table-wrap" style="margin-top:12px">
+                <table class="stock-table" id="adminUsersTable"></table>
+              </div>
+              <div class="hint" style="color:var(--muted);margin-top:8px">تعديل الصلاحية يتم من الجدول ثم زر حفظ.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Create/Edit Board Modal -->
+  <div class="modal" id="boardModal">
+    <div class="sheet">
+      <div class="m-head">
+        <strong id="boardModalTitle">...</strong>
+        <button class="btn secondary xs" id="boardModalClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <div class="grid2">
+          <div>
+            <label>النوع</label>
+            <input id="boardType" readonly />
+            <div class="hint" style="color:var(--muted)">سيتم الحفظ داخل Collection: <b>workspaces</b>.</div>
+          </div>
+          <div>
+            <label>اسم (الأجندة / الحملة)</label>
+            <input id="boardName" placeholder="مثال: يناير 2026 / حملة الأقساط - فبراير"/>
+          </div>
+        </div>
+
+        <div id="campaignFields" style="display:none">
+          <label>وصف الحملة</label>
+          <textarea id="campaignDesc" placeholder="اكتب وصف الحملة بشكل واضح..."></textarea>
+          <div class="grid2">
+            <div>
+              <label>تاريخ بداية الحملة</label>
+              <input id="campaignStart" type="date"/>
+            </div>
+            <div>
+              <label>تاريخ نهاية الحملة</label>
+              <input id="campaignEnd" type="date"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <label>أسماء الأعمدة (الكروت)</label>
+          <div class="hint" style="color:var(--muted)">أضف أكثر من عمود. مثال: (ريل مواصفات) (تصميم صور) (موشن) ...</div>
+
+          <div class="grid2" style="align-items:end">
+            <div><input id="colInput" placeholder="اكتب اسم عمود ثم اضغط إضافة"/></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end">
+              <button class="btn secondary sm" id="btnAddCol" type="button">إضافة عمود</button>
+              <button class="btn ghost sm" id="btnAddDefaults" type="button">إضافة افتراضي</button>
+            </div>
+          </div>
+
+          <div class="chips" id="colsChips" style="margin-top:10px"></div>
+        </div>
+      </div>
+      <div class="m-foot">
+        <button class="btn secondary" id="boardCancel" type="button">إلغاء</button>
+        <button class="btn" id="boardSave" type="button">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Modal -->
+  <div class="modal" id="taskModal">
+    <div class="sheet">
+      <div class="m-head">
+        <strong id="taskModalTitle">تاسك جديد</strong>
+        <button class="btn secondary xs" id="taskModalClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <div class="grid2">
+          <div class="speckey-full">
+            <label>Unique Spec Key</label>
+            <input id="taskSpecKey" list="specKeyList" placeholder="ابحث واختر (السيارة | البيان | الموديل)…"/>
+            <datalist id="specKeyList"></datalist>
+            <div class="hint" style="color:var(--muted)">* يتم جلب الخيارات تلقائيًا من صفحة/قاعدة Unique Spec Key (المخزون) — بدون إضافة أي صفحة في السايد بار.</div>
+          </div>
+          <!-- تم إلغاء تاريخ التسليم حسب الطلب -->
+          <div style="display:none">
+            <label>تاريخ التسليم</label>
+            <input id="taskDue" type="date"/>
+          </div>
+        </div>
+
+        <label>الوصف</label>
+        <textarea id="taskDesc" placeholder="اكتب وصف واضح للتاسك..."></textarea>
+
+        <div class="grid2">
+          <div>
+            <label>المسؤول (User)</label>
+            <select id="taskAssignee">
+              <option value="">— اختر يوزر —</option>
+            </select>
+          </div>
+          <div>
+            <label>العمود</label>
+            <input id="taskColumn" readonly/>
+          </div>
+        </div>
+
+        <div id="taskLinksWrap" style="display:none">
+          <div class="divider"></div>
+          <label>روابط مرتبطة (للحملات)</label>
+          <div class="grid2" style="align-items:end">
+            <div><input id="linkTitle" placeholder="عنوان الرابط — مثال: ملف جوجل درايف"/></div>
+            <div><input id="linkUrl" placeholder="https://..."/></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:10px">
+            <button class="btn secondary sm" id="btnAddLink" type="button">إضافة رابط</button>
+          </div>
+          <div class="chips" id="linksChips" style="margin-top:10px"></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="hint" style="color:var(--muted)">سيتم حفظ التاسك داخل Collection: <b>workspace_tasks</b>.</div>
+      </div>
+
+      <div class="m-foot">
+        <button class="btn danger" id="taskDelete" style="display:none" type="button">حذف</button>
+        <button class="btn secondary" id="taskCancel" type="button">إلغاء</button>
+        <button class="btn" id="taskSave" type="button">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Detail Modal -->
+  <div class="modal" id="detailModal">
+    <div class="sheet">
+      <div class="m-head">
+        <strong>تفاصيل التاسك</strong>
+        <button class="btn secondary xs" id="detailClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <div class="grid2">
+          <div><label>Unique Spec Key</label><input id="dSpecKey" readonly/></div>
+          <!-- تم إلغاء تاريخ التسليم حسب الطلب -->
+          <div style="display:none"><label>تاريخ التسليم</label><input id="dDue" readonly/></div>
+        </div>
+        <div class="grid2">
+          <div><label>المسؤول</label><input id="dAssignee" readonly/></div>
+          <div><label>العمود</label><input id="dColumn" readonly/></div>
+        </div>
+        <label>الوصف</label>
+        <textarea id="dDesc" readonly></textarea>
+
+        <div id="dLinksBlock" style="display:none">
+          <div class="divider"></div>
+          <label>الروابط</label>
+          <div class="chips" id="dLinks"></div>
+        </div>
+      </div>
+      <div class="m-foot">
+        <button class="btn secondary" id="detailEdit" type="button">تعديل</button>
+        <button class="btn danger" id="detailDelete" type="button">حذف</button>
+        <button class="btn" id="detailOk" type="button">تمام</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Task Modal (Admin only) -->
+  <div class="modal" id="dailyModal">
+    <div class="sheet">
+      <div class="m-head">
+        <strong>مهمة يومية</strong>
+        <button class="btn secondary xs" id="dailyClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <div class="grid2">
+          <div>
+            <label>الأسبوع</label>
+            <select id="dailyWeek">
+              <option value="1">الأسبوع 1</option>
+              <option value="2">الأسبوع 2</option>
+              <option value="3">الأسبوع 3</option>
+              <option value="4">الأسبوع 4</option>
+            </select>
+          </div>
+          <div>
+            <label>اليوم</label>
+            <select id="dailyDay">
+              <option value="0">السبت</option>
+              <option value="1">الأحد</option>
+              <option value="2">الاثنين</option>
+              <option value="3">الثلاثاء</option>
+              <option value="4">الأربعاء</option>
+              <option value="5">الخميس</option>
+            </select>
+          </div>
+        </div>
+        <label>عنوان المهمة</label>
+        <input id="dailyTitle" placeholder="مثال: متابعة تصوير فرع 1" />
+        <label style="margin-top:10px">وصف المهمة</label>
+        <textarea id="dailyDesc" placeholder="اكتب تفاصيل المهمة..."></textarea>
+        <label style="margin-top:10px">ملاحظات (اختياري)</label>
+        <textarea id="dailyNotes" placeholder="ملاحظات..."></textarea>
+        <div class="hint" style="color:var(--muted);margin-top:10px">الحفظ داخل: <b>daily_tasks</b> على مشروع <b>mzj-workspace-c7d4e</b>.</div>
+      </div>
+      <div class="m-foot">
+        <button class="btn secondary" id="dailyCancel" type="button">إلغاء</button>
+        <button class="btn" id="dailySave" type="button">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">...</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script type="module">
+    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged, signOut, signInAnonymously,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail,
+      setPersistence, browserLocalPersistence
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+    import {
+      getFirestore, collection, doc, getDoc, getDocs,
+      addDoc, setDoc, updateDoc, deleteDoc,
+      query, where, orderBy, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDXXDsJKnKb_0HynSTnP22QYc0yrUdx-cw",
+      authDomain: "mzj-workspace-c7d4e.firebaseapp.com",
+      projectId: "mzj-workspace-c7d4e",
+      storageBucket: "mzj-workspace-c7d4e.firebasestorage.app",
+      messagingSenderId: "1080687990992",
+      appId: "1:1080687990992:web:4a496249bbf330fc37a6d5"
+    };
+
+  // ===== Unique Spec Key Source (Agenda DB) =====
+  // يتم استخدام هذه القاعدة فقط لجلب خيارات الـ Spec Key داخل مودال إنشاء التاسك (بدون إضافة صفحة جديدة).
+  const agendaFirebaseConfig = {
+    apiKey: "AIzaSyC614bGqnYf4Q-weTNemzWENTpa8DjGeHw",
+    authDomain: "mzj-agenda.firebaseapp.com",
+    projectId: "mzj-agenda",
+    storageBucket: "mzj-agenda.firebasestorage.app",
+    messagingSenderId: "834700407721",
+    appId: "1:834700407721:web:75c17665d4f032fd65cab8"
+  };
+
+
+    // Workspace App (الصفحة الحالية)
+    if(!getApps().length) initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore();
+
+    // Secondary auth instance (علشان إنشاء مستخدم جديد بدون ما يخرج الأدمن الحالي)
+    const secondaryApp = initializeApp(firebaseConfig, "secondary");
+    const secondaryAuth = getAuth(secondaryApp);
+
+    // Agenda/Stock App (مشروع مختلف) — لتعبئة Unique Spec Key
+    // ملاحظة: لازم Anonymous Auth يكون مفعّل في مشروع mzj-agenda + Rules تسمح بالقراءة.
+    const agendaApp = initializeApp(agendaFirebaseConfig, "agenda");
+    const agendaAuth = getAuth(agendaApp);
+    const agendaDb = getFirestore(agendaApp);
+
+    const $ = (id)=> document.getElementById(id);
+    const appEl = $("app");
+    const toastEl = $("toast");
+
+    // ===== Auth Gate helpers (بدون صفحة login.html) =====
+    const authGate = $("authGate");
+    const authErr = $("authErr");
+    const loginEmail = $("loginEmail");
+    const loginPass = $("loginPass");
+    const btnLogin = $("btnLogin");
+
+    function showAuth(msg=null){
+      authErr.classList.toggle("show", !!msg);
+      authErr.textContent = msg || "";
+      authGate.classList.add("show");
+      appEl.classList.add("hide-app");
+    }
+    function hideAuth(){
+      authGate.classList.remove("show");
+      appEl.classList.remove("hide-app");
+      authErr.classList.remove("show");
+    }
+
+    function toast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      setTimeout(()=> toastEl.classList.remove("show"), 2200);
+    }
+    function escapeHtml(s){
+      return String(s??"")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    
+    
+    // Admin emails (للصلاحيات + مزامنة نسخة المخزون داخل قاعدة بيانات الـ Workspace)
+    const ADMIN_EMAILS = [
+      "hossamzayan10@gmail.com",
+      "an9036663@gmail.com",
+      "mr.ahmed_rashed@outlook.sa"
+    ];
+    function isAdminEmail(email){
+      const e = String(email||"").toLowerCase().trim();
+      return ADMIN_EMAILS.includes(e);
+    }
+
+    // Cache داخل قاعدة بيانات الـ Workspace (نفس مشروع الصفحة الجديدة)
+    // يتم حفظ نسخة محدثة من stock هنا لتستخدم لاحقًا بدون الاعتماد المباشر على مشروع المخزون
+    const SPEC_CACHE_DOC = doc(db, "spec_keys_cache", "v1");
+    let lastStockHash = "";
+    async function upsertSpecCache(stockArr){
+      try{
+        const email = auth.currentUser?.email || "";
+        if(!isAdminEmail(email)) return; // كتابة الكاش للأدمن فقط
+        const payload = Array.isArray(stockArr) ? stockArr : [];
+        const h = await stockHash(payload);
+        if(h && h === lastStockHash) return;
+        lastStockHash = h;
+        await setDoc(SPEC_CACHE_DOC, {
+          stock: payload,
+          updatedAt: serverTimestamp(),
+          updatedBy: email
+        }, { merge:true });
+      }catch(e){
+        console.warn("upsertSpecCache failed", e);
+      }
+    }
+    function stockHash(arr){
+      try{
+        // hash خفيف لتفادي كتابة متكررة
+        const txt = JSON.stringify(arr);
+        let hash = 0;
+        for(let i=0;i<txt.length;i++){
+          hash = ((hash<<5)-hash) + txt.charCodeAt(i);
+          hash |= 0;
+        }
+        return Promise.resolve(String(hash));
+      }catch(e){
+        return Promise.resolve("");
+      }
+    }
+
+// ===== Spec Key Options (بدون ألوان) =====
+    const SPEC_DATALIST_ID = "specKeyList";
+    // كل الـ Spec Keys القادمة من المخزون (بعد فلتر الأماكن) قبل فلتر المونتاج
+    let SPEC_KEY_ALL = [];
+    // اللي هنظهره داخل الداتا ليست
+    let SPEC_KEY_OPTIONS = []
+    let SPEC_KEY_SET = new Set();
+    let agendaUnsub = null;
+
+    let AGENDA_STOCK = [];
+
+    function cleanSpec(v){
+      return String(v ?? "").replace(/[--]/g,"").replace(/\s+/g," ").trim();
+    }
+
+    function buildSpecKeyNoColors(rec){
+      const car = cleanSpec(rec.car);
+      const variant = cleanSpec(rec.variant);
+      const year = cleanSpec(rec.modelYear);
+      const parts = [car, variant, year].map(x=> x || "-");
+      return parts.join(" | ");
+    }
+
+    const SOLD_STATES_SPEC = ["مباع تحت التسليم","مباع تم التسليم","الوكالة"];
+    function isSoldRowForSpec(rec){
+      const placeRaw = cleanSpec(rec.place || rec.location || rec["المكان"] || "");
+      if(!placeRaw) return false;
+      return SOLD_STATES_SPEC.some(st => placeRaw.includes(st));
+    }
+
+    // يجهز كل الـ Spec Keys من المخزون (بدون الوكالة/المباع) ثم يطبق فلتر "غير معمول لها مونتاج"
+    function setSpecKeyOptionsFromStock(stockArr){
+      try{
+        const set = new Set();
+        for(const r of (Array.isArray(stockArr)?stockArr:[])){
+          if(isSoldRowForSpec(r)) continue;
+          const key = buildSpecKeyNoColors(r);
+          if(key && key !== "- | - | -") set.add(key);
+        }
+        SPEC_KEY_ALL = Array.from(set).sort((a,b)=> a.localeCompare(b,"ar"));
+        applySpecKeyNotMontagedFilter();
+      }catch(e){
+        console.warn("setSpecKeyOptionsFromStock error", e);
+      }
+    }
+
+    // يظهر فقط السيارات اللي "لسة مش معمولها مونتاج" حسب stock_tasks في مشروع workspace
+    function applySpecKeyNotMontagedFilter(){
+      try{
+        // لو مش لاقيين بيانات مهام لسه، اعرض الكل مؤقتًا
+        const list = Array.isArray(SPEC_KEY_ALL) ? SPEC_KEY_ALL : [];
+        if(!STOCK_TASKS_MAP || STOCK_TASKS_MAP.size === 0){
+          SPEC_KEY_OPTIONS = list;
+        }else{
+          SPEC_KEY_OPTIONS = list.filter(k=>{
+            const t = STOCK_TASKS_MAP.get(String(k)) || {};
+            // يعتبر "تم المونتاج" فقط لو montage == نعم
+            return String(t.montage || "").trim() !== "نعم";
+          });
+        }
+        renderSpecKeyDatalist();
+      }catch(e){
+        console.warn("applySpecKeyNotMontagedFilter error", e);
+        SPEC_KEY_OPTIONS = Array.isArray(SPEC_KEY_ALL) ? SPEC_KEY_ALL : [];
+        renderSpecKeyDatalist();
+      }
+    }
+
+    function renderSpecKeyDatalist(){
+      const dl = document.getElementById(SPEC_DATALIST_ID);
+      if(!dl) return;
+      SPEC_KEY_SET = new Set((SPEC_KEY_OPTIONS||[]).map(k=>String(k).trim()));
+      dl.innerHTML = SPEC_KEY_OPTIONS.map(k=> `<option value="${escapeAttr(k)}"></option>`).join("");
+    }
+
+    // init live source
+    
+    function initLocalSpecCache(){
+      try{
+        onSnapshot(SPEC_CACHE_DOC, (snap)=>{
+          if(!snap.exists()) return;
+          const d = snap.data() || {};
+          if(Array.isArray(d.stock) && d.stock.length){
+            setSpecKeyOptionsFromStock(d.stock);
+          }
+        });
+      }catch(e){
+        console.warn("initLocalSpecCache failed", e);
+      }
+    }
+
+function initSpecKeySource(){
+      try{
+        // لازم يكون في Auth داخل مشروع المخزون (Firebase Project مختلف)
+        // هنستخدم Anonymous Auth علشان نقدر نقرأ الداتا (لو Anonymous مفعّل في المشروع).
+        signInAnonymously(agendaAuth).then(()=>{
+          const stateRef = doc(agendaDb, "mzj_admin_state", "v1");
+          if(agendaUnsub) agendaUnsub();
+          agendaUnsub = onSnapshot(stateRef, (snap)=>{
+            if(!snap.exists()) return;
+            const d = snap.data() || {};
+            setSpecKeyOptionsFromStock(d.stock || []);
+            AGENDA_STOCK = Array.isArray(d.stock) ? d.stock : [];
+            if(MODE==="stock") renderStockTab();
+            // حفظ نسخة محدثة داخل قاعدة بيانات الـ Workspace
+            upsertSpecCache(d.stock || []);
+          }, (err)=>{
+            console.warn("SpecKey source snapshot error", err);
+            toast("⚠️ فشل تحميل Unique Spec Key (تحقق من Rules/Anonymous Auth في مشروع المخزون)");
+          });
+        }).catch((err)=>{
+          console.warn("agenda anonymous auth failed", err);
+          toast("⚠️ فشل تحميل Unique Spec Key (Anonymous Auth غير مفعّل في مشروع المخزون)");
+        });
+      }catch(e){
+        console.warn("initSpecKeySource failed", e);
+        toast("⚠️ فشل تحميل Unique Spec Key");
+      }
+    }
+
+    function escapeAttr(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;"); }
+function initials(name){
+      const n = (name||"M").trim();
+      const parts = n.split(/\s+/).filter(Boolean);
+      if(parts.length===1) return parts[0][0].toUpperCase();
+      return (parts[0][0]+parts[1][0]).toUpperCase();
+    }
+
+    $("sbToggle").addEventListener("click", ()=>{
+      appEl.classList.toggle("collapsed");
+      localStorage.setItem("ws_sb_collapsed", appEl.classList.contains("collapsed") ? "1" : "0");
+    });
+    if(localStorage.getItem("ws_sb_collapsed")==="1") appEl.classList.add("collapsed");
+
+    const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard"), stock: $("viewStock"), daily: $("viewDaily"), admin: $("viewAdmin") };
+
+    // Last rendered rows for Excel export (stock tab)
+    let __LAST_STOCK_ROWS = [];
+
+
+    // stock tab search (فلتر فوري داخل جدول stock)
+    const stockSearchEl = document.getElementById('stockSearch');
+    if(stockSearchEl){
+      stockSearchEl.addEventListener('input', ()=>{
+        if(MODE==='stock') renderStockTab();
+      });
+    }
+
+    // Export Excel (stock tab)
+    const btnStockExport = document.getElementById('btnStockExport');
+    if(btnStockExport){
+      btnStockExport.addEventListener('click', ()=>{
+        try{
+          exportStockToExcel(__LAST_STOCK_ROWS);
+        }catch(err){
+          console.error(err);
+          toast('⚠️ تعذر تصدير Excel');
+        }
+      });
+    }
+
+    function exportStockToExcel(rows){
+      if(!rows || !rows.length){
+        toast('لا توجد بيانات للتصدير');
+        return;
+      }
+      if(typeof XLSX==='undefined'){
+        toast('⚠️ مكتبة Excel لم يتم تحميلها');
+        return;
+      }
+      const data = rows.map((r,i)=>({
+        'م': i+1,
+        'Unique Spec Key': r.specKey||'',
+        'العدد': r.count||0,
+        'تصوير': r.photo||'',
+        'مونتاج': r.montage||'',
+        'تفاصيل المونتاج': r.montageDetails||'',
+        'داخل الأجندة': r.inAgenda||'',
+        'الشهر': r.agendaMonth||'',
+        'السنة': r.agendaYear||''
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'stock');
+      const now = new Date();
+      const pad = (n)=> String(n).padStart(2,'0');
+      const fname = `stock_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.xlsx`;
+      XLSX.writeFile(wb, fname);
+    }
+
+    function showView(key){
+      Object.values(views).forEach(v=> v.style.display="none");
+      views[key].style.display="";
+    }
+
+    // ===== حفظ/استرجاع آخر Tab (لما تعمل Refresh يفتح نفس اللي كنت فاتحه) =====
+    const LAST_STATE_KEY = "ws_last_state_v1";
+    function saveLastState(state){
+      try{ localStorage.setItem(LAST_STATE_KEY, JSON.stringify(state||{})); }catch(e){}
+    }
+    function readLastState(){
+      try{ return JSON.parse(localStorage.getItem(LAST_STATE_KEY) || "{}"); }catch(e){ return {}; }
+    }
+
+    let CURRENT_USER = null;
+    let CURRENT_ROLE = "member";
+    let USERS = [];
+
+    let MODE = "home";
+    let LIST_TYPE = null;
+    let CURRENT_WORKSPACE = null;
+    let CURRENT_TASK = null;
+    let unsubWorkspaces = null;
+    let unsubTasks = null;
+
+    $("btnCreateAgenda").addEventListener("click", ()=> openBoardModal("agenda", "create"));
+    $("btnCreateCampaign").addEventListener("click", ()=> openBoardModal("campaign", "create"));
+    $("btnBack").addEventListener("click", ()=> {
+      if(MODE==="board") openList(LIST_TYPE);
+      else openHome();
+    });
+
+    function setNavActive(which){
+      ["navHome","navAgendas","navCampaigns","navStock","navDaily","navAdmin"].forEach(id=>{
+        $(id).classList.toggle("active", id===which);
+      });
+    }
+    $("navHome").addEventListener("click", ()=> openHome());
+    $("navAgendas").addEventListener("click", ()=> openList("agenda"));
+    $("navCampaigns").addEventListener("click", ()=> openList("campaign"));
+
+    $("navStock").addEventListener("click", ()=> openStock());
+
+    $("navDaily").addEventListener("click", ()=> openDaily());
+    $("navAdmin").addEventListener("click", ()=> openAdmin());
+
+    $("goAgendas").addEventListener("click", ()=> openList("agenda"));
+    $("goCampaigns").addEventListener("click", ()=> openList("campaign"));
+
+    $("btnLogout").addEventListener("click", async ()=>{
+      await signOut(auth);
+      showAuth("تم تسجيل الخروج. سجّل دخول مرة أخرى.");
+    });
+
+    // تثبيت الجلسة محليًا (علشان الريفريش مايرجعك لأي صفحة)
+    setPersistence(auth, browserLocalPersistence).catch((e)=>{
+      console.warn("setPersistence failed", e);
+    });
+
+    async function doLogin(){
+      const email = (loginEmail.value||"").trim();
+      const pass = (loginPass.value||"").trim();
+      if(!email || !pass) return showAuth("اكتب البريد وكلمة المرور");
+      btnLogin.disabled = true;
+      btnLogin.textContent = "جاري الدخول...";
+      try{
+        await signInWithEmailAndPassword(auth, email, pass);
+        hideAuth();
+      }catch(err){
+        console.warn("login failed", err);
+        const code = err?.code || "";
+        let msg = "فشل تسجيل الدخول. تحقق من البيانات.";
+        if(code.includes("auth/invalid-credential")) msg = "البريد أو كلمة المرور غير صحيحة.";
+        if(code.includes("auth/user-not-found")) msg = "هذا البريد غير موجود.";
+        if(code.includes("auth/wrong-password")) msg = "كلمة المرور غير صحيحة.";
+        if(code.includes("auth/too-many-requests")) msg = "محاولات كثيرة. جرّب بعد قليل.";
+        showAuth(msg);
+      }finally{
+        btnLogin.disabled = false;
+        btnLogin.textContent = "تسجيل الدخول";
+      }
+    }
+
+    btnLogin.addEventListener("click", doLogin);
+    loginPass.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
+    loginEmail.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
+
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ showAuth(); return; }
+      CURRENT_USER = user;
+      hideAuth();
+
+      let displayName = user.email || "مستخدم";
+      try{
+        const uSnap = await getDoc(doc(db, "users", user.uid));
+        if(uSnap.exists()){
+          const ud = uSnap.data() || {};
+          displayName = ud.name || ud.username || user.email || "مستخدم";
+          CURRENT_ROLE = ud.role || "member";
+        }
+      }catch{}
+
+      $("whoName").textContent = displayName;
+      $("whoRole").textContent = (CURRENT_ROLE==="admin" ? "مدير" : "عضو");
+      $("avatar").textContent = initials(displayName);
+
+      // إظهار/إخفاء Tabs حسب الصلاحية
+      try{
+        const isAdmin = (CURRENT_ROLE==="admin");
+        $("navHome").style.display = isAdmin ? "" : "none"; // الداش بورد للأدمن فقط
+        $("navAdmin").style.display = isAdmin ? "" : "none";
+        $("navDaily").style.display = isAdmin ? "" : "none";
+        // للأعضاء: فقط الأجندات + الحملات + stock
+        $("dashWrap").style.display = isAdmin ? "" : "none";
+      }catch(e){}
+
+      await loadUsers();
+      // مهام Tab stock (لا تمس mzj-agenda) — نحتاجها لتصفية Unique Spec Key "بدون مونتاج"
+      await loadStockTasksOnce();
+
+      // استرجاع آخر Tab بعد الـ Refresh (مع احترام الصلاحيات)
+      const st = readLastState();
+      const canAdmin = (CURRENT_ROLE==="admin");
+      if(st.view==="board" && st.workspaceId){
+        try{
+          const w = await getDoc(doc(db,"workspaces", st.workspaceId));
+          if(w.exists()){
+            openBoard({id:w.id, ...(w.data()||{})});
+          }else{
+            canAdmin ? openHome() : openList("agenda");
+          }
+        }catch{
+          canAdmin ? openHome() : openList("agenda");
+        }
+      }else if(st.view==="list" && (st.listType==="agenda" || st.listType==="campaign")){
+        openList(st.listType);
+      }else if(st.view==="stock"){
+        openStock();
+      }else if(st.view==="daily" && canAdmin){
+        openDaily();
+      }else if(st.view==="admin" && canAdmin){
+        openAdmin();
+      }else{
+        canAdmin ? openHome() : openList("agenda");
+      }
+      listenKPIs();
+
+      // مصادر الـ Spec Key (1) كاش محلي داخل مشروع الـ Workspace + (2) مصدر حي من مشروع الـ Agenda
+      initLocalSpecCache();
+      initSpecKeySource();
+    });
+
+    async function loadUsers(){
+      USERS = [];
+      try{
+        const snap = await getDocs(collection(db,"users"));
+        snap.forEach(d=>{
+          const u = d.data()||{};
+          USERS.push({
+            uid: d.id,
+            name: u.name || u.username || u.email || d.id.slice(0,6),
+            role: u.role || "member",
+            email: u.email || null
+          });
+        });
+      }catch(err){ console.warn("users load failed", err); }
+
+      const sel = $("taskAssignee");
+      sel.innerHTML = `<option value="">— اختر يوزر —</option>`;
+      USERS.slice().sort((a,b)=> (a.name||"").localeCompare(b.name||"", "ar")).forEach(u=>{
+        const opt = document.createElement("option");
+        opt.value = u.uid;
+        opt.textContent = u.name + (u.role ? ` (${u.role})` : "");
+        sel.appendChild(opt);
+      });
+    }
+
+    let unsubKpiWs=null, unsubKpiTasks=null;
+    function listenKPIs(){
+      if(unsubKpiWs) unsubKpiWs();
+      if(unsubKpiTasks) unsubKpiTasks();
+
+      unsubKpiWs = onSnapshot(collection(db,"workspaces"), (snap)=>{
+        let agendas=0, campaigns=0;
+        snap.forEach(d=>{
+          const x = d.data()||{};
+          if(x.active===false) return;
+          if(x.type==="agenda") agendas++;
+          if(x.type==="campaign") campaigns++;
+        });
+        $("kpiAgendas").textContent = agendas;
+        $("kpiCampaigns").textContent = campaigns;
+      });
+
+      unsubKpiTasks = onSnapshot(collection(db,"workspace_tasks"), (snap)=>{
+        let a=0,c=0;
+        snap.forEach(d=>{
+          const t=d.data()||{};
+          if(t.type==="agenda") a++;
+          if(t.type==="campaign") c++;
+        });
+        $("kpiAgendaTasks").textContent = a;
+        $("kpiCampaignTasks").textContent = c;
+      });
+    }
+
+    // ===== Dashboard (Admin only) =====
+    let DASH_READY = false;
+    let DASH_BOARDS_CACHE = { agenda: [], campaign: [] };
+
+    function initDashboardUI(){
+      if(DASH_READY) return;
+      DASH_READY = true;
+
+      const src = $("dashSource");
+      const board = $("dashBoard");
+      const pickWrap = $("dashPickBoardWrap");
+      const dailyWrap = $("dashDailyWrap");
+
+      const setMode = ()=>{
+        const v = src.value;
+        if(v==='daily'){
+          pickWrap.style.display='none';
+          dailyWrap.style.display='grid';
+        }else{
+          pickWrap.style.display='block';
+          dailyWrap.style.display='none';
+        }
+      };
+
+      src.addEventListener('change', async ()=>{
+        setMode();
+        await populateDashBoards();
+        await refreshDashboard();
+      });
+
+      board.addEventListener('change', ()=> refreshDashboard());
+      $("btnDashRefresh").addEventListener('click', ()=> refreshDashboard());
+      $("dashDailyMonth").addEventListener('change', ()=> refreshDashboard());
+      $("dashDailyYear").addEventListener('input', ()=> refreshDashboard());
+      $("btnDashPdf").addEventListener('click', ()=> exportDashboardPDF());
+
+      setMode();
+      populateDashBoards().then(()=> refreshDashboard());
+    }
+
+    async function populateDashBoards(){
+      const src = $("dashSource").value;
+      const sel = $("dashBoard");
+      if(src==='daily') return;
+
+      if(!DASH_BOARDS_CACHE[src]?.length){
+        try{
+          const qy = query(collection(db,'workspaces'), where('type','==', src));
+          const snap = await getDocs(qy);
+          const items=[];
+          snap.forEach(d=>{
+            const w=d.data()||{};
+            if(w.active===false) return;
+            items.push({ id:d.id, ...(w) });
+          });
+          items.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+          DASH_BOARDS_CACHE[src]=items;
+        }catch(err){ console.error(err); toast('⚠️ فشل تحميل قائمة الداش بورد'); }
+      }
+
+      const items = DASH_BOARDS_CACHE[src] || [];
+      sel.innerHTML = items.map(w=> `<option value="${escapeHtml(w.id)}">${escapeHtml(w.name||w.id)}</option>`).join('');
+    }
+
+    async function refreshDashboard(){
+      if(CURRENT_ROLE!=="admin") return;
+      const src = $("dashSource").value;
+      let tasks=[];
+
+      if(src==='daily'){
+        const month = Number($("dashDailyMonth").value||1);
+        const year = Number($("dashDailyYear").value||new Date().getFullYear());
+        try{
+          const qy = query(collection(db,'daily_tasks'), where('month','==', month), where('year','==', year));
+          const snap = await getDocs(qy);
+          snap.forEach(d=> tasks.push({ id:d.id, ...(d.data()||{}), __src:'daily' }));
+        }catch(err){ console.error(err); toast('⚠️ فشل تحميل Daily Task'); }
+      }else{
+        const boardId = $("dashBoard").value;
+        if(!boardId){ setDashNumbers([]); renderDashMembers([]); renderDashTasks([]); return; }
+        try{
+          const qy = query(collection(db,'workspace_tasks'), where('workspaceId','==', boardId));
+          const snap = await getDocs(qy);
+          snap.forEach(d=> tasks.push({ id:d.id, ...(d.data()||{}), __src:'ws' }));
+        }catch(err){ console.error(err); toast('⚠️ فشل تحميل المهام'); }
+      }
+
+      // Done vs Open
+      const isDone = (t)=>{
+        const s = String(t.status||'').toLowerCase();
+        if(s==='done' || s==='completed' || s==='تم الانتهاء' || s==='true') return true;
+        const c = String(t.column||'');
+        if(c.includes('تم الانتهاء')) return true;
+        return false;
+      };
+      const done = tasks.filter(isDone);
+      const open = tasks.filter(t=> !isDone(t));
+
+      $("dashTotal").textContent = tasks.length;
+      $("dashDone").textContent = done.length;
+      $("dashOpen").textContent = open.length;
+
+      // Member stats
+      const byUser = new Map();
+      tasks.forEach(t=>{
+        const uid = t.userId || t.assigneeUid || t.createdByUid || t.createdBy || '—';
+        if(!byUser.has(uid)) byUser.set(uid, { uid, total:0, done:0, open:0 });
+        const row = byUser.get(uid);
+        row.total++;
+        if(isDone(t)) row.done++; else row.open++;
+      });
+      const memRows = Array.from(byUser.values()).map(r=>{
+        const u = USERS.find(x=> x.uid===r.uid) || {};
+        return {
+          uid: r.uid,
+          name: u.name || u.email || (r.uid==='—'?'—': String(r.uid).slice(0,6)),
+          role: u.role || '',
+          total: r.total,
+          done: r.done,
+          open: r.open
+        };
+      }).sort((a,b)=> b.total-a.total);
+      renderDashMembers(memRows);
+
+      // Tasks list
+      const taskRows = tasks.map(t=>({
+        title: t.title || t.name || t.specKey || t.uniqueSpecKey || '',
+        specKey: t.specKey || t.uniqueSpecKey || t.uniqueSpec || '',
+        column: t.column || (isDone(t)?'تم الانتهاء':'قيد العمل'),
+        status: isDone(t)?'done':'open',
+        user: (USERS.find(x=> x.uid===(t.userId||t.assigneeUid))?.name) || '',
+        notes: t.notes || t.note || '',
+        week: t.week || '',
+        day: (t.day!=null ? DAYS[Number(t.day)] : ''),
+        desc: t.description || t.desc || ''
+      }));
+      renderDashTasks(taskRows);
+    }
+
+    function renderDashMembers(rows){
+      const t = $("dashMembersTable");
+      t.innerHTML = `
+        <thead><tr>
+          <th style="min-width:180px">العضو</th>
+          <th style="min-width:90px">الإجمالي</th>
+          <th style="min-width:90px">تم</th>
+          <th style="min-width:110px">باقي</th>
+        </tr></thead>
+        <tbody></tbody>
+      `;
+      const tb = t.querySelector('tbody');
+      rows.forEach(r=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${escapeHtml(r.name||'—')}</b> <span class="muted">${escapeHtml(r.role||'')}</span></td>
+          <td>${r.total||0}</td>
+          <td><span class="pill-mini done">${r.done||0}</span></td>
+          <td><span class="pill-mini open">${r.open||0}</span></td>
+        `;
+        tb.appendChild(tr);
+      });
+      if(!rows.length){
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td colspan="4" class="muted">لا توجد بيانات.</td>`;
+        tb.appendChild(tr);
+      }
+    }
+
+    function renderDashTasks(rows){
+      const t = $("dashTasksTable");
+      t.innerHTML = `
+        <thead><tr>
+          <th style="min-width:200px">المهمة</th>
+          <th style="min-width:220px">Unique Spec Key</th>
+          <th style="min-width:140px">الحالة/العمود</th>
+          <th style="min-width:160px">العضو</th>
+          <th style="min-width:220px">ملاحظات</th>
+        </tr></thead>
+        <tbody></tbody>
+      `;
+      const tb = t.querySelector('tbody');
+      rows.forEach(r=>{
+        const tr=document.createElement('tr');
+        const badge = r.status==='done' ? '<span class="pill-mini done">تم</span>' : '<span class="pill-mini open">باقي</span>';
+        tr.innerHTML = `
+          <td><b>${escapeHtml(r.title||'—')}</b>${r.desc?`<div class="muted" style="margin-top:6px">${escapeHtml(r.desc)}</div>`:''}</td>
+          <td>${escapeHtml(r.specKey||'')}</td>
+          <td>${badge} <span class="muted">${escapeHtml(r.column||'')}</span></td>
+          <td>${escapeHtml(r.user||'')}</td>
+          <td>${escapeHtml(r.notes||'')}</td>
+        `;
+        tb.appendChild(tr);
+      });
+      if(!rows.length){
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td colspan="5" class="muted">لا توجد مهام.</td>`;
+        tb.appendChild(tr);
+      }
+    }
+
+    function exportDashboardPDF(){
+      if(CURRENT_ROLE!=="admin") return;
+      const title = $("dashSource").value==='daily' ? 'Daily Task' : ($("dashSource").value==='agenda' ? 'الأجندة' : 'الحملة');
+      const selName = $("dashSource").value==='daily'
+        ? `${$("dashDailyMonth").selectedOptions[0]?.textContent||''} ${$("dashDailyYear").value||''}`
+        : ($("dashBoard").selectedOptions[0]?.textContent||'');
+      const html = `
+        <html dir="rtl" lang="ar"><head><meta charset="utf-8" />
+        <title>Dashboard Report</title>
+        <style>body{font-family:Tahoma,Arial;}
+        h1{margin:0 0 8px}
+        .muted{color:#666}
+        table{width:100%;border-collapse:collapse;margin-top:12px}
+        th,td{border:1px solid #ddd;padding:8px;font-size:12px;vertical-align:top;text-align:right}
+        th{background:#f7f7f7}
+        </style></head><body>
+          <h1>تقرير الداش بورد</h1>
+          <div class="muted">${title} — ${selName}</div>
+          <div style="margin-top:10px">إجمالي المهام: <b>${$("dashTotal").textContent}</b> | تم: <b>${$("dashDone").textContent}</b> | باقي: <b>${$("dashOpen").textContent}</b></div>
+          <h3 style="margin:18px 0 8px">الأعضاء</h3>
+          ${$("dashMembersTable").outerHTML}
+          <h3 style="margin:18px 0 8px">المهام</h3>
+          ${$("dashTasksTable").outerHTML}
+          <script>window.onload=()=>{window.print();}</script>
+        </body></html>
+      `;
+      const w = window.open('', '_blank');
+      if(!w) return toast('افتح Popups علشان التصدير');
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+    }
+
+
+
+    function openStock(){
+      MODE="stock"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+
+      setNavActive("navStock");
+      $("pageTitle").textContent = "stock";
+      $("pageDesc").textContent  = "";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+
+      showView("stock");
+      renderStockTab();
+      saveLastState({view:"stock"});
+    }
+
+    // ===== Daily Task (Admin Only) =====
+    let unsubDaily = null;
+    const DAYS = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"];
+
+    function openDaily(){
+      MODE="daily"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+      if(unsubDaily){unsubDaily();unsubDaily=null;}
+
+      setNavActive("navDaily");
+      $("pageTitle").textContent = "Daily Task";
+      $("pageDesc").textContent = "إنشاء مهام يومية مقسمة على 4 أسابيع (السبت → الخميس) مع ملاحظات وعمود تم الانتهاء.";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+      showView("daily");
+      saveLastState({view:"daily"});
+      listenDaily();
+    }
+
+    function dailyKey(){
+      const month = Number($("dailyMonth").value||1);
+      const year = Number($("dailyYear").value||new Date().getFullYear());
+      return {month, year};
+    }
+
+    $("btnDailyRefresh").addEventListener("click", ()=> listenDaily(true));
+    $("btnDailyNew").addEventListener("click", ()=> openDailyModal());
+
+    function listenDaily(force=false){
+      if(unsubDaily){unsubDaily();unsubDaily=null;}
+      const {month, year} = dailyKey();
+      const qy = query(
+        collection(db,"daily_tasks"),
+        where("month","==", month),
+        where("year","==", year)
+      );
+      unsubDaily = onSnapshot(qy, (snap)=>{
+        const items=[];
+        snap.forEach(d=> items.push({id:d.id, ...(d.data()||{})}));
+        // ترتيب ثابت: الأسبوع ثم اليوم ثم التاريخ
+        items.sort((a,b)=>{
+          const wa = Number(a.week||1), wb = Number(b.week||1);
+          if(wa!==wb) return wa-wb;
+          const da = Number(a.day||0), dbb = Number(b.day||0);
+          if(da!==dbb) return da-dbb;
+          return (a.createdAt?.seconds||0) - (b.createdAt?.seconds||0);
+        });
+        renderDaily(items, month, year);
+      }, (err)=>{
+        console.error(err);
+        toast("⚠️ فشل تحميل Daily Task");
+      });
+    }
+
+    function renderDaily(items, month, year){
+      const wrap = $("dailyWeeks");
+      wrap.innerHTML = "";
+      $("dailyEmpty").style.display = (!items.length) ? "" : "none";
+
+      for(let w=1; w<=4; w++){
+        const weekItems = items.filter(x=> Number(x.week||1)===w);
+        const openItems = weekItems.filter(x=> (x.status||"open")!=="done");
+        const doneItems = weekItems.filter(x=> (x.status||"open")==="done");
+
+        const card = document.createElement("div");
+        card.className = "week-card";
+        card.innerHTML = `
+          <div class="week-head">
+            <strong>الأسبوع ${w} — ${year}/${String(month).padStart(2,'0')}</strong>
+            <span class="pill-mini">${openItems.length} مفتوح • ${doneItems.length} تم</span>
+          </div>
+          <div class="week-cols">
+            <div class="week-col" data-week="${w}" data-bucket="open">
+              <h4>المهام</h4>
+            </div>
+            <div class="week-col" data-week="${w}" data-bucket="done">
+              <h4>تم الانتهاء</h4>
+            </div>
+          </div>
+        `;
+
+        wrap.appendChild(card);
+
+        const openCol = card.querySelector('[data-bucket="open"]');
+        const doneCol = card.querySelector('[data-bucket="done"]');
+
+        (openItems.length?openItems:[null]).forEach(t=>{
+          if(!t){
+            const e=document.createElement('div');
+            e.className='hint';
+            e.style.color='var(--muted)';
+            e.textContent='لا توجد مهام مفتوحة.';
+            openCol.appendChild(e);
+            return;
+          }
+          openCol.appendChild(renderDailyTaskCard(t));
+        });
+
+        (doneItems.length?doneItems:[null]).forEach(t=>{
+          if(!t){
+            const e=document.createElement('div');
+            e.className='hint';
+            e.style.color='var(--muted)';
+            e.textContent='لا توجد مهام مكتملة.';
+            doneCol.appendChild(e);
+            return;
+          }
+          doneCol.appendChild(renderDailyTaskCard(t, true));
+        });
+      }
+    }
+
+    function renderDailyTaskCard(t, isDone=false){
+      const el = document.createElement('div');
+      el.className = 'dtask';
+      const dayName = DAYS[Number(t.day||0)] || '—';
+      const statusPill = isDone
+        ? `<span class="pill-mini done">تم الانتهاء</span>`
+        : `<span class="pill-mini open">مفتوح</span>`;
+
+      el.innerHTML = `
+        <div class="top">
+          <div>
+            <div class="title">${escapeHtml(t.title||'بدون عنوان')}</div>
+            <div class="meta">
+              ${statusPill}
+              <span class="pill-mini">${escapeHtml(dayName)}</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+            ${isDone ? '' : `<button class="btn sm" data-act="done">تم الانتهاء</button>`}
+          </div>
+        </div>
+        <div class="desc">${escapeHtml(t.description||'')}</div>
+        <div class="notes">
+          <label style="font-size:12px;color:var(--muted)">ملاحظات</label>
+          <textarea data-act="notes" placeholder="اكتب ملاحظات...">${escapeHtml(t.notes||'')}</textarea>
+        </div>
+      `;
+
+      // حفظ الملاحظات
+      const notesTa = el.querySelector('textarea[data-act="notes"]');
+      let notesTimer=null;
+      notesTa.addEventListener('input', ()=>{
+        if(notesTimer) clearTimeout(notesTimer);
+        notesTimer = setTimeout(async ()=>{
+          try{ await updateDoc(doc(db,'daily_tasks', t.id), { notes: notesTa.value || '' , updatedAt: serverTimestamp()}); }
+          catch(err){ console.error(err); toast('⚠️ فشل حفظ الملاحظات'); }
+        }, 450);
+      });
+
+      // تم الانتهاء
+      const doneBtn = el.querySelector('button[data-act="done"]');
+      if(doneBtn){
+        doneBtn.addEventListener('click', async ()=>{
+          try{
+            await updateDoc(doc(db,'daily_tasks', t.id), { status: 'done', doneAt: serverTimestamp(), updatedAt: serverTimestamp() });
+            toast('✅ تم إنهاء المهمة');
+          }catch(err){ console.error(err); toast('⚠️ فشل إنهاء المهمة'); }
+        });
+      }
+
+      return el;
+    }
+
+    // Daily Modal
+    const dailyModal = $("dailyModal");
+    function openDailyModal(){
+      $("dailyTitle").value = "";
+      $("dailyDesc").value = "";
+      $("dailyNotes").value = "";
+      $("dailyWeek").value = "1";
+      $("dailyDay").value = "0";
+      dailyModal.classList.add('show');
+    }
+    function closeDailyModal(){ dailyModal.classList.remove('show'); }
+    $("dailyClose").addEventListener('click', closeDailyModal);
+    $("dailyCancel").addEventListener('click', closeDailyModal);
+    dailyModal.addEventListener('click', (e)=>{ if(e.target===dailyModal) closeDailyModal(); });
+
+    $("dailySave").addEventListener('click', async ()=>{
+      const title = ($("dailyTitle").value||"").trim();
+      const description = ($("dailyDesc").value||"").trim();
+      const notes = ($("dailyNotes").value||"").trim();
+      const week = Number($("dailyWeek").value||1);
+      const day = Number($("dailyDay").value||0);
+      const {month, year} = dailyKey();
+      if(!title) return toast('اكتب عنوان المهمة');
+      try{
+        await addDoc(collection(db,'daily_tasks'), {
+          month, year,
+          week, day,
+          title,
+          description: description || null,
+          notes: notes || '',
+          status: 'open',
+          createdAt: serverTimestamp(),
+          createdBy: CURRENT_USER?.uid || null
+        });
+        toast('✅ تم حفظ المهمة');
+        closeDailyModal();
+      }catch(err){ console.error(err); toast('⚠️ فشل حفظ المهمة'); }
+    });
+
+    // ===== Admin (Admin Only) =====
+    let ADMIN_USERS_CACHE = [];
+    function openAdmin(){
+      MODE="admin"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+      if(unsubDaily){unsubDaily();unsubDaily=null;}
+
+      setNavActive('navAdmin');
+      $("pageTitle").textContent = 'admin';
+      $("pageDesc").textContent = 'إدارة الأعضاء (إضافة / تعديل الصلاحيات)';
+      $("btnBack").style.display='none';
+      $("btnCreateAgenda").style.display='none';
+      $("btnCreateCampaign").style.display='none';
+      showView('admin');
+      saveLastState({view:"admin"});
+      loadAdminUsers();
+    }
+
+    async function loadAdminUsers(){
+      try{
+        const snap = await getDocs(collection(db,'users'));
+        const rows=[];
+        snap.forEach(d=>{
+          const u=d.data()||{};
+          rows.push({ uid:d.id, email:u.email||'', name:u.name||u.username||'', role:u.role||'member' });
+        });
+        rows.sort((a,b)=> (a.role===b.role ? (a.email||'').localeCompare(b.email||'') : (a.role||'').localeCompare(b.role||'')));
+        ADMIN_USERS_CACHE = rows;
+        renderAdminUsers(rows);
+      }catch(err){ console.error(err); toast('⚠️ فشل تحميل الأعضاء'); }
+    }
+
+    function renderAdminUsers(rows){
+      const t = $("adminUsersTable");
+      t.innerHTML = `
+        <thead>
+          <tr>
+            <th style="min-width:220px">البريد</th>
+            <th style="min-width:160px">الاسم</th>
+            <th style="min-width:130px">الصلاحية</th>
+            <th style="min-width:120px">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+      const tb = t.querySelector('tbody');
+      rows.forEach(u=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(u.email||'')}</td>
+          <td>${escapeHtml(u.name||'')}</td>
+          <td>
+            <select class="inp" data-uid="${escapeHtml(u.uid)}" data-act="role" style="min-width:120px">
+              <option value="member" ${u.role==='member'?'selected':''}>member</option>
+              <option value="finisher" ${u.role==='finisher'?'selected':''}>finisher</option>
+              <option value="admin" ${u.role==='admin'?'selected':''}>admin</option>
+            </select>
+          </td>
+          <td style="white-space:nowrap">
+            <button class="btn secondary sm" data-act="save" data-uid="${escapeHtml(u.uid)}">حفظ</button>
+            <button class="btn ghost sm" data-act="reset" data-email="${escapeHtml(u.email)}">Reset</button>
+          </td>
+        `;
+        tb.appendChild(tr);
+      });
+
+      tb.addEventListener('click', async (ev)=>{
+        const btn = ev.target.closest('button');
+        if(!btn) return;
+        const act = btn.getAttribute('data-act');
+        if(act==='save'){
+          const uid = btn.getAttribute('data-uid');
+          const sel = t.querySelector(`select[data-act="role"][data-uid="${CSS.escape(uid)}"]`);
+          const role = sel?.value || 'member';
+          try{
+            await setDoc(doc(db,'users', uid), { role }, { merge: true });
+            toast('✅ تم حفظ الصلاحية');
+          }catch(err){ console.error(err); toast('⚠️ فشل حفظ الصلاحية'); }
+        }
+        if(act==='reset'){
+          const email = btn.getAttribute('data-email');
+          if(!email) return toast('لا يوجد بريد');
+          try{
+            await sendPasswordResetEmail(auth, email);
+            toast('✅ تم إرسال رابط إعادة تعيين');
+          }catch(err){ console.error(err); toast('⚠️ فشل إرسال Reset'); }
+        }
+      }, { once: true });
+    }
+
+    $("btnAdminRefresh").addEventListener('click', ()=> loadAdminUsers());
+
+    $("adminUserSearch").addEventListener('input', ()=>{
+      const q = String($("adminUserSearch").value||"").trim().toLowerCase();
+      if(!q) return renderAdminUsers(ADMIN_USERS_CACHE);
+      const f = ADMIN_USERS_CACHE.filter(u=>
+        (u.email||'').toLowerCase().includes(q) || (u.name||'').toLowerCase().includes(q) || (u.uid||'').toLowerCase().includes(q)
+      );
+      renderAdminUsers(f);
+    });
+
+    $("btnAdminCreate").addEventListener('click', async ()=>{
+      const email = String($("adminNewEmail").value||"").trim();
+      const pass = String($("adminNewPass").value||"").trim();
+      const name = String($("adminNewName").value||"").trim();
+      const role = $("adminNewRole").value || 'member';
+      if(!email || !pass) return toast('اكتب البريد وكلمة المرور');
+      try{
+        const cred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+        const uid = cred.user.uid;
+        await setDoc(doc(db,'users', uid), {
+          email,
+          name: name || null,
+          role,
+          createdAt: serverTimestamp(),
+          createdBy: CURRENT_USER?.uid || null
+        }, { merge: true });
+        $("adminNewEmail").value='';
+        $("adminNewPass").value='';
+        $("adminNewName").value='';
+        $("adminNewRole").value='member';
+        toast('✅ تم إنشاء المستخدم');
+        loadAdminUsers();
+      }catch(err){
+        console.error(err);
+        const code = err?.code || '';
+        if(code.includes('auth/email-already-in-use')) return toast('⚠️ هذا البريد موجود بالفعل');
+        toast('⚠️ فشل إنشاء المستخدم');
+      }
+    });
+
+    // نفس منطق فلتر صفحة المخزون:
+    // استبعاد السيارات اللي مكانها يحتوي على:
+    // (مباع تحت التسليم) أو (مباع تم التسليم)
+    // ملاحظة: أحيانًا بيكون النص فيه مسافات غير مرئية/تشكيل/كشيدة، فنعمل Normalization قوي.
+    function normalizeArabicText(input){
+      const s = String(input ?? "")
+        .replace(/\u00A0/g, " ")               // NBSP
+        .replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, "") // اتجاهات
+        .replace(/[\u064B-\u065F\u0670]/g, "") // تشكيل
+        .replace(/\u0640/g, "")               // كشيدة
+        .replace(/_/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      return s;
+    }
+
+    function extractLocationValue(rec){
+      if(!rec || typeof rec !== "object") return "";
+      const raw = (rec.location ?? rec.place ?? rec["المكان"] ?? rec["place"] ?? rec["Location"] ?? rec["LOC"] ?? rec["loc"]);
+      if(raw == null) return "";
+      if(typeof raw === "string" || typeof raw === "number") return String(raw);
+      if(Array.isArray(raw)) return raw.map(x=> String(x ?? "")).join(" ");
+      if(typeof raw === "object"){
+        // بعض الداتا بتكون Object بدل نص
+        const cand = raw.name ?? raw.label ?? raw.value ?? raw.text ?? raw.title;
+        if(cand != null) return String(cand);
+        try{ return JSON.stringify(raw); }catch(e){ return ""; }
+      }
+      return String(raw);
+    }
+
+    function isExcludedByInventoryFilter(rec){
+      // نفس منطق صفحة المخزون مع إضافة شرط "بدون الوكالة" حسب طلبك:
+      // استبعاد:
+      // 1) أي مكان يبدأ بـ "الوكالة :"
+      // 2) أي مكان يحتوي "مباع تحت التسليم" أو "مباع تم التسليم"
+      const locRaw = extractLocationValue(rec);
+      const loc = normalizeArabicText(locRaw);
+      if(!loc) return false;
+      const isAgency = loc.startsWith("الوكالة :");
+      const isUnder  = loc.includes("مباع تحت التسليم");
+      const isDone   = loc.includes("مباع تم التسليم");
+      return isAgency || isUnder || isDone;
+    }
+
+    // ===== Stock Aggregation (SpecKey) + Tasks Meta (Workspace DB) =====
+    let STOCK_TASKS_MAP = new Map();
+    let STOCK_TASKS_LOADED = false;
+
+    const MONTHS_AR = [
+      "يناير","فبراير","مارس","أبريل","مايو","يونيو",
+      "يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"
+    ];
+
+    function stockTaskDocId(specKey){
+      // Firestore doc ids cannot contain '/'
+      return encodeURIComponent(String(specKey||""));
+    }
+
+    async function loadStockTasksOnce(){
+      if(STOCK_TASKS_LOADED) return;
+      STOCK_TASKS_LOADED = true;
+      STOCK_TASKS_MAP = new Map();
+      try{
+        const snap = await getDocs(collection(db, "stock_tasks"));
+        snap.forEach(d=>{
+          const v = d.data() || {};
+          const k = v.specKey || decodeURIComponent(d.id);
+          if(k) STOCK_TASKS_MAP.set(String(k), { ...v, _id: d.id });
+        });
+      }catch(e){
+        console.warn('loadStockTasksOnce', e);
+      }finally{
+        // بعد تحميل مهام الاستوك، طبق فلتر "غير معمول لها مونتاج" على الداتا ليست
+        try{ applySpecKeyNotMontagedFilter(); }catch(_e){}
+      }
+    }
+
+    let stockSaveTimers = new Map();
+    function scheduleSaveStockTask(specKey, patch){
+      const key = String(specKey||"");
+      if(!key) return;
+      const prev = STOCK_TASKS_MAP.get(key) || { specKey: key };
+      const next = { ...prev, ...patch, specKey: key, updatedAt: serverTimestamp() };
+      STOCK_TASKS_MAP.set(key, next);
+      // حدث الداتا ليست فورًا (لأننا بنفلتر "غير معمول لها مونتاج")
+      try{ applySpecKeyNotMontagedFilter(); }catch(_e){}
+
+      // debounce per row
+      if(stockSaveTimers.has(key)) clearTimeout(stockSaveTimers.get(key));
+      stockSaveTimers.set(key, setTimeout(async ()=>{
+        try{
+          await setDoc(doc(db, "stock_tasks", stockTaskDocId(key)), next, { merge:true });
+        }catch(e){
+          console.warn('saveStockTask', e);
+        }
+      }, 350));
+    }
+
+    function ynSelect(value=""){
+      const v = String(value||"");
+      const y = v === "نعم" ? "selected" : "";
+      const n = v === "لا" ? "selected" : "";
+      return `<select class="stock-ctrl small" data-type="yn"><option value="">—</option><option value="نعم" ${y}>نعم</option><option value="لا" ${n}>لا</option></select>`;
+    }
+
+    function montageDetailsSelect(value=""){
+      const v = String(value||"");
+      const a = v === "صور + ريل مواصفات" ? "selected" : "";
+      const b = v === "صور فقط" ? "selected" : "";
+      return `<select class="stock-ctrl small" data-type="montageDetails"><option value="">—</option><option value="صور + ريل مواصفات" ${a}>صور + ريل مواصفات</option><option value="صور فقط" ${b}>صور فقط</option></select>`;
+    }
+
+    function monthSelect(value=""){
+      const v = String(value||"");
+      return `<select class="stock-ctrl small" data-type="month"><option value="">—</option>${MONTHS_AR.map(m=>`<option value="${escapeAttr(m)}" ${(m===v)?'selected':''}>${escapeHtml(m)}</option>`).join('')}</select>`;
+    }
+
+    function yearInput(value=""){
+      const v = String(value||"");
+      return `<input class="stock-ctrl small" data-type="year" inputmode="numeric" placeholder="السنة" value="${escapeAttr(v)}" />`;
+    }
+
+    async function renderStockTab(){
+      const emptyEl = $("stockEmpty");
+      const wrapEl  = $("stockTableWrap");
+      const tableEl = $("stockTable");
+      const searchEl = document.getElementById('stockSearch');
+
+      const arr = Array.isArray(AGENDA_STOCK) ? AGENDA_STOCK : [];
+      // فلتر stock (بدون الوكالة + بدون مباع تحت/تم التسليم)
+      const filtered = arr.filter(r => !isExcludedByInventoryFilter(r));
+
+      // تجميع حسب Unique Spec Key (بدون ألوان)
+      const groups = new Map();
+      for(const r of filtered){
+        const key = buildSpecKeyNoColors({
+          car: r.car ?? r["السيارة"],
+          variant: r.variant ?? r["البيان"],
+          modelYear: r.modelYear ?? r["الموديل"],
+        });
+        if(!key || key === "- | - | -") continue;
+        const g = groups.get(key) || { specKey:key, count:0 };
+        g.count += 1;
+        groups.set(key, g);
+      }
+
+      let rows = Array.from(groups.values());
+
+      // بحث داخل الـ SpecKey
+      const q = normalizeArabicText(searchEl?.value || "");
+      if(q){
+        rows = rows.filter(r => normalizeArabicText(r.specKey).includes(q));
+      }
+
+      // ترتيب أبجدي
+      rows.sort((a,b)=> a.specKey.localeCompare(b.specKey,'ar',{numeric:true,sensitivity:'base'}));
+
+      $("stockCount").textContent = rows.reduce((s,r)=> s + (r.count||0), 0);
+
+      if(!rows.length){
+        emptyEl.style.display = "";
+        wrapEl.style.display = "none";
+        tableEl.innerHTML = "";
+        return;
+      }
+
+      emptyEl.style.display = "none";
+      wrapEl.style.display = "";
+
+      // حمل بيانات التحكم المحفوظة (مرة واحدة)
+      await loadStockTasksOnce();
+
+      const months = [
+        "يناير","فبراير","مارس","أبريل","مايو","يونيو",
+        "يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"
+      ];
+
+      const yesNoOptions = (val)=>
+        `
+          <option value="" ${!val?'selected':''}>-</option>
+          <option value="نعم" ${val==='نعم'?'selected':''}>نعم</option>
+          <option value="لا" ${val==='لا'?'selected':''}>لا</option>`;
+
+      const montageDetailsOptions = (val)=>
+        `
+          <option value="" ${!val?'selected':''}>-</option>
+          <option value="صور + ريل مواصفات: نعم" ${val==='صور + ريل مواصفات: نعم'?'selected':''}>صور + ريل مواصفات: نعم</option>
+          <option value="صور + ريل مواصفات: لا" ${val==='صور + ريل مواصفات: لا'?'selected':''}>صور + ريل مواصفات: لا</option>`;
+
+      const cols = [
+        {k:'idx',  label:'م', w:70},
+        {k:'spec', label:'Unique Spec Key (الضغط للنسخ)', w:520},
+        {k:'count',label:'العدد', w:90},
+        {k:'photo',label:'تصوير', w:140},
+        {k:'montage',label:'مونتاج', w:140},
+        {k:'montageDetails',label:'تفاصيل المونتاج', w:240},
+        {k:'inAgenda',label:'داخل الأجندة', w:170},
+        {k:'agendaMonth',label:'الشهر', w:160},
+        {k:'agendaYear',label:'السنة', w:120},
+      ];
+
+      const colgroup = `<colgroup>${cols.map(c=>`<col style="width:${c.w}px">`).join('')}</colgroup>`;
+      const thead = `<thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label)}</th>`).join('')}</tr></thead>`;
+
+
+
+      // Prepare rows for Excel export (merge saved controls)
+      __LAST_STOCK_ROWS = rows.map(r=>{
+        const saved = STOCK_TASKS_MAP.get(r.specKey) || {};
+        return {
+          specKey: r.specKey,
+          count: r.count || 0,
+          photo: saved.photo || '',
+          montage: saved.montage || '',
+          montageDetails: saved.montageDetails || '',
+          inAgenda: saved.inAgenda || '',
+          agendaMonth: saved.agendaMonth || '',
+          agendaYear: saved.agendaYear || ''
+        };
+      });
+      const tbody = `<tbody>${rows.map((r,i)=>{
+        const specKey = r.specKey;
+        const saved = STOCK_TASKS_MAP.get(specKey) || {};
+        const photo = saved.photo || '';
+        const montage = saved.montage || '';
+        const montageDetails = saved.montageDetails || '';
+        const inAgenda = saved.inAgenda || '';
+        const agendaMonth = saved.agendaMonth || '';
+        const agendaYear = saved.agendaYear || '';
+
+        const montageDisabled = montage !== 'نعم';
+        const agendaDisabled = inAgenda !== 'نعم';
+
+        return `
+          <tr data-spec="${escapeAttr(specKey)}">
+            <td class="center">${i+1}</td>
+            <td class="wrap">
+              <button type="button" class="btn secondary xs" data-copy="1" style="width:100%;justify-content:space-between;gap:8px">
+                <span style="text-align:right;white-space:normal;line-height:1.6">${escapeHtml(specKey)}</span>
+                <span class="stock-badge-mini">نسخ</span>
+              </button>
+            </td>
+            <td class="center"><span class="stock-badge-mini stock-count">${r.count}</span></td>
+            <td>
+              <select class="stock-ctrl" data-field="photo">${yesNoOptions(photo)}</select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="montage">${yesNoOptions(montage)}</select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="montageDetails" ${montageDisabled ? 'disabled' : ''}>
+                ${montageDetailsOptions(montageDetails)}
+              </select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="inAgenda">${yesNoOptions(inAgenda)}</select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="agendaMonth" ${agendaDisabled ? 'disabled' : ''}>
+                <option value="" ${!agendaMonth?'selected':''}>-</option>
+                ${months.map(m=>`<option value="${escapeAttr(m)}" ${agendaMonth===m?'selected':''}>${escapeHtml(m)}</option>`).join('')}
+              </select>
+            </td>
+            <td>
+              <input class="stock-ctrl small" data-field="agendaYear" type="number" min="2000" max="2100" placeholder="YYYY" value="${escapeAttr(agendaYear)}" ${agendaDisabled ? 'disabled' : ''}/>
+            </td>
+          </tr>`;
+      }).join('')}</tbody>`;
+
+      tableEl.innerHTML = colgroup + thead + tbody;
+
+      // Delegation: copy + save
+      tableEl.onclick = (ev)=>{
+        const btn = ev.target.closest('[data-copy]');
+        if(!btn) return;
+        const tr = btn.closest('tr');
+        const key = tr?.getAttribute('data-spec') || '';
+        if(key){
+          navigator.clipboard.writeText(key).then(()=> toast('تم النسخ')).catch(()=> toast('لم يتم النسخ'));
+        }
+      };
+
+      tableEl.onchange = (ev)=>{
+        const el = ev.target;
+        if(!(el instanceof HTMLSelectElement)) return;
+        const tr = el.closest('tr');
+        const key = tr?.getAttribute('data-spec') || '';
+        const field = el.getAttribute('data-field');
+        if(!key || !field) return;
+
+        const value = el.value || '';
+        scheduleSaveStockTask(key, { [field]: value });
+
+        // تفعيل/تعطيل الحقول التابعة
+        if(field === 'montage'){
+          const md = tr.querySelector('[data-field="montageDetails"]');
+          if(md){
+            md.disabled = (value !== 'نعم');
+            if(md.disabled){
+              md.value = '';
+              scheduleSaveStockTask(key, { montageDetails: '' });
+            }
+          }
+        }
+        if(field === 'inAgenda'){
+          const m = tr.querySelector('[data-field="agendaMonth"]');
+          const y = tr.querySelector('[data-field="agendaYear"]');
+          const dis = (value !== 'نعم');
+          if(m){
+            m.disabled = dis;
+            if(dis){ m.value=''; scheduleSaveStockTask(key,{agendaMonth:''}); }
+          }
+          if(y){
+            y.disabled = dis;
+            if(dis){ y.value=''; scheduleSaveStockTask(key,{agendaYear:''}); }
+          }
+        }
+      };
+
+      tableEl.oninput = (ev)=>{
+        const el = ev.target;
+        if(!(el instanceof HTMLInputElement)) return;
+        const tr = el.closest('tr');
+        const key = tr?.getAttribute('data-spec') || '';
+        const field = el.getAttribute('data-field');
+        if(!key || field !== 'agendaYear') return;
+        const v = String(el.value || '').trim();
+        scheduleSaveStockTask(key, { agendaYear: v });
+      };
+    }
+
+    function openHome(){
+      MODE="home"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+
+      setNavActive("navHome");
+      $("pageTitle").textContent = "الداش بورد";
+      $("pageDesc").textContent = "متابعة كل الشغل داخل Workspace (الأجندات / الحملات / Daily Task) + تقارير وأرقام.";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="";
+      $("btnCreateCampaign").style.display="";
+      $("homeMeta").textContent = "متصل بقاعدة البيانات الجديدة (mzj-workspace-c7d4e)";
+      showView("home");
+      saveLastState({view:"home"});
+      // تجهيز الداش بورد للأدمن
+      if(CURRENT_ROLE==="admin"){
+        $("dashWrap").style.display="";
+        initDashboardUI();
+      }
+    }
+
+    $("btnRefresh").addEventListener("click", ()=> { if(LIST_TYPE) openList(LIST_TYPE); });
+
+    function openList(type){
+      MODE = type==="agenda" ? "agendas" : "campaigns";
+      LIST_TYPE = type;
+      CURRENT_WORKSPACE = null;
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+
+      setNavActive(type==="agenda" ? "navAgendas" : "navCampaigns");
+
+      $("btnBack").style.display="";
+      $("btnCreateAgenda").style.display = type==="agenda" ? "" : "none";
+      $("btnCreateCampaign").style.display = type==="campaign" ? "" : "none";
+
+      $("pageTitle").textContent = type==="agenda" ? "الأجندات" : "الحملات";
+      $("pageDesc").textContent  = type==="agenda"
+        ? "اختر أجندة أو أنشئ واحدة جديدة. بعد الدخول ستجد الأعمدة وتضيف تاسكات بسهولة."
+        : "اختر حملة أو أنشئ واحدة جديدة مع وصف + تاريخ بداية/نهاية + أعمدة.";
+
+      $("listTitle").textContent = type==="agenda" ? "قائمة الأجندات" : "قائمة الحملات";
+
+      showView("list");
+      listenWorkspaces(type);
+      saveLastState({view:"list", listType:type});
+    }
+
+    function listenWorkspaces(type){
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+
+      const qy = query(
+        collection(db,"workspaces"),
+        where("type","==", type)
+      );
+unsubWorkspaces = onSnapshot(qy, (snap)=>{
+        let items=[];
+        snap.forEach(d=> items.push({ id:d.id, ...(d.data()||{}) }));
+        // تصفية العناصر غير النشطة + ترتيب محلي لتفادي متطلبات الـ Composite Index
+        items = items.filter(x=> x.active !== false);
+        items.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+        renderList(type, items);
+      }, (err)=>{
+        console.error(err);
+        toast("⚠️ فشل تحميل القائمة");
+      });
+    }
+
+    function renderList(type, items){
+      const container = $("listContainer");
+      const empty = $("listEmpty");
+      container.innerHTML = "";
+      empty.style.display = items.length ? "none" : "";
+
+      items.forEach(x=>{
+        const el = document.createElement("div");
+        el.className = "list-item";
+
+        const columnsCount = Array.isArray(x.columns) ? x.columns.length : 0;
+        let sub = "";
+        if(type==="agenda"){
+          sub = `أعمدة: ${columnsCount}`;
+        }else{
+          const s = x.startDate || "—";
+          const e = x.endDate || "—";
+          sub = `الفترة: ${s} → ${e} | أعمدة: ${columnsCount}`;
+        }
+
+        const desc = type==="campaign" ? (x.description||"") : "";
+        el.innerHTML = `
+          <div class="li-main">
+            <p class="li-title">${escapeHtml(x.name||"بدون اسم")}</p>
+            <p class="li-sub">${escapeHtml(desc ? (desc + " — " + sub) : sub)}</p>
+          </div>
+          <div class="li-right">
+            <span class="tag"><span class="mini"></span>${type==="agenda"?"Agenda":"Campaign"}</span>
+            <button class="btn sm secondary" data-open="1" type="button">فتح</button>
+          </div>
+        `;
+
+        el.querySelector('[data-open="1"]').addEventListener("click", (e)=>{
+          e.stopPropagation();
+          openBoard(x);
+        });
+
+        el.addEventListener("click", ()=> openBoard(x));
+        container.appendChild(el);
+      });
+    }
+
+    function openBoard(workspace){
+      MODE="board";
+      CURRENT_WORKSPACE = workspace;
+      saveLastState({view:"board", workspaceId: workspace.id});
+
+      $("btnBack").style.display="";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+
+      $("pageTitle").textContent = workspace.type==="agenda" ? "لوحة الأجندة" : "لوحة الحملة";
+      $("pageDesc").textContent  = "اضغط ➕ داخل أي عمود لإضافة تاسك. اضغط على التاسك لرؤية التفاصيل أو التعديل.";
+
+      $("boardTitle").textContent = workspace.name || "بدون اسم";
+      if(workspace.type==="campaign"){
+        const s = workspace.startDate || "—";
+        const e = workspace.endDate || "—";
+        const d = workspace.description ? workspace.description : "لا يوجد وصف";
+        $("boardSub").textContent = `الفترة: ${s} → ${e} | ${d}`;
+      }else{
+        $("boardSub").textContent = `عدد الأعمدة: ${(workspace.columns||[]).length}`;
+      }
+
+      // show VIN for the selected spec key
+      
+      showView("board");
+
+      $("btnEditBoard").onclick = ()=> openBoardModal(workspace.type, "edit", workspace);
+      $("btnDeleteBoard").onclick = ()=> deleteWorkspace(workspace);
+
+      renderBoardColumns(workspace, []);
+      listenTasksForWorkspace(workspace.id);
+    }
+
+    function renderBoardColumns(workspace, tasks){
+      const colsEl = $("boardCols");
+      colsEl.innerHTML = "";
+
+      const cols = Array.isArray(workspace.columns) && workspace.columns.length ? workspace.columns : ["قائمة"];
+      const byCol = {};
+      cols.forEach(c=> byCol[c]=[]);
+      tasks.forEach(t=>{
+        const c = t.column || cols[0];
+        if(!byCol[c]) byCol[c]=[];
+        byCol[c].push(t);
+      });
+
+      cols.forEach(colName=>{
+        const col = document.createElement("section");
+        col.className = "col";
+
+        const list = byCol[colName] || [];
+        const head = document.createElement("div");
+        head.className = "col-head";
+        head.innerHTML = `
+          <div class="col-title">
+            <span>${escapeHtml(colName)}</span>
+            <span class="count-badge">${list.length}</span>
+          </div>
+          <button class="btn secondary xs" type="button">➕ تاسك</button>
+        `;
+        head.querySelector("button").addEventListener("click", (e)=>{
+          e.stopPropagation();
+          openTaskModal("create", { workspace, column: colName });
+        });
+
+        const body = document.createElement("div");
+        body.className = "col-body";
+
+        if(!list.length){
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.style.fontSize = "12px";
+          empty.textContent = "لا يوجد تاسكات هنا. اضغط ➕ لإضافة تاسك.";
+          body.appendChild(empty);
+        }else{
+          list.slice().sort((a,b)=> (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).forEach(t=>{
+            const card = document.createElement("div");
+            card.className = "task-card";
+
+            const assignee = t.assigneeName || "—";
+            const due = t.due || "—";
+            const specKey = t.specKey || "—";
+
+            card.innerHTML = `
+              <p class="t-title">${escapeHtml(specKey)}</p>
+              <div class="t-meta">
+                <span class="badge"><span class="dot"></span>${escapeHtml(assignee)}</span>
+                <span class="badge" style="background:#fff;border-color:rgba(62,36,32,.10)"><span class="dot" style="background:#6b7280"></span>📅 ${escapeHtml(due)}</span>
+              </div>
+            `;
+
+            card.addEventListener("click", ()=> openTaskDetail(t));
+            body.appendChild(card);
+          });
+        }
+
+        col.appendChild(head);
+        col.appendChild(body);
+        colsEl.appendChild(col);
+      });
+    }
+
+    function listenTasksForWorkspace(workspaceId){
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+      // ملاحظة: where + orderBy يحتاج Composite Index، فهنسحب بدون orderBy ونرتّب محليًا لتفادي الـ Index
+      const qy = query(
+        collection(db,"workspace_tasks"),
+        where("workspaceId","==", workspaceId)
+      );
+      unsubTasks = onSnapshot(qy, (snap)=>{
+        let tasks=[];
+        snap.forEach(d=> tasks.push({ id:d.id, ...(d.data()||{}) }));
+        // ترتيب محلي بالأحدث (createdAt)
+        tasks.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+        renderBoardColumns(CURRENT_WORKSPACE, tasks);
+      }, (err)=>{
+        console.error(err);
+        const msg = (err?.code ? (err.code + " — ") : "") + (err?.message || "");
+        toast("⚠️ فشل تحميل التاسكات: " + (msg || "تحقق من الصلاحيات/Rules"));
+      });
+    }
+
+    // Board modal
+    const boardModal = $("boardModal");
+    const boardType = $("boardType");
+    const boardName = $("boardName");
+    const campaignFields = $("campaignFields");
+    const campaignDesc = $("campaignDesc");
+    const campaignStart = $("campaignStart");
+    const campaignEnd = $("campaignEnd");
+    const colInput = $("colInput");
+    const colsChips = $("colsChips");
+
+    let BOARD_MODAL_MODE = "create";
+    let BOARD_MODAL_TYPE = "agenda";
+    let BOARD_EDIT_ID = null;
+    let COLUMNS_TMP = [];
+
+    const DEFAULT_AGENDA_COLS = ["ريل مواصفات","ريل قصير","تصميم صور","يوتيوب","تحت المراجعة"];
+    const DEFAULT_CAMPAIGN_COLS = ["ريلز - كاش","موشن - كاش","جرافيك - كاش","ريلز اقساط","Ai اقساط","جرافيك - اقساط","شركات - لينكد ان"];
+
+    $("boardModalClose").addEventListener("click", ()=> closeBoardModal());
+    $("boardCancel").addEventListener("click", ()=> closeBoardModal());
+    boardModal.addEventListener("click", (e)=> { if(e.target===boardModal) closeBoardModal(); });
+
+    $("btnAddCol").addEventListener("click", ()=>{
+      const v = (colInput.value||"").trim();
+      if(!v) return;
+      addCol(v);
+      colInput.value="";
+    });
+    $("btnAddDefaults").addEventListener("click", ()=>{
+      const defs = BOARD_MODAL_TYPE==="agenda" ? DEFAULT_AGENDA_COLS : DEFAULT_CAMPAIGN_COLS;
+      defs.forEach(addCol);
+    });
+
+    function addCol(name){
+      const v = (name||"").trim();
+      if(!v) return;
+      if(COLUMNS_TMP.includes(v)) return;
+      COLUMNS_TMP.push(v);
+      renderColChips();
+    }
+    function removeCol(name){
+      COLUMNS_TMP = COLUMNS_TMP.filter(x=> x!==name);
+      renderColChips();
+    }
+    function renderColChips(){
+      colsChips.innerHTML = "";
+      if(!COLUMNS_TMP.length){
+        colsChips.innerHTML = `<div class="empty" style="padding:10px;font-size:12px">لم يتم إضافة أعمدة بعد.</div>`;
+        return;
+      }
+      COLUMNS_TMP.forEach(c=>{
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.innerHTML = `${escapeHtml(c)} <button type="button" title="حذف">✕</button>`;
+        chip.querySelector("button").addEventListener("click", ()=> removeCol(c));
+        colsChips.appendChild(chip);
+      });
+    }
+
+    function openBoardModal(type, mode, workspace=null){
+      BOARD_MODAL_TYPE = type;
+      BOARD_MODAL_MODE = mode;
+      BOARD_EDIT_ID = workspace?.id || null;
+
+      boardType.value = (type==="agenda" ? "أجندة (Tasks)" : "حملة (Campaign)");
+      $("boardModalTitle").textContent = mode==="create"
+        ? (type==="agenda" ? "إنشاء أجندة جديدة" : "إنشاء حملة جديدة")
+        : (type==="agenda" ? "تعديل الأجندة" : "تعديل الحملة");
+
+      campaignFields.style.display = (type==="campaign") ? "" : "none";
+
+      boardName.value = workspace?.name || "";
+      campaignDesc.value = workspace?.description || "";
+      campaignStart.value = workspace?.startDate || "";
+      campaignEnd.value = workspace?.endDate || "";
+
+      COLUMNS_TMP = Array.isArray(workspace?.columns) ? [...workspace.columns] : [];
+      renderColChips();
+
+      boardModal.classList.add("show");
+    }
+
+    function closeBoardModal(){
+      boardModal.classList.remove("show");
+      BOARD_EDIT_ID = null;
+      COLUMNS_TMP = [];
+      colInput.value = "";
+    }
+
+    $("boardSave").addEventListener("click", async ()=>{
+      const name = (boardName.value||"").trim();
+      if(!name) return toast("اكتب اسم الأجندة/الحملة");
+      if(!COLUMNS_TMP.length) return toast("أضف عمود واحد على الأقل");
+
+      const payload = {
+        type: BOARD_MODAL_TYPE,
+        name,
+        columns: COLUMNS_TMP,
+        active: true
+      };
+
+      if(BOARD_MODAL_TYPE==="campaign"){
+        payload.description = (campaignDesc.value||"").trim() || null;
+        payload.startDate = campaignStart.value || null;
+        payload.endDate = campaignEnd.value || null;
+      }
+
+      try{
+        if(BOARD_MODAL_MODE==="create"){
+          payload.createdAt = serverTimestamp();
+          payload.createdBy = CURRENT_USER?.uid || null;
+          await addDoc(collection(db,"workspaces"), payload);
+          toast("✅ تم إنشاء العنصر");
+        }else{
+          if(!BOARD_EDIT_ID) return toast("⚠️ لا يوجد ID للتعديل");
+          await updateDoc(doc(db,"workspaces", BOARD_EDIT_ID), payload);
+          toast("✅ تم التعديل");
+        }
+        closeBoardModal();
+      }catch(err){
+        console.error(err);
+        const msg = (err?.code ? (err.code + " — ") : "") + (err?.message || "");
+        toast("⚠️ فشل الحفظ: " + (msg || "تحقق من الصلاحيات (Firestore Rules)"));
+      }
+    });
+
+    async function deleteWorkspace(workspace){
+      if(!workspace?.id) return;
+      if(!confirm("تأكيد حذف (الأجندة/الحملة)؟ سيتم حذف اللوحة فقط، والتاسكات ستظل (إلا لو طلبت حذفها).")) return;
+
+      try{
+        await deleteDoc(doc(db,"workspaces", workspace.id));
+        toast("✅ تم الحذف");
+        openList(workspace.type);
+      }catch(err){
+        console.error(err);
+        toast("⚠️ فشل الحذف");
+      }
+    }
+
+    // Task modal
+    const taskModal = $("taskModal");
+    const taskSpecKey = $("taskSpecKey");
+const taskDesc = $("taskDesc");
+    // تم إلغاء تاريخ التسليم
+    const taskDue = $("taskDue");
+    const taskAssignee = $("taskAssignee");
+    const taskColumn = $("taskColumn");
+    const taskLinksWrap = $("taskLinksWrap");
+    const linkTitle = $("linkTitle");
+    const linkUrl = $("linkUrl");
+    const linksChips = $("linksChips");
+
+    let TASK_MODE = "create";
+    let TASK_CTX = null;
+    let LINKS_TMP = [];
+
+    $("taskModalClose").addEventListener("click", ()=> closeTaskModal());
+    $("taskCancel").addEventListener("click", ()=> closeTaskModal());
+    taskModal.addEventListener("click", (e)=> { if(e.target===taskModal) closeTaskModal(); });
+
+    function isSpecKeyAllowed(v){
+      const x = String(v||"").trim();
+      if(!x) return false;
+      return (SPEC_KEY_SET && SPEC_KEY_SET.has(x));
+    }
+
+    // منع كتابة Spec Key خارج القائمة (حتى لو كتبها يدويًا)
+    taskSpecKey.addEventListener("change", ()=>{
+      const v = (taskSpecKey.value||"").trim();
+      if(!v) return;
+      // السماح بقيمة التاسك الحالي أثناء التعديل
+      if(TASK_MODE!=="create" && CURRENT_TASK?.specKey && v===String(CURRENT_TASK.specKey).trim()) return;
+      if(!isSpecKeyAllowed(v)){
+        taskSpecKey.value = "";
+        toast("اختر Unique Spec Key من القائمة فقط");
+      }
+    });
+
+    taskSpecKey.addEventListener("blur", ()=>{
+      const v = (taskSpecKey.value||"").trim();
+      if(!v) return;
+      if(TASK_MODE!=="create" && CURRENT_TASK?.specKey && v===String(CURRENT_TASK.specKey).trim()) return;
+      if(!isSpecKeyAllowed(v)){
+        taskSpecKey.value = "";
+        toast("اختر Unique Spec Key من القائمة فقط");
+      }
+    });
+    $("btnAddLink").addEventListener("click", ()=>{
+      const t = (linkTitle.value||"").trim() || "رابط";
+      const u = (linkUrl.value||"").trim();
+      if(!u || !/^https?:\/\//i.test(u)) return toast("اكتب رابط يبدأ بـ http(s)://");
+      LINKS_TMP.push({ title:t, url:u });
+      linkTitle.value=""; linkUrl.value="";
+      renderLinksChips();
+    });
+
+    function renderLinksChips(){
+      linksChips.innerHTML="";
+      if(!LINKS_TMP.length){
+        linksChips.innerHTML = `<div class="empty" style="padding:10px;font-size:12px">لم يتم إضافة روابط بعد.</div>`;
+        return;
+      }
+      LINKS_TMP.forEach((l,idx)=>{
+        const chip = document.createElement("span");
+        chip.className="chip";
+        chip.innerHTML = `
+          🔗 ${escapeHtml(l.title)}
+          <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" style="color:var(--brown);text-decoration:underline;font-weight:800">فتح</a>
+          <button type="button" title="حذف">✕</button>
+        `;
+        chip.querySelector("button").addEventListener("click", ()=>{
+          LINKS_TMP.splice(idx,1);
+          renderLinksChips();
+        });
+        linksChips.appendChild(chip);
+      });
+    }
+
+    function openTaskModal(mode, ctxOrTask){
+      TASK_MODE = mode;
+
+      if(mode==="create"){
+        TASK_CTX = ctxOrTask; // {workspace, column}
+        CURRENT_TASK = null;
+
+        $("taskModalTitle").textContent = "تاسك جديد";
+        $("taskDelete").style.display="none";
+
+        taskColumn.value = TASK_CTX.column;
+        taskSpecKey.value = "";
+        taskDesc.value = "";
+        taskDue.value = "";
+        taskAssignee.value = "";
+
+        
+        const isCampaign = TASK_CTX.workspace.type==="campaign";
+        taskLinksWrap.style.display = isCampaign ? "" : "none";
+        LINKS_TMP = [];
+        renderLinksChips();
+      }else{
+        CURRENT_TASK = ctxOrTask;
+        TASK_CTX = { workspace: CURRENT_WORKSPACE, column: CURRENT_TASK.column };
+
+        $("taskModalTitle").textContent = "تعديل تاسك";
+        $("taskDelete").style.display="";
+
+        taskColumn.value = CURRENT_TASK.column || "";
+        taskSpecKey.value = CURRENT_TASK.specKey || "";
+        taskDesc.value = CURRENT_TASK.description || "";
+        taskDue.value = "";
+        taskAssignee.value = CURRENT_TASK.assigneeUid || "";
+
+        
+        const isCampaign = CURRENT_TASK.type==="campaign";
+        taskLinksWrap.style.display = isCampaign ? "" : "none";
+        LINKS_TMP = Array.isArray(CURRENT_TASK.links) ? [...CURRENT_TASK.links] : [];
+        renderLinksChips();
+      }
+
+      taskModal.classList.add("show");
+    }
+
+    function closeTaskModal(){
+      taskModal.classList.remove("show");
+      TASK_CTX = null;
+      LINKS_TMP = [];
+    }
+
+    $("taskSave").addEventListener("click", async ()=>{
+      const specKey = (taskSpecKey.value||"").trim();
+      const description = (taskDesc.value||"").trim() || null;
+      // تم إلغاء تاريخ التسليم
+      const due = null;
+      const assigneeUid = taskAssignee.value || null;
+      const assigneeObj = USERS.find(u=> u.uid===assigneeUid);
+      const assigneeName = assigneeObj?.name || null;
+
+      if(!specKey) return toast("اكتب Unique Spec Key");
+      // السماح فقط بالقيم الموجودة في القائمة (غير معمول لها مونتاج)
+      const allowed = (SPEC_KEY_SET && SPEC_KEY_SET.has(specKey));
+      const editingSame = (TASK_MODE!=="create" && CURRENT_TASK?.specKey && specKey===String(CURRENT_TASK.specKey).trim());
+      if(!allowed && !editingSame) return toast("اختر Unique Spec Key من القائمة فقط");
+      if(!TASK_CTX?.workspace?.id) return toast("⚠️ لا يوجد Workspace محدد");
+      if(!TASK_CTX?.column) return toast("⚠️ لا يوجد عمود");
+
+      const isCampaign = TASK_CTX.workspace.type==="campaign";
+
+      const payload = {
+        workspaceId: TASK_CTX.workspace.id,
+        type: TASK_CTX.workspace.type,
+        column: TASK_CTX.column,
+        specKey,
+        description,
+        // due removed
+        assigneeUid,
+        assigneeName
+      };
+
+      if(isCampaign) payload.links = LINKS_TMP.length ? LINKS_TMP : [];
+
+      try{
+        if(TASK_MODE==="create"){
+          payload.createdAt = serverTimestamp();
+          payload.createdBy = CURRENT_USER?.uid || null;
+          await addDoc(collection(db,"workspace_tasks"), payload);
+          toast("✅ تم حفظ التاسك");
+        }else{
+          if(!CURRENT_TASK?.id) return toast("⚠️ لا يوجد ID للتعديل");
+          await updateDoc(doc(db,"workspace_tasks", CURRENT_TASK.id), payload);
+          toast("✅ تم تعديل التاسك");
+        }
+        closeTaskModal();
+      }catch(err){
+        console.error(err);
+        const msg = (err?.code ? (err.code + " — ") : "") + (err?.message || "");
+        toast("⚠️ فشل حفظ التاسك: " + (msg || "تحقق من الصلاحيات (Firestore Rules)"));
+      }
+    });
+
+    $("taskDelete").addEventListener("click", async ()=>{
+      if(!CURRENT_TASK?.id) return;
+      if(!confirm("تأكيد حذف التاسك؟")) return;
+      try{
+        await deleteDoc(doc(db,"workspace_tasks", CURRENT_TASK.id));
+        toast("✅ تم حذف التاسك");
+        closeTaskModal();
+        closeDetail();
+      }catch(err){
+        console.error(err);
+        toast("⚠️ فشل حذف التاسك");
+      }
+    });
+
+    // Detail
+    const detailModal = $("detailModal");
+    function openTaskDetail(task){
+      CURRENT_TASK = task;
+
+      $("dSpecKey").value = task.specKey || "";
+      $("dDue").value = "";
+      $("dAssignee").value = task.assigneeName || "—";
+      $("dColumn").value = task.column || "";
+      $("dDesc").value = task.description || "";
+
+      const linksBlock = $("dLinksBlock");
+      const dLinks = $("dLinks");
+      dLinks.innerHTML="";
+
+      if(task.type==="campaign" && Array.isArray(task.links) && task.links.length){
+        linksBlock.style.display="";
+        task.links.forEach(l=>{
+          const chip = document.createElement("span");
+          chip.className="chip";
+          chip.innerHTML = `🔗 <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" style="color:var(--brown);text-decoration:underline;font-weight:900">${escapeHtml(l.title||l.url)}</a>`;
+          dLinks.appendChild(chip);
+        });
+      }else{
+        linksBlock.style.display="none";
+      }
+
+      detailModal.classList.add("show");
+    }
+    function closeDetail(){ detailModal.classList.remove("show"); }
+
+    $("detailClose").addEventListener("click", closeDetail);
+    $("detailOk").addEventListener("click", closeDetail);
+    detailModal.addEventListener("click", (e)=> { if(e.target===detailModal) closeDetail(); });
+
+    $("detailEdit").addEventListener("click", ()=>{
+      if(!CURRENT_TASK) return;
+      closeDetail();
+      openTaskModal("edit", CURRENT_TASK);
+    });
+
+    $("detailDelete").addEventListener("click", async ()=>{
+      if(!CURRENT_TASK?.id) return;
+      if(!confirm("تأكيد حذف التاسك؟")) return;
+      try{
+        await deleteDoc(doc(db,"workspace_tasks", CURRENT_TASK.id));
+        toast("✅ تم حذف التاسك");
+        closeDetail();
+      }catch(err){
+        console.error(err);
+        toast("⚠️ فشل حذف التاسك");
+      }
+    });
+  </script>
+</body>
+</html>
