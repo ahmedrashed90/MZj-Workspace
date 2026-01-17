@@ -1006,7 +1006,8 @@
     // كل الـ Spec Keys القادمة من المخزون (بعد فلتر الأماكن) قبل فلتر المونتاج
     let SPEC_KEY_ALL = [];
     // اللي هنظهره داخل الداتا ليست
-    let SPEC_KEY_OPTIONS = [];
+    let SPEC_KEY_OPTIONS = []
+    let SPEC_KEY_SET = new Set();
     let agendaUnsub = null;
 
     let AGENDA_STOCK = [];
@@ -1071,6 +1072,7 @@
     function renderSpecKeyDatalist(){
       const dl = document.getElementById(SPEC_DATALIST_ID);
       if(!dl) return;
+      SPEC_KEY_SET = new Set((SPEC_KEY_OPTIONS||[]).map(k=>String(k).trim()));
       dl.innerHTML = SPEC_KEY_OPTIONS.map(k=> `<option value="${escapeAttr(k)}"></option>`).join("");
     }
 
@@ -2083,6 +2085,33 @@ const taskDesc = $("taskDesc");
     $("taskCancel").addEventListener("click", ()=> closeTaskModal());
     taskModal.addEventListener("click", (e)=> { if(e.target===taskModal) closeTaskModal(); });
 
+    function isSpecKeyAllowed(v){
+      const x = String(v||"").trim();
+      if(!x) return false;
+      return (SPEC_KEY_SET && SPEC_KEY_SET.has(x));
+    }
+
+    // منع كتابة Spec Key خارج القائمة (حتى لو كتبها يدويًا)
+    taskSpecKey.addEventListener("change", ()=>{
+      const v = (taskSpecKey.value||"").trim();
+      if(!v) return;
+      // السماح بقيمة التاسك الحالي أثناء التعديل
+      if(TASK_MODE!=="create" && CURRENT_TASK?.specKey && v===String(CURRENT_TASK.specKey).trim()) return;
+      if(!isSpecKeyAllowed(v)){
+        taskSpecKey.value = "";
+        toast("اختر Unique Spec Key من القائمة فقط");
+      }
+    });
+
+    taskSpecKey.addEventListener("blur", ()=>{
+      const v = (taskSpecKey.value||"").trim();
+      if(!v) return;
+      if(TASK_MODE!=="create" && CURRENT_TASK?.specKey && v===String(CURRENT_TASK.specKey).trim()) return;
+      if(!isSpecKeyAllowed(v)){
+        taskSpecKey.value = "";
+        toast("اختر Unique Spec Key من القائمة فقط");
+      }
+    });
     $("btnAddLink").addEventListener("click", ()=>{
       const t = (linkTitle.value||"").trim() || "رابط";
       const u = (linkUrl.value||"").trim();
@@ -2174,6 +2203,10 @@ const taskDesc = $("taskDesc");
       const assigneeName = assigneeObj?.name || null;
 
       if(!specKey) return toast("اكتب Unique Spec Key");
+      // السماح فقط بالقيم الموجودة في القائمة (غير معمول لها مونتاج)
+      const allowed = (SPEC_KEY_SET && SPEC_KEY_SET.has(specKey));
+      const editingSame = (TASK_MODE!=="create" && CURRENT_TASK?.specKey && specKey===String(CURRENT_TASK.specKey).trim());
+      if(!allowed && !editingSame) return toast("اختر Unique Spec Key من القائمة فقط");
       if(!TASK_CTX?.workspace?.id) return toast("⚠️ لا يوجد Workspace محدد");
       if(!TASK_CTX?.column) return toast("⚠️ لا يوجد عمود");
 
