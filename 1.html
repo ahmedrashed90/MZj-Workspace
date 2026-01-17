@@ -519,6 +519,45 @@
       box-shadow: 0 12px 24px rgba(188,143,116,.25);
     }
     .hide-app{display:none !important}
+
+    /* ===== Dashboard + Daily ===== */
+    .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width: 980px){.dash-grid{grid-template-columns:1fr}}
+
+    .dash-workspace{border:1px solid #eee;border-radius:14px;padding:12px;background:#fff}
+    .dash-workspace .top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .dash-workspace .name{font-weight:900}
+    .dash-workspace .meta{font-size:12px;color:var(--muted)}
+    .dash-tasks{display:grid;gap:8px;margin-top:10px}
+    .dash-task{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid #eee;border-radius:12px;background:var(--cream)}
+    .dash-task .t-title{font-weight:800}
+    .dash-task .t-sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .badge{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;border:1px solid #eee;background:#fff}
+    .badge.done{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08)}
+    .badge.todo{border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.10)}
+
+    .pick-list{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:10px}
+    @media (max-width: 700px){.pick-list{grid-template-columns:1fr}}
+    .pick-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid #eee;border-radius:14px;background:#fff}
+    .pick-item .ttl{font-weight:900}
+    .pick-item .sub{font-size:12px;color:var(--muted)}
+
+    .weeks-grid{display:grid;grid-template-columns:repeat(4, minmax(240px, 1fr));gap:12px;overflow:auto;padding-bottom:6px}
+    @media (max-width: 1200px){.weeks-grid{grid-template-columns:repeat(2, minmax(240px,1fr))}}
+    @media (max-width: 720px){.weeks-grid{grid-template-columns:1fr}}
+    .week-col{background:#fff;border:1px solid #eee;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,.04);padding:12px}
+    .week-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .week-head strong{font-size:14px}
+    .days{display:grid;gap:10px}
+    .day{border:1px dashed #e6ded6;border-radius:14px;padding:10px;background:var(--cream)}
+    .day-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .day-title{font-weight:900}
+    .day-list{display:grid;gap:8px}
+
+    .rte{border:1px solid #eee;border-radius:14px;overflow:hidden;background:#fff}
+    .rte-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px;border-bottom:1px solid #eee;background:var(--cream)}
+    .rte-box{min-height:140px;padding:12px;outline:none;line-height:1.9}
+
   </style>
 </head>
 
@@ -592,6 +631,7 @@
           <div class="sb-text">الحملات</div>
         </div>
 
+
         <div class="sb-link" id="navDaily" style="display:none">
           <div class="sb-ico">🗓️</div>
           <div class="sb-text">Daily Task</div>
@@ -636,130 +676,82 @@
       </div>
 
       <section class="panel" id="viewHome">
-        <div class="head">
-          <strong>اختر نوع الإدارة</strong>
-          <span class="muted" id="homeMeta">...</span>
+        <div class="head" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div>
+            <strong>الداش بورد</strong>
+            <div class="muted" id="homeMeta" style="font-size:12px;margin-top:6px">...</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <span class="pill" id="dashMonthPill"><span class="dot"></span> شهر ...</span>
+            <button class="btn secondary sm" id="btnDashPdf" type="button">⬇️ تصدير PDF</button>
+          </div>
         </div>
         <div class="body">
-          <!-- Dashboard (ملخص كل الشغل اللي بيحصل في Workspace) -->
-          <div class="card" style="margin-bottom:14px">
-            <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-              <div>
-                <strong>الداش بورد</strong>
-                <span class="muted">ملخص سريع للمهام + إحصائيات الأعضاء + تصدير PDF</span>
-              </div>
-              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-                <select id="dashModule" class="inp" style="min-width:240px">
-                  <option value="agenda">الأجندات</option>
-                  <option value="campaign">الحملات</option>
-                  <option value="daily" style="display:none">Daily Task</option>
-                </select>
 
-                <div id="dashDailyYM" style="display:none;gap:10px;align-items:center">
-                  <select id="dashDailyYear" class="inp" style="min-width:140px"></select>
-                  <select id="dashDailyMonth" class="inp" style="min-width:180px"></select>
-                </div>
-                <select id="dashAssignee" class="inp" style="min-width:220px">
-                  <option value="">كل الأعضاء</option>
-                </select>
-                <button class="btn secondary sm" id="btnDashPdf" type="button">⬇️ تصدير PDF</button>
+          <div class="dash-grid">
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <strong>أجندات الشهر</strong>
+                <span class="muted" id="dashAgendaMeta">0</span>
+              </div>
+              <div class="dash-card-body" id="dashAgendasWrap">
+                <div class="empty" id="dashAgendasEmpty" style="display:none">لا توجد أجندات لهذا الشهر.</div>
               </div>
             </div>
-            <div class="card-body">
-              <div class="kpi-row" style="margin-top:0">
-                <div class="kpi">
-                  <div><strong>إجمالي المهام</strong><span class="muted">حسب الاختيار</span></div>
-                  <div class="num" id="dashTotal">0</div>
-                </div>
-                <div class="kpi">
-                  <div><strong>تم الانتهاء</strong><span class="muted">Done</span></div>
-                  <div class="num" id="dashDone">0</div>
-                </div>
-                <div class="kpi">
-                  <div><strong>لم يتم الانتهاء</strong><span class="muted">Remaining</span></div>
-                  <div class="num" id="dashRemain">0</div>
-                </div>
+
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <strong>حملات الشهر</strong>
+                <span class="muted" id="dashCampaignMeta">0</span>
               </div>
-
-              <div class="divider"></div>
-
-              <div class="grid2" style="align-items:start">
-                <div>
-                  <label style="margin-bottom:8px">الأعضاء</label>
-                  <div class="table-wrap">
-                    <table class="stock-table" id="dashMembersTable"></table>
-                  </div>
-                </div>
-                <div>
-                  <label style="margin-bottom:8px">المهام</label>
-                  <div id="dashTasksList" class="list"></div>
-                  <div class="hint" id="dashTasksHint" style="margin-top:10px;color:var(--muted)"></div>
-                </div>
+              <div class="dash-card-body" id="dashCampaignsWrap">
+                <div class="empty" id="dashCampaignsEmpty" style="display:none">لا توجد حملات لهذا الشهر.</div>
               </div>
             </div>
           </div>
 
-          <div class="home-grid">
-            <div class="hero-card" id="goAgendas">
-              <div class="hero-left">
-                <h3 class="hero-title">الأجندات (Tasks)</h3>
-                <p class="hero-desc">
-                  أنشئ أجندة باسم وحدد أعمدة الكروت، ثم أضف تاسكات لكل عمود.
-                  التاسك يحتوي Unique Spec Key + وصف + تاريخ تسليم + مسؤول.
-                </p>
-                <div class="kpi-row">
-                  <div class="kpi">
-                    <div>
-                      <strong>عدد الأجندات</strong>
-                      <span class="muted">Active</span>
-                    </div>
-                    <div class="num" id="kpiAgendas">0</div>
-                  </div>
-                  <div class="kpi">
-                    <div>
-                      <strong>تاسكات الأجندات</strong>
-                      <span class="muted">الإجمالي</span>
-                    </div>
-                    <div class="num" id="kpiAgendaTasks">0</div>
-                  </div>
-                </div>
-              </div>
-              <div class="hero-actions">
-                <div class="pill"><span class="dot"></span> Board مرتب</div>
-                <button class="btn sm" type="button">فتح الأجندات</button>
-              </div>
-            </div>
+          <div class="divider"></div>
 
-            <div class="hero-card" id="goCampaigns">
-              <div class="hero-left">
-                <h3 class="hero-title">الحملات (Campaigns)</h3>
-                <p class="hero-desc">
-                  أنشئ حملة باسم ووصف + تاريخ بداية/نهاية + أعمدة، ثم أضف تاسكات لكل عمود.
-                  التاسك يحتوي Unique Spec Key + وصف + تاريخ تسليم + روابط + مسؤول.
-                </p>
-                <div class="kpi-row">
-                  <div class="kpi">
-                    <div>
-                      <strong>عدد الحملات</strong>
-                      <span class="muted">Active</span>
+          <div class="dash-filter">
+            <div class="dash-filter-head">
+              <strong>عرض مخصص</strong>
+              <span class="muted">اختار أجندات/حملات محددة للعرض</span>
+            </div>
+            <div class="dash-filter-body">
+              <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+                <div style="min-width:220px">
+                  <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">اختر</label>
+                  <select id="dashPickType" class="inp">
+                    <option value="">— اختر —</option>
+                    <option value="agenda">الأجندات</option>
+                    <option value="campaign">الحملات</option>
+                  </select>
+                </div>
+                <div style="flex:1;min-width:260px" id="dashPickListWrap" style="display:none">
+                  <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">حدد العناصر التي تريد عرضها</label>
+                  <div class="pick-list" id="dashPickList"></div>
+                </div>
+                <div>
+                  <button class="btn sm" id="dashPickApply" type="button" disabled>عرض المحدد</button>
+                </div>
+              </div>
+
+              <div style="margin-top:12px" id="dashCustomResults" style="display:none">
+                <div class="divider"></div>
+                <div class="dash-grid" style="grid-template-columns:1fr;gap:12px">
+                  <div class="dash-card">
+                    <div class="dash-card-head">
+                      <strong id="dashCustomTitle">...</strong>
+                      <span class="muted" id="dashCustomMeta">...</span>
                     </div>
-                    <div class="num" id="kpiCampaigns">0</div>
-                  </div>
-                  <div class="kpi">
-                    <div>
-                      <strong>تاسكات الحملات</strong>
-                      <span class="muted">الإجمالي</span>
-                    </div>
-                    <div class="num" id="kpiCampaignTasks">0</div>
+                    <div class="dash-card-body" id="dashCustomWrap"></div>
                   </div>
                 </div>
               </div>
-              <div class="hero-actions">
-                <div class="pill"><span class="dot"></span> تواريخ + روابط</div>
-                <button class="btn sm" type="button">فتح الحملات</button>
-              </div>
+
             </div>
           </div>
+
         </div>
       </section>
 
@@ -791,7 +783,6 @@
           <div class="actions">
             <button class="btn ghost sm" id="btnEditBoard" type="button">✏️ تعديل</button>
             <button class="btn danger sm" id="btnDeleteBoard" type="button">🗑️ حذف</button>
-            <button class="btn secondary sm" id="btnCampaignText" type="button" style="display:none">📝 محرر نصوص</button>
           </div>
         </div>
         <div class="body">
@@ -799,27 +790,25 @@
         </div>
       </section>
 
-      <!-- Daily Task (Admin) -->
       <section class="panel" id="viewDaily" style="display:none">
-        <div class="head">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="head" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div>
             <strong>Daily Task</strong>
-            <span class="muted">مهام يومية مقسمة على 4 أسابيع (السبت → الخميس) مع عمود تم الانتهاء + ملاحظات</span>
+            <div class="muted" style="font-size:12px;margin-top:6px">إنشاء مهام يومية (4 أسابيع) وحفظها داخل <b>daily_tasks</b> في مشروع <b>mzj-workspace-c7d4e</b>.</div>
           </div>
-          <div class="actions">
-            <select id="dailyYear" class="inp" style="min-width:140px"></select>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <input id="dailyYear" class="inp" type="number" style="width:120px" placeholder="السنة" />
             <select id="dailyMonth" class="inp" style="min-width:180px"></select>
-            <button class="btn sm" id="btnDailyAdd" type="button">➕ مهمة يومية</button>
-            <button class="btn secondary sm" id="btnDailyRefresh" type="button">⟳ تحديث</button>
+            <button class="btn secondary sm" id="dailyTextOpen" type="button">📝 محرر نصوص</button>
+            <button class="btn secondary sm" id="dailyReload" type="button">⟳ تحميل</button>
           </div>
         </div>
         <div class="body">
-          <div id="dailyWeeks" class="home-grid" style="grid-template-columns:1fr;gap:12px"></div>
-          <div class="hint" id="dailyHint" style="margin-top:10px;color:var(--muted)"></div>
+          <div class="weeks-grid" id="dailyWeeks"></div>
         </div>
       </section>
 
-      <section class="panel" id="viewStock" style="display:none">
+<section class="panel" id="viewStock" style="display:none">
         <div class="head">
           <div class="stock-meta">
             <strong>stock</strong>
@@ -1132,106 +1121,20 @@
     </div>
   </div>
 
-  <!-- Daily Task Modal -->
-  <div class="modal" id="dailyModal">
-    <div class="sheet" style="max-width:780px">
-      <div class="m-head">
-        <strong id="dailyModalTitle">مهمة يومية</strong>
-        <button class="btn secondary xs" id="dailyModalClose" type="button">إغلاق</button>
-      </div>
-      <div class="m-body">
-        <div class="grid2">
-          <div>
-            <label>الأسبوع</label>
-            <select id="dailyWeek" class="inp"></select>
-          </div>
-          <div>
-            <label>اليوم</label>
-            <select id="dailyDay" class="inp"></select>
-          </div>
-        </div>
-        <label style="margin-top:10px">عنوان المهمة</label>
-        <input id="dailyTitle" class="inp" placeholder="مثال: كتابة سكريبت ريل" />
-
-        <label style="margin-top:10px">وصف المهمة</label>
-        <textarea id="dailyDesc" placeholder="اكتب الوصف..."></textarea>
-
-        <label style="margin-top:10px">ملاحظات (اختياري)</label>
-        <textarea id="dailyNotes" placeholder="ملاحظات داخلية..."></textarea>
-        <div class="hint" style="color:var(--muted);margin-top:10px">سيتم الحفظ داخل Collection: <b>daily_tasks</b> في مشروع <b>mzj-workspace-c7d4e</b>.</div>
-      </div>
-      <div class="m-foot">
-        <button class="btn danger" id="dailyDelete" style="display:none" type="button">حذف</button>
-        <button class="btn secondary" id="dailyCancel" type="button">إلغاء</button>
-        <button class="btn" id="dailySave" type="button">حفظ</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Campaign Text Editor Modal -->
-  <div class="modal" id="campaignTextModal">
-    <div class="sheet" style="max-width:980px">
-      <div class="m-head">
-        <strong>محرر نصوص الحملات</strong>
-        <button class="btn secondary xs" id="campaignTextClose" type="button">إغلاق</button>
-      </div>
-      <div class="m-body">
-        <div class="card" style="padding:12px;margin:0">
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-            <select id="cteFont" class="inp" style="min-width:180px">
-              <option value="Tajawal">Tajawal</option>
-              <option value="Arial">Arial</option>
-              <option value="Tahoma">Tahoma</option>
-              <option value="Courier New">Courier New</option>
-            </select>
-            <select id="cteSize" class="inp" style="min-width:140px">
-              <option value="2">صغير</option>
-              <option value="3" selected>عادي</option>
-              <option value="4">كبير</option>
-              <option value="5">أكبر</option>
-            </select>
-            <input id="cteColor" type="color" class="inp" style="width:64px;min-width:64px;padding:6px" />
-
-            <button class="btn secondary sm" id="cteBold" type="button"><b>B</b></button>
-            <button class="btn secondary sm" id="cteItalic" type="button"><i>I</i></button>
-            <button class="btn secondary sm" id="cteUnderline" type="button"><u>U</u></button>
-            <button class="btn secondary sm" id="cteUl" type="button">• قائمة</button>
-            <button class="btn secondary sm" id="cteOl" type="button">1. قائمة</button>
-            <button class="btn ghost sm" id="cteClear" type="button">مسح التنسيق</button>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="card" style="padding:0;margin:0;border:1px solid #e6ded6">
-          <div id="cteEditor" contenteditable="true" style="min-height:320px;padding:14px;outline:none;background:#fff;border-radius:14px"></div>
-        </div>
-        <div class="hint" id="cteHint" style="color:var(--muted);margin-top:10px">احفظ النص وربطه بالحملة الحالية — يمكنك الرجوع له وتعديله أو حذفه في أي وقت.</div>
-      </div>
-      <div class="m-foot">
-        <button class="btn danger" id="cteDelete" type="button">حذف</button>
-        <button class="btn secondary" id="cteCancel" type="button">إلغاء</button>
-        <button class="btn" id="cteSave" type="button">حفظ</button>
-      </div>
-    </div>
-  </div>
-
 <div class="toast" id="toast">...</div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script type="module">
-    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
       getAuth, onAuthStateChanged, signOut, signInAnonymously,
       signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, setPersistence, browserLocalPersistence
-    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       getFirestore, collection, doc, getDoc, getDocs,
       addDoc, setDoc, updateDoc, deleteDoc,
       query, where, orderBy, onSnapshot, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDXXDsJKnKb_0HynSTnP22QYc0yrUdx-cw",
@@ -1491,14 +1394,6 @@ function initials(name){
 
     const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard"), daily: $("viewDaily"), stock: $("viewStock"), admin: $("viewAdmin") };
 
-    // Dashboard caches
-    let WORKSPACES_CACHE = [];
-    let TASKS_CACHE = [];
-
-    // Daily tasks
-    let DAILY_CACHE = [];
-    let unsubDaily = null;
-
     // Last rendered rows for Excel export (stock tab)
     let __LAST_STOCK_ROWS = [];
 
@@ -1574,9 +1469,9 @@ function initials(name){
 
       if(state.view==="home") return openHome();
       if(state.view==="list") return openList(state.type||"agenda");
+      if(state.view==="daily") return openDaily();
       if(state.view==="stock") return openStock();
       if(state.view==="admin") return openAdmin();
-      if(state.view==="daily") return openDaily();
       if(state.view==="board"){
         try{
           if(state.workspaceId){
@@ -1683,13 +1578,8 @@ let MODE = "home";
       $("whoRole").textContent = (CURRENT_ROLE==="admin" ? "مدير" : "عضو");
       // show Admin tab for admins only
       try{ $("navAdmin").style.display = (CURRENT_ROLE==="admin" ? "" : "none"); }catch(e){}
-      // Daily Task tab: للمدير فقط
       try{ $("navDaily").style.display = (CURRENT_ROLE==="admin" ? "" : "none"); }catch(e){}
-      // Dashboard module option: Daily Task للمدير فقط
-      try{
-        const opt = document.querySelector('#dashModule option[value="daily"]');
-        if(opt) opt.style.display = (CURRENT_ROLE==="admin" ? "" : "none");
-      }catch(e){}
+      try{ $("navDaily").style.display = (CURRENT_ROLE==="admin" ? "" : "none"); }catch(e){}
       $("avatar").textContent = initials(displayName);
 
       await loadUsers();
@@ -1697,14 +1587,6 @@ let MODE = "home";
       await loadStockTasksOnce();
       restoreLastView();
       listenKPIs();
-
-      // Preload Daily tasks for dashboard (admin only)
-      try{
-        if(CURRENT_ROLE==="admin"){
-          initDailySelectors();
-          refreshDaily();
-        }
-      }catch(e){}
 
       // مصادر الـ Spec Key (1) كاش محلي داخل مشروع الـ Workspace + (2) مصدر حي من مشروع الـ Agenda
       initLocalSpecCache();
@@ -1998,585 +1880,28 @@ let unsubKpiWs=null, unsubKpiTasks=null;
       if(unsubKpiTasks) unsubKpiTasks();
 
       unsubKpiWs = onSnapshot(collection(db,"workspaces"), (snap)=>{
-        WORKSPACES_CACHE = [];
         let agendas=0, campaigns=0;
         snap.forEach(d=>{
           const x = d.data()||{};
-          WORKSPACES_CACHE.push({ id:d.id, ...x });
           if(x.active===false) return;
           if(x.type==="agenda") agendas++;
           if(x.type==="campaign") campaigns++;
         });
         $("kpiAgendas").textContent = agendas;
         $("kpiCampaigns").textContent = campaigns;
-        try{ if(MODE==="home") renderDashboard(); }catch(e){}
       });
 
       unsubKpiTasks = onSnapshot(collection(db,"workspace_tasks"), (snap)=>{
-        TASKS_CACHE = [];
         let a=0,c=0;
         snap.forEach(d=>{
           const t=d.data()||{};
-          TASKS_CACHE.push({ id:d.id, ...t });
           if(t.type==="agenda") a++;
           if(t.type==="campaign") c++;
         });
         $("kpiAgendaTasks").textContent = a;
         $("kpiCampaignTasks").textContent = c;
-        try{ if(MODE==="home") renderDashboard(); }catch(e){}
       });
     }
-
-    // =====================
-    // Dashboard (Home)
-    // =====================
-    const dashModuleEl = $("dashModule");
-    const dashAssigneeEl = $("dashAssignee");
-    const dashMembersTable = $("dashMembersTable");
-    const dashTasksList = $("dashTasksList");
-    const dashTasksHint = $("dashTasksHint");
-    const dashDailyYM = $("dashDailyYM");
-    const dashDailyYear = $("dashDailyYear");
-    const dashDailyMonth = $("dashDailyMonth");
-    const btnDashPdf = $("btnDashPdf");
-
-    function monthNameAr(m){
-      const names = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
-      return names[m-1] || String(m);
-    }
-
-    function initDashAssignees(){
-      if(!dashAssigneeEl) return;
-      const current = dashAssigneeEl.value || "";
-      dashAssigneeEl.innerHTML = `<option value="">كل الأعضاء</option>` + USERS
-        .map(u=> `<option value="${escapeAttr(u.uid)}">${escapeHtml(u.name||u.email||u.uid)}</option>`)
-        .join("");
-      dashAssigneeEl.value = current;
-    }
-
-    function initDashDailySelectors(){
-      if(!dashDailyYear || !dashDailyMonth) return;
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = now.getMonth()+1;
-      const years = [y-1, y, y+1];
-      dashDailyYear.innerHTML = years.map(v=> `<option value="${v}">${v}</option>`).join("");
-      dashDailyMonth.innerHTML = Array.from({length:12},(_,i)=>{
-        const mm=i+1;
-        return `<option value="${mm}">${monthNameAr(mm)}</option>`;
-      }).join("");
-      dashDailyYear.value = String(y);
-      dashDailyMonth.value = String(m);
-    }
-
-    async function exportDashboardToPdf(){
-      const card = document.querySelector('#viewHome .card');
-      if(!card){ toast('⚠️ لا يوجد محتوى للتصدير'); return; }
-      try{
-        const canvas = await html2canvas(card, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-        const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p','mm','a4');
-        const pageW = pdf.internal.pageSize.getWidth();
-        const pageH = pdf.internal.pageSize.getHeight();
-        const imgW = pageW;
-        const imgH = (canvas.height * imgW) / canvas.width;
-        let y = 0;
-        if(imgH <= pageH){
-          pdf.addImage(imgData, 'PNG', 0, 0, imgW, imgH);
-        }else{
-          // multi-page
-          let remaining = imgH;
-          while(remaining > 0){
-            pdf.addImage(imgData, 'PNG', 0, y, imgW, imgH);
-            remaining -= pageH;
-            if(remaining > 0){ pdf.addPage(); y -= pageH; }
-          }
-        }
-        pdf.save(`dashboard_${Date.now()}.pdf`);
-      }catch(err){
-        console.error(err);
-        toast('⚠️ فشل تصدير PDF');
-      }
-    }
-
-    if(dashModuleEl){
-      dashModuleEl.addEventListener('change', ()=>{ try{ renderDashboard(); }catch(e){} });
-    }
-    if(dashAssigneeEl){
-      dashAssigneeEl.addEventListener('change', ()=>{ try{ renderDashboard(); }catch(e){} });
-    }
-    if(dashDailyYear){ dashDailyYear.addEventListener('change', ()=>{ try{ renderDashboard(); }catch(e){} }); }
-    if(dashDailyMonth){ dashDailyMonth.addEventListener('change', ()=>{ try{ renderDashboard(); }catch(e){} }); }
-    if(btnDashPdf){ btnDashPdf.addEventListener('click', exportDashboardToPdf); }
-
-    function isDoneTask(t){
-      const col = String(t.column||'');
-      const st = String(t.status||'');
-      return /تم الانتهاء/.test(col) || st === 'تم الانتهاء';
-    }
-
-    function renderDashboard(){
-      if(!dashModuleEl || MODE !== 'home') return;
-      initDashAssignees();
-      initDashDailySelectors();
-
-      const module = dashModuleEl.value || 'agenda';
-      const assignee = dashAssigneeEl.value || '';
-
-      // Daily selectors visibility
-      if(dashDailyYM){
-        dashDailyYM.style.display = (module==='daily' ? 'flex' : 'none');
-      }
-
-      let tasks = [];
-      if(module === 'daily'){
-        const y = Number(dashDailyYear?.value || new Date().getFullYear());
-        const m = Number(dashDailyMonth?.value || (new Date().getMonth()+1));
-        tasks = DAILY_CACHE.filter(t=> Number(t.year)===y && Number(t.month)===m);
-        if(assignee) tasks = tasks.filter(t=> (t.createdBy||'') === assignee || (t.assigneeUid||'')===assignee);
-      }else{
-        // agenda/campaign
-        const wsIds = new Set(WORKSPACES_CACHE.filter(w=> w.active!==false && w.type===module).map(w=> w.id));
-        tasks = TASKS_CACHE.filter(t=> wsIds.has(t.workspaceId) && t.type===module);
-        if(assignee) tasks = tasks.filter(t=> (t.assigneeUid||'') === assignee);
-      }
-
-      const total = tasks.length;
-      const done = tasks.filter(isDoneTask).length;
-      const remain = total - done;
-      try{ $("dashTotal").textContent = String(total); }catch(e){}
-      try{ $("dashDone").textContent = String(done); }catch(e){}
-      try{ $("dashRemain").textContent = String(remain); }catch(e){}
-
-      // members table
-      if(dashMembersTable){
-        const rows = USERS.map(u=>{
-          const uTasks = (module==='daily')
-            ? tasks.filter(t=> (t.createdBy||'')===u.uid || (t.assigneeUid||'')===u.uid)
-            : tasks.filter(t=> (t.assigneeUid||'')===u.uid);
-          const uTotal = uTasks.length;
-          const uDone = uTasks.filter(isDoneTask).length;
-          const uRemain = uTotal - uDone;
-          return { name: u.name||u.email||u.uid, total:uTotal, done:uDone, remain:uRemain };
-        }).filter(r=> r.total>0 || total===0);
-
-        dashMembersTable.innerHTML = `
-          <thead>
-            <tr>
-              <th style="width:40%">العضو</th>
-              <th>إجمالي</th>
-              <th>تم</th>
-              <th>باقي</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map(r=>`
-              <tr>
-                <td>${escapeHtml(r.name)}</td>
-                <td>${r.total}</td>
-                <td>${r.done}</td>
-                <td>${r.remain}</td>
-              </tr>
-            `).join('')}
-          </tbody>`;
-      }
-
-      // tasks list
-      if(dashTasksList){
-        const max = 40;
-        const show = tasks.slice(0, max);
-        dashTasksList.innerHTML = show.map(t=>{
-          if(module==='daily'){
-            const label = `${monthNameAr(Number(t.month)||0)} ${t.year||''} — أسبوع ${t.week||''} — ${t.day||''}`;
-            const st = isDoneTask(t) ? '✅ تم الانتهاء' : '⏳ جاري';
-            return `<div class="li">
-              <div class="li-main">
-                <div class="li-title">${escapeHtml(t.title||'—')} <span class="muted" style="font-size:12px">${escapeHtml(st)}</span></div>
-                <div class="li-sub muted">${escapeHtml(label)}</div>
-                ${t.description ? `<div class="muted" style="margin-top:6px">${escapeHtml(t.description)}</div>` : ''}
-              </div>
-            </div>`;
-          }
-          const st = isDoneTask(t) ? '✅ تم الانتهاء' : '⏳ جاري';
-          return `<div class="li">
-            <div class="li-main">
-              <div class="li-title">${escapeHtml(t.specKey||'—')} <span class="muted" style="font-size:12px">${escapeHtml(st)}</span></div>
-              <div class="li-sub muted">${escapeHtml(t.column||'—')} — ${escapeHtml(t.assigneeName||'بدون مسؤول')}</div>
-              ${t.description ? `<div class="muted" style="margin-top:6px">${escapeHtml(t.description)}</div>` : ''}
-            </div>
-          </div>`;
-        }).join('');
-
-        if(dashTasksHint){
-          dashTasksHint.textContent = total > max ? `عرض ${max} من أصل ${total} مهمة.` : (total? '' : 'لا توجد مهام حالياً في هذا الاختيار.');
-        }
-      }
-    }
-
-    // =====================
-    // Daily Task (Admin)
-    // =====================
-    const dailyYearEl = $("dailyYear");
-    const dailyMonthEl = $("dailyMonth");
-    const dailyWeeksEl = $("dailyWeeks");
-    const dailyHintEl = $("dailyHint");
-
-    function initDailySelectors(){
-      if(!dailyYearEl || !dailyMonthEl) return;
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = now.getMonth()+1;
-      const years = [y-1, y, y+1];
-      dailyYearEl.innerHTML = years.map(v=> `<option value="${v}">${v}</option>`).join("");
-      dailyMonthEl.innerHTML = Array.from({length:12},(_,i)=>{
-        const mm=i+1;
-        return `<option value="${mm}">${monthNameAr(mm)}</option>`;
-      }).join("");
-      if(!dailyYearEl.value) dailyYearEl.value = String(y);
-      if(!dailyMonthEl.value) dailyMonthEl.value = String(m);
-    }
-
-    function dailyDoneState(t){
-      const st = String(t.status||'');
-      return st==='done' || st==='تم الانتهاء';
-    }
-
-    function renderDaily(){
-      if(!dailyWeeksEl) return;
-      const y = Number(dailyYearEl?.value || new Date().getFullYear());
-      const m = Number(dailyMonthEl?.value || (new Date().getMonth()+1));
-      const tasks = DAILY_CACHE.filter(t=> Number(t.year)===y && Number(t.month)===m);
-
-      const days = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"];
-      const weeks = [1,2,3,4];
-
-      dailyWeeksEl.innerHTML = weeks.map(w=>{
-        const wt = tasks.filter(t=> Number(t.week)===w);
-        const open = wt.filter(t=> !dailyDoneState(t));
-        const done = wt.filter(t=> dailyDoneState(t));
-        const renderCard = (t, isDone)=>{
-          const st = isDone ? '✅ تم الانتهاء' : '⏳ جاري';
-          return `
-            <div class="card" style="padding:12px;margin-bottom:10px" data-daily-card="${escapeAttr(t.id)}">
-              <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
-                <div>
-                  <strong>${escapeHtml(t.day||'—')} — ${escapeHtml(t.title||'—')}</strong>
-                  <div class="muted" style="margin-top:4px;font-size:12px">${escapeHtml(st)}</div>
-                  ${t.description ? `<div style="margin-top:6px">${escapeHtml(t.description)}</div>` : ''}
-                </div>
-                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                  <button class="btn secondary xs" type="button" data-daily-edit="${escapeAttr(t.id)}">✏️ تعديل</button>
-                  ${isDone
-                    ? `<button class="btn ghost xs" type="button" data-daily-undone="${escapeAttr(t.id)}">↩️ رجوع</button>`
-                    : `<button class="btn xs" type="button" data-daily-done="${escapeAttr(t.id)}">تم الانتهاء</button>`
-                  }
-                </div>
-              </div>
-              <div style="margin-top:10px">
-                <label style="font-size:12px;color:var(--muted)">ملاحظات</label>
-                <textarea data-daily-notes="${escapeAttr(t.id)}" placeholder="اكتب ملاحظات..." style="min-height:64px">${escapeHtml(t.notes||'')}</textarea>
-              </div>
-            </div>`;
-        };
-
-        return `
-          <div class="card" style="padding:0">
-            <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-              <div>
-                <strong>الأسبوع ${w}</strong>
-                <span class="muted">(السبت → الخميس)</span>
-              </div>
-              <div class="muted" style="font-size:12px">${open.length} جاري — ${done.length} تم</div>
-            </div>
-            <div class="card-body">
-              <div class="grid2" style="align-items:start">
-                <div>
-                  <label style="margin-bottom:8px">المهام</label>
-                  ${open.length ? open.map(t=> renderCard(t,false)).join('') : `<div class="hint" style="color:var(--muted)">لا توجد مهام.</div>`}
-                </div>
-                <div>
-                  <label style="margin-bottom:8px">تم الانتهاء</label>
-                  ${done.length ? done.map(t=> renderCard(t,true)).join('') : `<div class="hint" style="color:var(--muted)">لا توجد مهام مكتملة.</div>`}
-                </div>
-              </div>
-            </div>
-          </div>`;
-      }).join('');
-
-      if(dailyHintEl){
-        dailyHintEl.textContent = tasks.length ? `إجمالي مهام هذا الشهر: ${tasks.length}` : 'لا توجد مهام لهذا الشهر.';
-      }
-    }
-
-    function refreshDaily(){
-      if(unsubDaily){ unsubDaily(); unsubDaily = null; }
-      const y = Number(dailyYearEl?.value || new Date().getFullYear());
-      const m = Number(dailyMonthEl?.value || (new Date().getMonth()+1));
-      const qy = query(
-        collection(db, "daily_tasks"),
-        where("year","==",y),
-        where("month","==",m)
-      );
-      unsubDaily = onSnapshot(qy, (snap)=>{
-        DAILY_CACHE = [];
-        snap.forEach(d=> DAILY_CACHE.push({ id:d.id, ... (d.data()||{}) }));
-        renderDaily();
-        if(MODE==='home') renderDashboard();
-      });
-    }
-
-    // Daily view UI events
-    if($("btnDailyRefresh")) $("btnDailyRefresh").addEventListener('click', ()=>{ try{ refreshDaily(); }catch(e){} });
-    if(dailyYearEl) dailyYearEl.addEventListener('change', ()=>{ try{ refreshDaily(); }catch(e){} });
-    if(dailyMonthEl) dailyMonthEl.addEventListener('change', ()=>{ try{ refreshDaily(); }catch(e){} });
-
-    // =====================
-    // Daily Modal CRUD
-    // =====================
-    const dailyModal = $("dailyModal");
-    const dailyWeekSel = $("dailyWeek");
-    const dailyDaySel = $("dailyDay");
-    const dailyTitleInp = $("dailyTitle");
-    const dailyDescInp = $("dailyDesc");
-    const dailyNotesInp = $("dailyNotes");
-    const dailyDeleteBtn = $("dailyDelete");
-
-    let DAILY_MODE = 'create';
-    let CURRENT_DAILY = null;
-
-    function openDailyModal(mode, task=null){
-      DAILY_MODE = mode;
-      CURRENT_DAILY = task;
-      $("dailyModalTitle").textContent = (mode==='edit' ? 'تعديل مهمة' : 'مهمة يومية');
-
-      // week/day options
-      if(dailyWeekSel){
-        dailyWeekSel.innerHTML = [1,2,3,4].map(w=> `<option value="${w}">الأسبوع ${w}</option>`).join('');
-      }
-      if(dailyDaySel){
-        const days = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"];
-        dailyDaySel.innerHTML = days.map(d=> `<option value="${escapeAttr(d)}">${escapeHtml(d)}</option>`).join('');
-      }
-
-      if(mode==='edit' && task){
-        dailyWeekSel.value = String(task.week||1);
-        dailyDaySel.value = String(task.day||'السبت');
-        dailyTitleInp.value = task.title || '';
-        dailyDescInp.value = task.description || '';
-        dailyNotesInp.value = task.notes || '';
-        dailyDeleteBtn.style.display = '';
-      }else{
-        dailyWeekSel.value = '1';
-        dailyDaySel.value = 'السبت';
-        dailyTitleInp.value = '';
-        dailyDescInp.value = '';
-        dailyNotesInp.value = '';
-        dailyDeleteBtn.style.display = 'none';
-      }
-
-      dailyModal.classList.add('show');
-    }
-
-    function closeDailyModal(){
-      dailyModal.classList.remove('show');
-      CURRENT_DAILY = null;
-    }
-
-    if($("btnDailyAdd")) $("btnDailyAdd").addEventListener('click', ()=> openDailyModal('create'));
-    if($("dailyModalClose")) $("dailyModalClose").addEventListener('click', closeDailyModal);
-    if($("dailyCancel")) $("dailyCancel").addEventListener('click', closeDailyModal);
-    if(dailyModal) dailyModal.addEventListener('click', (e)=>{ if(e.target===dailyModal) closeDailyModal(); });
-
-    if($("dailySave")) $("dailySave").addEventListener('click', async ()=>{
-      const title = String(dailyTitleInp.value||'').trim();
-      const desc = String(dailyDescInp.value||'').trim();
-      const notes = String(dailyNotesInp.value||'').trim();
-      const week = Number(dailyWeekSel.value||1);
-      const day = String(dailyDaySel.value||'السبت');
-      const y = Number(dailyYearEl?.value || new Date().getFullYear());
-      const m = Number(dailyMonthEl?.value || (new Date().getMonth()+1));
-      if(!title) return toast('اكتب عنوان المهمة');
-
-      const payload = {
-        year: y,
-        month: m,
-        week,
-        day,
-        title,
-        description: desc || null,
-        notes: notes || null,
-        status: (CURRENT_DAILY && dailyDoneState(CURRENT_DAILY)) ? 'done' : 'open',
-        updatedAt: serverTimestamp(),
-        updatedBy: CURRENT_USER?.uid || null
-      };
-
-      try{
-        if(DAILY_MODE==='create'){
-          payload.createdAt = serverTimestamp();
-          payload.createdBy = CURRENT_USER?.uid || null;
-          await addDoc(collection(db,'daily_tasks'), payload);
-          toast('✅ تم حفظ المهمة');
-        }else{
-          if(!CURRENT_DAILY?.id) return toast('⚠️ لا يوجد ID');
-          await updateDoc(doc(db,'daily_tasks', CURRENT_DAILY.id), payload);
-          toast('✅ تم تعديل المهمة');
-        }
-        closeDailyModal();
-      }catch(err){
-        console.error(err);
-        toast('⚠️ فشل الحفظ (راجع قواعد Firestore)');
-      }
-    });
-
-    if(dailyDeleteBtn) dailyDeleteBtn.addEventListener('click', async ()=>{
-      if(!CURRENT_DAILY?.id) return;
-      if(!confirm('تأكيد حذف المهمة؟')) return;
-      try{
-        await deleteDoc(doc(db,'daily_tasks', CURRENT_DAILY.id));
-        toast('✅ تم حذف المهمة');
-        closeDailyModal();
-      }catch(err){
-        console.error(err);
-        toast('⚠️ فشل الحذف');
-      }
-    });
-
-    // Daily actions delegation
-    if(dailyWeeksEl){
-      let notesTimer = null;
-      dailyWeeksEl.addEventListener('click', async (e)=>{
-        const edit = e.target.closest('[data-daily-edit]');
-        const done = e.target.closest('[data-daily-done]');
-        const undo = e.target.closest('[data-daily-undone]');
-        const id = (edit||done||undo)?.getAttribute(edit? 'data-daily-edit' : done? 'data-daily-done' : 'data-daily-undone');
-        if(!id) return;
-
-        const t = DAILY_CACHE.find(x=> x.id===id);
-        if(edit){
-          return openDailyModal('edit', t);
-        }
-        if(done){
-          try{
-            await updateDoc(doc(db,'daily_tasks', id), { status:'done', doneAt: serverTimestamp(), updatedAt: serverTimestamp(), updatedBy: CURRENT_USER?.uid||null });
-            toast('✅ تم نقلها لتم الانتهاء');
-          }catch(err){ console.error(err); toast('⚠️ فشل تحديث الحالة'); }
-          return;
-        }
-        if(undo){
-          try{
-            await updateDoc(doc(db,'daily_tasks', id), { status:'open', updatedAt: serverTimestamp(), updatedBy: CURRENT_USER?.uid||null });
-            toast('✅ تم إرجاعها لقائمة المهام');
-          }catch(err){ console.error(err); toast('⚠️ فشل تحديث الحالة'); }
-          return;
-        }
-      });
-
-      dailyWeeksEl.addEventListener('input', (e)=>{
-        const ta = e.target;
-        if(!(ta instanceof HTMLTextAreaElement)) return;
-        const id = ta.getAttribute('data-daily-notes');
-        if(!id) return;
-        const val = ta.value;
-        clearTimeout(notesTimer);
-        notesTimer = setTimeout(async ()=>{
-          try{
-            await updateDoc(doc(db,'daily_tasks', id), { notes: val, updatedAt: serverTimestamp(), updatedBy: CURRENT_USER?.uid||null });
-          }catch(err){ console.warn(err); }
-        }, 400);
-      });
-    }
-
-    // =====================
-    // Campaign Text Editor
-    // =====================
-    const btnCampaignText = $("btnCampaignText");
-    const campaignTextModal = $("campaignTextModal");
-    const cteEditor = $("cteEditor");
-
-    async function openCampaignTextEditor(workspace){
-      if(!workspace || workspace.type !== 'campaign') return;
-      CURRENT_WORKSPACE = workspace; // ensure
-      if(!campaignTextModal) return;
-      // load existing
-      const data = await loadCampaignText(workspace.id);
-      if(cteEditor) cteEditor.innerHTML = (data?.html || '');
-      openCampaignTextModal();
-    }
-
-    async function loadCampaignText(workspaceId){
-      if(!workspaceId) return null;
-      try{
-        const snap = await getDoc(doc(db,'campaign_texts', workspaceId));
-        if(!snap.exists()) return null;
-        return snap.data() || null;
-      }catch(err){
-        console.warn(err);
-        return null;
-      }
-    }
-
-    function openCampaignTextModal(){
-      if(!CURRENT_WORKSPACE || CURRENT_WORKSPACE.type !== 'campaign') return;
-      if(!campaignTextModal) return;
-      campaignTextModal.classList.add('show');
-    }
-
-    function closeCampaignTextModal(){
-      if(!campaignTextModal) return;
-      campaignTextModal.classList.remove('show');
-    }
-
-    function exec(cmd, val=null){
-      try{ document.execCommand(cmd,false,val); }catch(e){}
-      cteEditor?.focus();
-    }
-
-    if($("campaignTextClose")) $("campaignTextClose").addEventListener('click', closeCampaignTextModal);
-    if($("cteCancel")) $("cteCancel").addEventListener('click', closeCampaignTextModal);
-    if(campaignTextModal) campaignTextModal.addEventListener('click', (e)=>{ if(e.target===campaignTextModal) closeCampaignTextModal(); });
-
-    if($("cteBold")) $("cteBold").addEventListener('click', ()=> exec('bold'));
-    if($("cteItalic")) $("cteItalic").addEventListener('click', ()=> exec('italic'));
-    if($("cteUnderline")) $("cteUnderline").addEventListener('click', ()=> exec('underline'));
-    if($("cteUl")) $("cteUl").addEventListener('click', ()=> exec('insertUnorderedList'));
-    if($("cteOl")) $("cteOl").addEventListener('click', ()=> exec('insertOrderedList'));
-    if($("cteClear")) $("cteClear").addEventListener('click', ()=> exec('removeFormat'));
-    if($("cteFont")) $("cteFont").addEventListener('change', (e)=> exec('fontName', e.target.value));
-    if($("cteSize")) $("cteSize").addEventListener('change', (e)=> exec('fontSize', e.target.value));
-    if($("cteColor")) $("cteColor").addEventListener('input', (e)=> exec('foreColor', e.target.value));
-
-    if($("cteSave")) $("cteSave").addEventListener('click', async ()=>{
-      if(!CURRENT_WORKSPACE || CURRENT_WORKSPACE.type!=='campaign') return toast('⚠️ اختر حملة أولاً');
-      const html = (cteEditor?.innerHTML || '').trim();
-      try{
-        await setDoc(doc(db,'campaign_texts', CURRENT_WORKSPACE.id), {
-          workspaceId: CURRENT_WORKSPACE.id,
-          html,
-          updatedAt: serverTimestamp(),
-          updatedBy: CURRENT_USER?.uid||null
-        }, { merge:true });
-        toast('✅ تم حفظ النص');
-        closeCampaignTextModal();
-      }catch(err){
-        console.error(err);
-        toast('⚠️ فشل حفظ النص');
-      }
-    });
-
-    if($("cteDelete")) $("cteDelete").addEventListener('click', async ()=>{
-      if(!CURRENT_WORKSPACE || CURRENT_WORKSPACE.type!=='campaign') return;
-      if(!confirm('تأكيد حذف النص؟')) return;
-      try{
-        await deleteDoc(doc(db,'campaign_texts', CURRENT_WORKSPACE.id));
-        if(cteEditor) cteEditor.innerHTML = '';
-        toast('✅ تم حذف النص');
-        closeCampaignTextModal();
-      }catch(err){
-        console.error(err);
-        toast('⚠️ فشل حذف النص');
-      }
-    });
 
 
 
@@ -2611,23 +1936,6 @@ let unsubKpiWs=null, unsubKpiTasks=null;
       $("btnCreateCampaign").style.display="none";
 
       showView("admin");
-    }
-
-    function openDaily(){
-      MODE="daily"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
-      saveLastView("daily");
-      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
-      if(unsubTasks){unsubTasks();unsubTasks=null;}
-
-      setNavActive("navDaily");
-      $("pageTitle").textContent = "Daily Task";
-      $("pageDesc").textContent  = "مهام يومية مقسمة على 4 أسابيع مع عمود تم الانتهاء + ملاحظات.";
-      $("btnBack").style.display="none";
-      $("btnCreateAgenda").style.display="none";
-      $("btnCreateCampaign").style.display="none";
-
-      showView("daily");
-      try{ initDailySelectors(); refreshDaily(); }catch(e){}
     }
 
 
@@ -2674,6 +1982,659 @@ let unsubKpiWs=null, unsubKpiTasks=null;
       const isUnder  = loc.includes("مباع تحت التسليم");
       const isDone   = loc.includes("مباع تم التسليم");
       return isAgency || isUnder || isDone;
+    }
+
+    
+
+    // =========================
+    // Dashboard (Home) — عرض أجندة وحملات الشهر الحالي + فلترة اختيارية
+    // =========================
+    const MONTHS_AR_FULL = [
+      "يناير","فبراير","مارس","أبريل","مايو","يونيو",
+      "يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"
+    ];
+
+    function currentMonthInfo(){
+      const now = new Date();
+      const monthIdx = now.getMonth(); // 0..11
+      const year = now.getFullYear();
+      const name = MONTHS_AR_FULL[monthIdx] || "";
+      const mm = String(monthIdx+1).padStart(2,'0');
+      return { monthIdx, monthName: name, monthNumber: monthIdx+1, mm, year };
+    }
+
+    function wsMatchesMonth(ws, monthName, mm){
+      try{
+        const name = String(ws?.name||"");
+        const start = String(ws?.startDate||"");
+        const end   = String(ws?.endDate||"");
+        // 1) الاسم يحتوي الشهر العربي
+        if(monthName && name.includes(monthName)) return true;
+        // 2) التواريخ بصيغة YYYY-MM-DD أو مشابه
+        if(mm && (start.includes('-'+mm+'-') || end.includes('-'+mm+'-'))) return true;
+      }catch(e){}
+      return false;
+    }
+
+    function isTaskDone(t){
+      const col = String(t?.column||"");
+      const st  = String(t?.status||"");
+      if(col.includes('تم الانتهاء')) return true;
+      if(st === 'تم الانتهاء' || st === 'done' || st === 'completed' || st === 'true') return true;
+      if(t?.done === true || t?.completed === true) return true;
+      return false;
+    }
+
+    async function fetchWorkspacesByType(type){
+      const qy = query(collection(db,'workspaces'), where('type','==', type));
+      const snap = await getDocs(qy);
+      const arr=[];
+      snap.forEach(d=>{
+        const x=d.data()||{};
+        if(x.active===false) return;
+        arr.push({id:d.id, ...x});
+      });
+      // ترتيب الأحدث أولاً
+      arr.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+      return arr;
+    }
+
+    async function fetchTasksForWorkspace(workspaceId){
+      const qy = query(collection(db,'workspace_tasks'), where('workspaceId','==', workspaceId));
+      const snap = await getDocs(qy);
+      const tasks=[];
+      snap.forEach(d=> tasks.push({id:d.id, ...(d.data()||{})}));
+      // ترتيب محلي
+      tasks.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+      return tasks;
+    }
+
+    function renderWorkspaceTasksReadOnly(container, ws, tasks){
+      const wrap = document.createElement('div');
+      wrap.className = 'dash-workspace';
+      const total = tasks.length;
+      const done = tasks.filter(isTaskDone).length;
+      const pending = total - done;
+      wrap.innerHTML = `
+        <div class="top">
+          <div>
+            <div class="name">${escapeHtml(ws?.name||'—')}</div>
+            <div class="meta">إجمالي: <b>${total}</b> | تم: <b>${done}</b> | باقي: <b>${pending}</b></div>
+          </div>
+          <span class="tag"><span class="mini"></span>${ws.type==='agenda'?'Agenda':'Campaign'}</span>
+        </div>
+        <div class="dash-tasks"></div>
+      `;
+      const list = wrap.querySelector('.dash-tasks');
+      if(!tasks.length){
+        const e = document.createElement('div');
+        e.className='empty';
+        e.style.fontSize='12px';
+        e.textContent='لا توجد تاسكات داخل هذا العنصر.';
+        list.appendChild(e);
+      }else{
+        // نعرض كل التاسكات قراءة فقط
+        tasks.forEach(t=>{
+          const row = document.createElement('div');
+          row.className='dash-task';
+          const done = isTaskDone(t);
+          const title = t.specKey || t.title || t.name || 'بدون اسم';
+          const sub = t.column || t.columnName || '';
+          row.innerHTML = `
+            <div>
+              <div class="t-title">${escapeHtml(title)}</div>
+              <div class="t-sub">${escapeHtml(sub)}</div>
+            </div>
+            <span class="pill" style="background:${done?'#dcfce7':'#fff7ed'};border-color:${done?'#86efac':'#fed7aa'}">
+              <span class="dot" style="background:${done?'#16a34a':'#f97316'}"></span>
+              ${done?'تم الانتهاء':'باقي'}
+            </span>
+          `;
+          list.appendChild(row);
+        });
+      }
+      container.appendChild(wrap);
+    }
+
+    // Cache for dashboard picker
+    let __DASH_WS_CACHE = { agenda: [], campaign: [] };
+
+    async function renderDashboardHome(){
+      const info = currentMonthInfo();
+      const monthName = info.monthName;
+      const mm = info.mm;
+
+      // pill
+      const pill = document.getElementById('dashMonthPill');
+      if(pill) pill.innerHTML = `<span class="dot"></span> شهر ${escapeHtml(monthName)} ${escapeHtml(String(info.year))}`;
+
+      // load workspaces
+      const agendas = await fetchWorkspacesByType('agenda');
+      const campaigns = await fetchWorkspacesByType('campaign');
+      __DASH_WS_CACHE.agenda = agendas;
+      __DASH_WS_CACHE.campaign = campaigns;
+
+      // choose month matches; fallback latest
+      let monthAgendas = agendas.filter(w=> wsMatchesMonth(w, monthName, mm));
+      let monthCampaigns = campaigns.filter(w=> wsMatchesMonth(w, monthName, mm));
+      if(!monthAgendas.length && agendas.length) monthAgendas = agendas.slice(0,1);
+      if(!monthCampaigns.length && campaigns.length) monthCampaigns = campaigns.slice(0,1);
+
+      // render agendas
+      const aWrap = document.getElementById('dashAgendasWrap');
+      const aEmpty = document.getElementById('dashAgendasEmpty');
+      if(aWrap){ aWrap.innerHTML=''; }
+      let agendaTasksCount = 0;
+      if(!monthAgendas.length){
+        if(aEmpty) aEmpty.style.display='';
+      }else{
+        if(aEmpty) aEmpty.style.display='none';
+        for(const ws of monthAgendas){
+          const tasks = await fetchTasksForWorkspace(ws.id);
+          agendaTasksCount += tasks.length;
+          if(aWrap) renderWorkspaceTasksReadOnly(aWrap, ws, tasks);
+        }
+      }
+      const aMeta = document.getElementById('dashAgendaMeta');
+      if(aMeta) aMeta.textContent = `${monthAgendas.length} أجندة | ${agendaTasksCount} تاسك`;
+
+      // render campaigns
+      const cWrap = document.getElementById('dashCampaignsWrap');
+      const cEmpty = document.getElementById('dashCampaignsEmpty');
+      if(cWrap){ cWrap.innerHTML=''; }
+      let campaignTasksCount = 0;
+      if(!monthCampaigns.length){
+        if(cEmpty) cEmpty.style.display='';
+      }else{
+        if(cEmpty) cEmpty.style.display='none';
+        for(const ws of monthCampaigns){
+          const tasks = await fetchTasksForWorkspace(ws.id);
+          campaignTasksCount += tasks.length;
+          if(cWrap) renderWorkspaceTasksReadOnly(cWrap, ws, tasks);
+        }
+      }
+      const cMeta = document.getElementById('dashCampaignMeta');
+      if(cMeta) cMeta.textContent = `${monthCampaigns.length} حملة | ${campaignTasksCount} تاسك`;
+
+      // wire picker UI
+      try{ wireDashboardPicker(); }catch(e){ console.warn(e); }
+    }
+
+    function wireDashboardPicker(){
+      const sel = document.getElementById('dashPickType');
+      const listWrap = document.getElementById('dashPickListWrap');
+      const listEl = document.getElementById('dashPickList');
+      const applyBtn = document.getElementById('dashPickApply');
+      const outWrap = document.getElementById('dashCustomWrap');
+      const outBox = document.getElementById('dashCustomResults');
+      const outTitle = document.getElementById('dashCustomTitle');
+      const outMeta = document.getElementById('dashCustomMeta');
+
+      if(!sel || !listWrap || !listEl || !applyBtn) return;
+
+      function renderPickList(type){
+        const arr = (__DASH_WS_CACHE[type] || []).slice();
+        listEl.innerHTML = '';
+        if(!arr.length){
+          listEl.innerHTML = `<div class="empty" style="padding:10px;font-size:12px">لا توجد عناصر.</div>`;
+          applyBtn.disabled = true;
+          return;
+        }
+        arr.forEach(ws=>{
+          const id = `pick_${type}_${ws.id}`;
+          const row = document.createElement('label');
+          row.className='pick-item';
+          row.innerHTML = `
+            <input type="checkbox" value="${escapeAttr(ws.id)}" />
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <b>${escapeHtml(ws.name||'—')}</b>
+              <span class="muted" style="font-size:12px">ID: ${escapeHtml(ws.id.slice(0,8))}…</span>
+            </div>
+          `;
+          listEl.appendChild(row);
+        });
+        applyBtn.disabled = true;
+
+        listEl.querySelectorAll('input[type="checkbox"]').forEach(ch=>{
+          ch.addEventListener('change', ()=>{
+            const any = !!listEl.querySelector('input[type="checkbox"]:checked');
+            applyBtn.disabled = !any;
+          });
+        });
+      }
+
+      sel.onchange = ()=>{
+        const v = String(sel.value||'');
+        if(!v){
+          listWrap.style.display='none';
+          if(outBox) outBox.style.display='none';
+          applyBtn.disabled=true;
+          return;
+        }
+        listWrap.style.display='';
+        renderPickList(v);
+      };
+
+      applyBtn.onclick = async ()=>{
+        const type = String(sel.value||'');
+        const checked = Array.from(listEl.querySelectorAll('input[type="checkbox"]:checked')).map(x=>x.value);
+        if(!type || !checked.length) return;
+        applyBtn.disabled = true;
+        try{
+          if(outWrap) outWrap.innerHTML='';
+          let totalTasks=0;
+          for(const id of checked){
+            const ws = (__DASH_WS_CACHE[type]||[]).find(x=>x.id===id);
+            if(!ws) continue;
+            const tasks = await fetchTasksForWorkspace(id);
+            totalTasks += tasks.length;
+            if(outWrap) renderWorkspaceTasksReadOnly(outWrap, ws, tasks);
+          }
+          if(outTitle) outTitle.textContent = (type==='agenda'?'الأجندات المحددة':'الحملات المحددة');
+          if(outMeta) outMeta.textContent = `العناصر: ${checked.length} | التاسكات: ${totalTasks}`;
+          if(outBox) outBox.style.display='';
+        }finally{
+          // re-enable based on current state
+          const any = !!listEl.querySelector('input[type="checkbox"]:checked');
+          applyBtn.disabled = !any;
+        }
+      };
+
+      // initial
+      if(!sel.value){
+        listWrap.style.display='none';
+      }
+    }
+
+    // =========================
+    // Daily Task (Admin) — 4 أسابيع جنب بعض + إضافة مهمة من داخل الأسبوع + محرر نصوص
+    // =========================
+    let __DAILY_CACHE = [];
+    let __DAILY_EDITOR_DOC = null;
+
+    function openDaily(){
+      MODE='daily';
+      saveLastView('daily');
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+      setNavActive('navDaily');
+      $("pageTitle").textContent = 'Daily Task';
+      $("pageDesc").textContent = '';
+      $("btnBack").style.display='none';
+      $("btnCreateAgenda").style.display='none';
+      $("btnCreateCampaign").style.display='none';
+      showView('daily');
+
+      // init year/month defaults
+      const info = currentMonthInfo();
+      const yEl = document.getElementById('dailyYear');
+      const mEl = document.getElementById('dailyMonth');
+      if(yEl && !yEl.value) yEl.value = String(info.year);
+      if(mEl && !mEl.dataset.inited){
+        mEl.innerHTML = MONTHS_AR_FULL.map((m,idx)=> `<option value="${idx+1}">${escapeHtml(m)}</option>`).join('');
+        mEl.dataset.inited = '1';
+      }
+      if(mEl) mEl.value = String(info.monthNumber);
+
+      // wire
+      document.getElementById('dailyReload')?.addEventListener('click', ()=> loadDaily());
+      document.getElementById('dailyYear')?.addEventListener('change', ()=> loadDaily());
+      document.getElementById('dailyMonth')?.addEventListener('change', ()=> loadDaily());
+      document.getElementById('dailyTextOpen')?.addEventListener('click', ()=> openDailyEditor());
+
+      // first load
+      loadDaily();
+    }
+
+    async function loadDaily(){
+      const y = parseInt(String(document.getElementById('dailyYear')?.value||''),10);
+      const m = parseInt(String(document.getElementById('dailyMonth')?.value||''),10);
+      if(!y || !m) return;
+
+      // load docs for month
+      const ym = `${y}-${String(m).padStart(2,'0')}`;
+      const qy = query(collection(db,'daily_tasks'), where('ym','==', ym));
+      const snap = await getDocs(qy);
+      const arr=[];
+      snap.forEach(d=> arr.push({id:d.id, ...(d.data()||{})}));
+      __DAILY_CACHE = arr;
+      renderDailyWeeks(y,m,arr);
+    }
+
+    function weekLabel(idx){
+      return `الأسبوع ${idx+1}`;
+    }
+
+    const DAYS_AR = ['السبت','الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس'];
+
+    function renderDailyWeeks(year, monthNumber, tasks){
+      const root = document.getElementById('dailyWeeks');
+      if(!root) return;
+      root.innerHTML='';
+
+      // build 4 weeks columns
+      for(let w=0; w<4; w++){
+        const col = document.createElement('div');
+        col.className='col';
+        col.style.minWidth='240px';
+        col.innerHTML = `
+          <div class="col-head">
+            <div class="col-title">
+              <span>${weekLabel(w)}</span>
+              <span class="count-badge" data-week-count="${w}">0</span>
+            </div>
+            <button class="btn secondary xs" type="button" data-add-week="${w}">➕ مهمة</button>
+          </div>
+          <div class="col-body" style="display:grid;gap:10px"></div>
+        `;
+        const body = col.querySelector('.col-body');
+
+        // render days inside week
+        for(let d=0; d<6; d++){
+          const dayBox = document.createElement('div');
+          dayBox.className='day';
+          dayBox.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <b>${DAYS_AR[d]}</b>
+              <button class="btn ghost xs" type="button" data-add-day="${w}:${d}">➕</button>
+            </div>
+            <div class="dash-tasks" data-day-list="${w}:${d}" style="margin-top:8px"></div>
+          `;
+          body.appendChild(dayBox);
+        }
+
+        // wire add week: default day = السبت (0)
+        col.querySelector('[data-add-week]')?.addEventListener('click', ()=> openDailyTaskModal('create', {year, monthNumber, weekIdx:w, dayIdx:0}));
+        col.querySelectorAll('[data-add-day]')?.forEach(btn=>{
+          btn.addEventListener('click', ()=>{
+            const [ww,dd] = String(btn.getAttribute('data-add-day')).split(':').map(x=>parseInt(x,10));
+            openDailyTaskModal('create', {year, monthNumber, weekIdx:ww, dayIdx:dd});
+          });
+        });
+
+        root.appendChild(col);
+      }
+
+      // place tasks
+      let weekCounts=[0,0,0,0];
+      (tasks||[]).forEach(t=>{
+        const w = parseInt(t.weekIdx,10);
+        const d = parseInt(t.dayIdx,10);
+        if(!(w>=0 && w<4 && d>=0 && d<6)) return;
+        weekCounts[w]++;
+        const list = root.querySelector(`[data-day-list="${w}:${d}"]`);
+        if(!list) return;
+
+        const done = isTaskDone(t) || String(t.status||'')==='done';
+        const row = document.createElement('div');
+        row.className='dash-task';
+        row.style.cursor='pointer';
+        row.innerHTML = `
+          <div>
+            <div class="t-title">${escapeHtml(t.title||'بدون عنوان')}</div>
+            <div class="t-sub">${escapeHtml(t.description||'')}</div>
+          </div>
+          <button class="btn ${done?'secondary':'sm'} xs" type="button" data-toggle="1">${done?'✅ تم':'⏳ إنهاء'}</button>
+        `;
+        // click card to edit
+        row.addEventListener('click', (e)=>{
+          if(e.target?.closest('[data-toggle]')) return;
+          openDailyTaskModal('edit', {task:t});
+        });
+        row.querySelector('[data-toggle]')?.addEventListener('click', async (e)=>{
+          e.stopPropagation();
+          try{
+            await updateDoc(doc(db,'daily_tasks', t.id), {
+              status: done ? 'pending' : 'done',
+              updatedAt: serverTimestamp(),
+              doneAt: done ? null : serverTimestamp()
+            });
+            // reload
+            loadDaily();
+          }catch(err){
+            console.warn(err);
+            toast('⚠️ فشل التحديث');
+          }
+        });
+        list.appendChild(row);
+      });
+
+      // update badges
+      weekCounts.forEach((c,idx)=>{
+        const b = root.querySelector(`[data-week-count="${idx}"]`);
+        if(b) b.textContent = String(c);
+      });
+    }
+
+    // Daily Task Modal handlers
+    const dailyTaskModal = document.getElementById('dailyTaskModal');
+
+    function openDailyTaskModal(mode, payload){
+      if(!dailyTaskModal) return;
+      const idEl = document.getElementById('dailyTaskId');
+      const wEl  = document.getElementById('dailyWeekIdx');
+      const dEl  = document.getElementById('dailyDayIdx');
+
+      const titleEl = document.getElementById('dailyTitle');
+      const descEl  = document.getElementById('dailyDesc');
+      const stEl    = document.getElementById('dailyStatus');
+      const notesEl = document.getElementById('dailyNotes');
+      const delBtn  = document.getElementById('dailyDelete');
+
+      if(mode==='create'){
+        const {year, monthNumber, weekIdx, dayIdx} = payload || {};
+        idEl.value='';
+        wEl.value=String(weekIdx??0);
+        dEl.value=String(dayIdx??0);
+        titleEl.value='';
+        descEl.value='';
+        stEl.value='pending';
+        if(notesEl) notesEl.innerHTML='';
+        delBtn.style.display='none';
+        document.getElementById('dailyTaskModalTitle').textContent='مهمة يومية';
+        dailyTaskModal.style.display='flex';
+        // store current year/month on modal dataset
+        dailyTaskModal.dataset.year = String(year);
+        dailyTaskModal.dataset.month = String(monthNumber);
+      }else{
+        const t = payload?.task;
+        if(!t) return;
+        idEl.value=t.id;
+        wEl.value=String(t.weekIdx??0);
+        dEl.value=String(t.dayIdx??0);
+        titleEl.value=t.title||'';
+        descEl.value=t.description||'';
+        stEl.value=String(t.status||'pending');
+        if(notesEl) notesEl.innerHTML = t.notesHtml || '';
+        delBtn.style.display='';
+        document.getElementById('dailyTaskModalTitle').textContent='تعديل مهمة';
+        dailyTaskModal.style.display='flex';
+        dailyTaskModal.dataset.year = String(t.year||'');
+        dailyTaskModal.dataset.month = String(t.month||'');
+      }
+    }
+
+    function closeDailyTaskModal(){
+      if(dailyTaskModal) dailyTaskModal.style.display='none';
+    }
+
+    document.getElementById('dailyTaskModalClose')?.addEventListener('click', closeDailyTaskModal);
+    document.getElementById('dailyCancel')?.addEventListener('click', closeDailyTaskModal);
+    dailyTaskModal?.addEventListener('click', (e)=>{ if(e.target===dailyTaskModal) closeDailyTaskModal(); });
+
+    document.getElementById('dailySave')?.addEventListener('click', async ()=>{
+      try{
+        const id = String(document.getElementById('dailyTaskId')?.value||'');
+        const w  = parseInt(String(document.getElementById('dailyWeekIdx')?.value||'0'),10);
+        const d  = parseInt(String(document.getElementById('dailyDayIdx')?.value||'0'),10);
+        const title = String(document.getElementById('dailyTitle')?.value||'').trim();
+        const description = String(document.getElementById('dailyDesc')?.value||'').trim();
+        const status = String(document.getElementById('dailyStatus')?.value||'pending');
+        const notesHtml = String(document.getElementById('dailyNotes')?.innerHTML||'');
+
+        const year = parseInt(String(dailyTaskModal?.dataset.year||document.getElementById('dailyYear')?.value||''),10);
+        const month = parseInt(String(dailyTaskModal?.dataset.month||document.getElementById('dailyMonth')?.value||''),10);
+        const ym = `${year}-${String(month).padStart(2,'0')}`;
+
+        if(!title){ toast('اكتب عنوان المهمة'); return; }
+
+        const payload = {
+          title,
+          description,
+          notesHtml,
+          status,
+          weekIdx: w,
+          dayIdx: d,
+          year,
+          month,
+          ym,
+          updatedAt: serverTimestamp()
+        };
+
+        if(id){
+          await updateDoc(doc(db,'daily_tasks', id), payload);
+        }else{
+          await addDoc(collection(db,'daily_tasks'), {
+            ...payload,
+            createdAt: serverTimestamp(),
+            createdBy: CURRENT_USER?.uid || null
+          });
+        }
+
+        closeDailyTaskModal();
+        loadDaily();
+        toast('✅ تم الحفظ');
+      }catch(err){
+        console.warn(err);
+        toast('⚠️ فشل الحفظ (تحقق من Rules)');
+      }
+    });
+
+    document.getElementById('dailyDelete')?.addEventListener('click', async ()=>{
+      const id = String(document.getElementById('dailyTaskId')?.value||'');
+      if(!id) return;
+      if(!confirm('حذف المهمة؟')) return;
+      try{
+        await deleteDoc(doc(db,'daily_tasks', id));
+        closeDailyTaskModal();
+        loadDaily();
+        toast('🗑️ تم الحذف');
+      }catch(err){
+        console.warn(err);
+        toast('⚠️ فشل الحذف');
+      }
+    });
+
+    // Daily Text Editor (per month)
+    function openDailyEditor(){
+      const y = parseInt(String(document.getElementById('dailyYear')?.value||''),10);
+      const m = parseInt(String(document.getElementById('dailyMonth')?.value||''),10);
+      if(!y || !m) return toast('اختار السنة والشهر');
+      const ym = `${y}-${String(m).padStart(2,'0')}`;
+      openRteModal({
+        title: `محرر نصوص — ${MONTHS_AR_FULL[m-1]} ${y}`,
+        docPath: ['daily_texts', ym]
+      });
+    }
+
+    // Generic RTE modal (re-usable)
+    const __RTE_MODAL = document.getElementById('rteModal');
+    function openRteModal(opts){
+      // opts: {title, docPath:[collection, docId]}
+      if(!__RTE_MODAL) return;
+      const titleEl = document.getElementById('rteModalTitle');
+      const box = document.getElementById('rteBox');
+      const saveBtn = document.getElementById('rteSave');
+      const delBtn = document.getElementById('rteDelete');
+      const closeBtn = document.getElementById('rteClose');
+
+      const [col, id] = opts.docPath;
+      __RTE_MODAL.dataset.col = col;
+      __RTE_MODAL.dataset.id = id;
+      if(titleEl) titleEl.textContent = opts.title || 'محرر نصوص';
+      if(box) box.innerHTML = '';
+
+      // load existing
+      (async ()=>{
+        try{
+          const snap = await getDoc(doc(db, col, id));
+          if(snap.exists()){
+            const d = snap.data()||{};
+            if(box) box.innerHTML = d.html || '';
+          }
+        }catch(e){ console.warn(e); }
+      })();
+
+      // wire toolbar once
+      if(!__RTE_MODAL.dataset.wired){
+        __RTE_MODAL.dataset.wired = '1';
+
+        const fontSel = document.getElementById('rteFont');
+        const sizeSel = document.getElementById('rteSize');
+        const colorEl = document.getElementById('rteColor');
+
+        document.querySelectorAll('[data-rte]').forEach(btn=>{
+          btn.addEventListener('click', ()=>{
+            const cmd = btn.getAttribute('data-rte');
+            if(cmd==='bold') document.execCommand('bold');
+            else if(cmd==='italic') document.execCommand('italic');
+            else if(cmd==='underline') document.execCommand('underline');
+            else if(cmd==='ul') document.execCommand('insertUnorderedList');
+            else if(cmd==='ol') document.execCommand('insertOrderedList');
+            else if(cmd==='clear') document.execCommand('removeFormat');
+          });
+        });
+
+        fontSel?.addEventListener('change', ()=>{
+          const v = fontSel.value;
+          if(v) document.execCommand('fontName', false, v);
+        });
+        sizeSel?.addEventListener('change', ()=>{
+          const v = sizeSel.value;
+          if(v) document.execCommand('fontSize', false, v);
+        });
+        colorEl?.addEventListener('input', ()=>{
+          const v = colorEl.value;
+          if(v) document.execCommand('foreColor', false, v);
+        });
+
+        closeBtn?.addEventListener('click', ()=>{ __RTE_MODAL.style.display='none'; });
+        __RTE_MODAL.addEventListener('click', (e)=>{ if(e.target===__RTE_MODAL) __RTE_MODAL.style.display='none'; });
+
+        saveBtn?.addEventListener('click', async ()=>{
+          const col = __RTE_MODAL.dataset.col;
+          const id = __RTE_MODAL.dataset.id;
+          try{
+            await setDoc(doc(db, col, id), {
+              html: String(box?.innerHTML||''),
+              updatedAt: serverTimestamp(),
+              updatedBy: CURRENT_USER?.uid || null
+            }, {merge:true});
+            toast('✅ تم حفظ النص');
+          }catch(e){
+            console.warn(e);
+            toast('⚠️ فشل حفظ النص');
+          }
+        });
+
+        delBtn?.addEventListener('click', async ()=>{
+          const col = __RTE_MODAL.dataset.col;
+          const id = __RTE_MODAL.dataset.id;
+          if(!confirm('حذف النص؟')) return;
+          try{
+            await deleteDoc(doc(db, col, id));
+            if(box) box.innerHTML='';
+            toast('🗑️ تم الحذف');
+          }catch(e){
+            console.warn(e);
+            toast('⚠️ فشل الحذف');
+          }
+        });
+      }
+
+      __RTE_MODAL.style.display='flex';
+      // focus
+      setTimeout(()=>{ try{ box?.focus(); }catch(e){} }, 50);
     }
 
     // ===== Stock Aggregation (SpecKey) + Tasks Meta (Workspace DB) =====
@@ -2984,14 +2945,15 @@ let unsubKpiWs=null, unsubKpiTasks=null;
 
       setNavActive("navHome");
       $("pageTitle").textContent = "الداش بورد";
-      $("pageDesc").textContent = "ملخص شامل لكل الشغل داخل Workspace + إحصائيات الأعضاء + تصدير PDF.";
+      $("pageDesc").textContent = "";
       $("btnBack").style.display="none";
       $("btnCreateAgenda").style.display="";
       $("btnCreateCampaign").style.display="";
       $("homeMeta").textContent = "متصل بقاعدة البيانات الجديدة (mzj-workspace-c7d4e)";
       showView("home");
-      // refresh dashboard after switching view
-      try{ renderDashboard(); }catch(e){}
+      // تحميل الداش بورد الافتراضي (الشهر الحالي)
+      try{ renderDashboardHome(); }catch(e){ console.warn(e); }
+      renderDashboardForCurrentMonth();
     }
 
     $("btnRefresh").addEventListener("click", ()=> { if(LIST_TYPE) openList(LIST_TYPE); });
@@ -3132,20 +3094,12 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
         BOARD_USER_FILTER_UID = "";
       }
 
-      // Campaign-only: Text editor
-      try{
-        if($("btnCampaignText")){
-          $("btnCampaignText").style.display = (workspace.type==="campaign" ? "" : "none");
-        }
-      }catch(e){}
-
       // show VIN for the selected spec key
       
       showView("board");
 
       $("btnEditBoard").onclick = ()=> openBoardModal(workspace.type, "edit", workspace);
       $("btnDeleteBoard").onclick = ()=> deleteWorkspace(workspace);
-      try{ $("btnCampaignText").onclick = ()=> openCampaignTextEditor(workspace); }catch(e){}
 
       renderBoardColumns(workspace, []);
       listenTasksForWorkspace(workspace.id);
@@ -3854,6 +3808,949 @@ const taskDesc = $("taskDesc");
       closeFinishModal();
       closeDetail();
     });
-  </script>
+  
+
+    // ===== DASHBOARD + DAILY TASK (patched) =====
+
+    // ---------------------------
+    // Dashboard (Home) - month view
+    // ---------------------------
+    let DASH_CACHE = { workspaces: [], byId: new Map(), loadedAt: 0 };
+
+    function monthNameArFromIndex(i){
+      try{ return MONTHS_AR[(i|0)] || ""; }catch(e){ return ""; }
+    }
+
+    function nowMonthInfo(){
+      const d = new Date();
+      const year = d.getFullYear();
+      const monthIndex = d.getMonth();
+      const monthName = monthNameArFromIndex(monthIndex);
+      const mm = String(monthIndex+1).padStart(2,'0');
+      return { year, monthIndex, monthName, mm };
+    }
+
+    function workspaceMatchesMonth(ws, mi){
+      // mi: {year, monthIndex, monthName, mm}
+      if(!ws) return false;
+      const name = String(ws.name||"");
+      const monthName = String(mi.monthName||"");
+      if(monthName && name.includes(monthName)) return true;
+
+      const s = String(ws.startDate||"");
+      const e = String(ws.endDate||"");
+      const y = String(mi.year);
+      const mm = mi.mm;
+      // accept: YYYY-MM or YYYY/MM
+      const token1 = `${y}-${mm}`;
+      const token2 = `${y}/${mm}`;
+      if((s && (s.includes(token1) || s.includes(token2))) || (e && (e.includes(token1) || e.includes(token2)))) return true;
+
+      // createdAt timestamp
+      try{
+        if(ws.createdAt && typeof ws.createdAt.toDate === 'function'){
+          const d = ws.createdAt.toDate();
+          return d.getFullYear()===mi.year && d.getMonth()===mi.monthIndex;
+        }
+      }catch(e){}
+      return false;
+    }
+
+    async function dashLoadWorkspacesOnce(){
+      const now = Date.now();
+      if(DASH_CACHE.workspaces.length && (now - DASH_CACHE.loadedAt) < 60*1000) return DASH_CACHE.workspaces;
+
+      const out = [];
+      try{
+        const snap = await getDocs(collection(db,'workspaces'));
+        snap.forEach(d=>{
+          const x = d.data()||{};
+          if(x.active===false) return;
+          out.push({ id:d.id, ...x });
+        });
+      }catch(e){
+        console.warn('dashLoadWorkspacesOnce', e);
+      }
+
+      // sort newest first
+      out.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+
+      DASH_CACHE.workspaces = out;
+      DASH_CACHE.byId = new Map(out.map(x=>[x.id,x]));
+      DASH_CACHE.loadedAt = now;
+      return out;
+    }
+
+    function isTaskDone(t){
+      const col = String(t.column||t.columnName||'');
+      const st  = t.status;
+      if(/تم الانتهاء/.test(col)) return true;
+      if(st===true) return true;
+      const s = String(st||'').toLowerCase();
+      return (s==='done' || s==='completed' || s==='تم الانتهاء');
+    }
+
+    function renderDashWorkspaceCard(ws, tasks){
+      const el = document.createElement('div');
+      el.className = 'dash-workspace';
+
+      const total = tasks.length;
+      const done  = tasks.filter(isTaskDone).length;
+      const remain = total - done;
+
+      el.innerHTML = `
+        <div class="top">
+          <div>
+            <div class="name">${escapeHtml(ws.name||'بدون اسم')}</div>
+            <div class="meta">${ws.type==='agenda' ? 'أجندة' : 'حملة'} • الإجمالي: <b>${total}</b> • تم: <b>${done}</b> • باقي: <b>${remain}</b></div>
+          </div>
+          <span class="pill"><span class="dot"></span>${ws.type==='agenda' ? 'Agenda' : 'Campaign'}</span>
+        </div>
+        <div class="dash-tasks"></div>
+      `;
+
+      const wrap = el.querySelector('.dash-tasks');
+      if(!total){
+        const e = document.createElement('div');
+        e.className = 'empty';
+        e.style.padding = '10px';
+        e.style.fontSize = '12px';
+        e.textContent = 'لا توجد تاسكات.';
+        wrap.appendChild(e);
+        return el;
+      }
+
+      // sort by column then createdAt
+      const sorted = tasks.slice().sort((a,b)=>{
+        const ca = String(a.column||'');
+        const cb = String(b.column||'');
+        if(ca!==cb) return ca.localeCompare(cb,'ar');
+        return (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0);
+      });
+
+      sorted.forEach(t=>{
+        const row = document.createElement('div');
+        row.className = 'dash-task';
+        const done = isTaskDone(t);
+        const title = t.specKey || t.title || t.name || '—';
+        const sub = t.column || '—';
+        row.innerHTML = `
+          <div>
+            <div class="t-title">${escapeHtml(title)}</div>
+            <div class="t-sub">${escapeHtml(sub)}</div>
+          </div>
+          <span class="pill" style="background:${done?'#ecfdf5':'#fff7ed'};border-color:${done?'#a7f3d0':'#fed7aa'};color:${done?'#065f46':'#9a3412'}">${done?'✅ تم':'⏳ لم يتم'}</span>
+        `;
+        wrap.appendChild(row);
+      });
+
+      return el;
+    }
+
+    async function dashLoadTasksForWorkspace(workspaceId){
+      const tasks=[];
+      try{
+        const qy = query(collection(db,'workspace_tasks'), where('workspaceId','==', workspaceId));
+        const snap = await getDocs(qy);
+        snap.forEach(d=> tasks.push({ id:d.id, ...(d.data()||{}) }));
+      }catch(e){
+        console.warn('dashLoadTasksForWorkspace', workspaceId, e);
+      }
+      // order newest first
+      tasks.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+      return tasks;
+    }
+
+    async function renderDashboardHome(){
+      // Called from openHome
+      const mi = nowMonthInfo();
+      const pill = document.getElementById('dashMonthPill');
+      if(pill) pill.innerHTML = `<span class="dot"></span> شهر ${escapeHtml(mi.monthName)} ${mi.year}`;
+
+      const wsAll = await dashLoadWorkspacesOnce();
+      const agendasAll = wsAll.filter(w=>w.type==='agenda');
+      const campaignsAll = wsAll.filter(w=>w.type==='campaign');
+
+      let agendas = agendasAll.filter(w=> workspaceMatchesMonth(w, mi));
+      let campaigns = campaignsAll.filter(w=> workspaceMatchesMonth(w, mi));
+
+      // fallback: show latest if none matched
+      if(!agendas.length && agendasAll.length) agendas = [agendasAll[0]];
+      if(!campaigns.length && campaignsAll.length) campaigns = [campaignsAll[0]];
+
+      // render agendas
+      const aWrap = document.getElementById('dashAgendasWrap');
+      const aEmpty = document.getElementById('dashAgendasEmpty');
+      const aMeta = document.getElementById('dashAgendaMeta');
+      if(aWrap){
+        aWrap.querySelectorAll('.dash-workspace').forEach(n=>n.remove());
+      }
+      if(aMeta) aMeta.textContent = String(agendas.length || 0);
+      if(aEmpty) aEmpty.style.display = agendas.length ? 'none' : '';
+
+      for(const ws of agendas){
+        const tasks = await dashLoadTasksForWorkspace(ws.id);
+        if(aWrap) aWrap.appendChild(renderDashWorkspaceCard(ws, tasks));
+      }
+
+      // render campaigns
+      const cWrap = document.getElementById('dashCampaignsWrap');
+      const cEmpty = document.getElementById('dashCampaignsEmpty');
+      const cMeta = document.getElementById('dashCampaignMeta');
+      if(cWrap){
+        cWrap.querySelectorAll('.dash-workspace').forEach(n=>n.remove());
+      }
+      if(cMeta) cMeta.textContent = String(campaigns.length || 0);
+      if(cEmpty) cEmpty.style.display = campaigns.length ? 'none' : '';
+
+      for(const ws of campaigns){
+        const tasks = await dashLoadTasksForWorkspace(ws.id);
+        if(cWrap) cWrap.appendChild(renderDashWorkspaceCard(ws, tasks));
+      }
+
+      // wire picker
+      try{ wireDashPicker(); }catch(e){ console.warn(e); }
+    }
+
+    function wireDashPicker(){
+      const sel = document.getElementById('dashPickType');
+      const listWrap = document.getElementById('dashPickListWrap');
+      const listEl = document.getElementById('dashPickList');
+      const applyBtn = document.getElementById('dashPickApply');
+      const resWrap = document.getElementById('dashCustomResults');
+      const resTitle = document.getElementById('dashCustomTitle');
+      const resMeta = document.getElementById('dashCustomMeta');
+      const resBody = document.getElementById('dashCustomWrap');
+
+      if(!sel || !listWrap || !listEl || !applyBtn) return;
+
+      // avoid double wiring
+      if(sel.__wired) return;
+      sel.__wired = true;
+
+      const buildList = async ()=>{
+        const type = String(sel.value||'');
+        listEl.innerHTML = '';
+        applyBtn.disabled = true;
+        if(resWrap) resWrap.style.display = 'none';
+
+        if(!type){
+          listWrap.style.display = 'none';
+          return;
+        }
+
+        listWrap.style.display = '';
+        const wsAll = await dashLoadWorkspacesOnce();
+        const items = wsAll.filter(w=> w.type===type);
+
+        if(!items.length){
+          listEl.innerHTML = `<div class="empty" style="padding:10px;font-size:12px">لا توجد عناصر.</div>`;
+          return;
+        }
+
+        items.forEach(w=>{
+          const id = `pick_${w.id}`;
+          const row = document.createElement('label');
+          row.className = 'pick-row';
+          row.innerHTML = `
+            <input type="checkbox" data-pick-id="${escapeAttr(w.id)}" id="${escapeAttr(id)}" />
+            <div>
+              <div style="font-weight:800">${escapeHtml(w.name||'بدون اسم')}</div>
+              <div style="font-size:12px;color:var(--muted)">${w.type==='agenda'?'أجندة':'حملة'}</div>
+            </div>
+          `;
+          listEl.appendChild(row);
+        });
+
+        listEl.addEventListener('change', ()=>{
+          const any = listEl.querySelectorAll('input[type="checkbox"]:checked').length>0;
+          applyBtn.disabled = !any;
+        }, { once:false });
+      };
+
+      sel.addEventListener('change', buildList);
+      buildList();
+
+      applyBtn.addEventListener('click', async ()=>{
+        const ids = Array.from(listEl.querySelectorAll('input[type="checkbox"]:checked')).map(x=>x.getAttribute('data-pick-id')).filter(Boolean);
+        if(!ids.length) return;
+
+        applyBtn.disabled = true;
+        applyBtn.textContent = 'جاري العرض...';
+        try{
+          const wsAll = await dashLoadWorkspacesOnce();
+          const byId = new Map(wsAll.map(w=>[w.id,w]));
+          const type = String(sel.value||'');
+
+          if(resWrap) resWrap.style.display = '';
+          if(resTitle) resTitle.textContent = type==='agenda' ? 'الأجندات المحددة' : 'الحملات المحددة';
+
+          if(resBody) resBody.innerHTML = '';
+
+          let totalTasks = 0;
+          for(const id of ids){
+            const ws = byId.get(id);
+            if(!ws) continue;
+            const tasks = await dashLoadTasksForWorkspace(id);
+            totalTasks += tasks.length;
+            if(resBody) resBody.appendChild(renderDashWorkspaceCard(ws, tasks));
+          }
+          if(resMeta) resMeta.textContent = `العناصر: ${ids.length} • التاسكات: ${totalTasks}`;
+        }finally{
+          applyBtn.textContent = 'عرض المحدد';
+          const any = listEl.querySelectorAll('input[type="checkbox"]:checked').length>0;
+          applyBtn.disabled = !any;
+        }
+      });
+    }
+
+    // ---------------------------
+    // Daily Task (Admin) - 4 weeks side by side
+    // ---------------------------
+    let DAILY = { year:null, monthIndex:null, monthName:null, monthKey:'', tasks:[], byWeekDay:{} };
+    let unsubDaily = null;
+
+    function dailyMonthKey(year, monthIndex){
+      const m = String((monthIndex|0)+1).padStart(2,'0');
+      return `${year}-${m}`;
+    }
+
+    function dayNameAr(i){
+      // Saturday..Thursday (6 days)
+      return ['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'][i] || '';
+    }
+
+    function ensureDailySelectors(){
+      const mi = nowMonthInfo();
+      const yEl = document.getElementById('dailyYear');
+      const mEl = document.getElementById('dailyMonth');
+
+      if(mEl && !mEl.__filled){
+        mEl.innerHTML = MONTHS_AR.map((m,i)=> `<option value="${i}">${escapeHtml(m)}</option>`).join('');
+        mEl.__filled = true;
+      }
+
+      if(yEl && !yEl.value){ yEl.value = String(mi.year); }
+      if(mEl){ mEl.value = String(mi.monthIndex); }
+
+      DAILY.year = parseInt(yEl?.value||mi.year,10) || mi.year;
+      DAILY.monthIndex = parseInt(mEl?.value||mi.monthIndex,10) || mi.monthIndex;
+      DAILY.monthName = monthNameArFromIndex(DAILY.monthIndex);
+      DAILY.monthKey = dailyMonthKey(DAILY.year, DAILY.monthIndex);
+    }
+
+    function showView(view){
+      // override existing showView? no. (If already exists, skip)
+    }
+
+    // openDaily was referenced earlier - define it now
+    function openDaily(){
+      MODE='daily'; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      saveLastView('daily');
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+
+      setNavActive('navDaily');
+      document.getElementById('pageTitle').textContent = 'Daily Task';
+      document.getElementById('pageDesc').textContent = '';
+      document.getElementById('btnBack').style.display = 'none';
+      document.getElementById('btnCreateAgenda').style.display = 'none';
+      document.getElementById('btnCreateCampaign').style.display = 'none';
+
+      // show daily panel
+      Object.values(views).forEach(v=> v.style.display='none');
+      views.daily.style.display='';
+
+      ensureDailySelectors();
+      renderDailyWeeksSkeleton();
+      loadDailyTasks();
+    }
+
+    function renderDailyWeeksSkeleton(){
+      const weeksEl = document.getElementById('dailyWeeks');
+      if(!weeksEl) return;
+      weeksEl.innerHTML = '';
+
+      for(let w=0; w<4; w++){
+        const col = document.createElement('div');
+        col.className = 'day';
+        col.style.background = '#fff';
+        col.style.border = '1px solid #eee';
+
+        col.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px">
+            <div>
+              <div style="font-weight:900">الأسبوع ${w+1}</div>
+              <div class="muted" style="font-size:12px">${escapeHtml(DAILY.monthName||'')}</div>
+            </div>
+          </div>
+          <div class="divider" style="margin:10px 0"></div>
+          <div class="daily-days" data-week="${w}" style="display:grid;gap:10px"></div>
+          <div class="divider" style="margin:12px 0"></div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div style="font-weight:900">تم الانتهاء</div>
+              <span class="pill" data-done-count="${w}">0</span>
+            </div>
+            <div class="daily-done" data-done-week="${w}" style="display:grid;gap:8px;margin-top:10px"></div>
+          </div>
+        `;
+
+        const daysWrap = col.querySelector('.daily-days');
+        for(let d=0; d<6; d++){
+          const box = document.createElement('div');
+          box.style.border = '1px solid #eee';
+          box.style.borderRadius = '12px';
+          box.style.padding = '10px';
+          box.style.background = 'var(--cream)';
+          box.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <b>${escapeHtml(dayNameAr(d))}</b>
+              <button class="btn secondary xs" type="button" data-daily-add="1" data-week="${w}" data-day="${d}">➕ مهمة</button>
+            </div>
+            <div class="daily-list" data-week="${w}" data-day="${d}" style="display:grid;gap:8px;margin-top:10px"></div>
+          `;
+          daysWrap.appendChild(box);
+        }
+
+        weeksEl.appendChild(col);
+      }
+
+      // delegate add buttons
+      weeksEl.onclick = (ev)=>{
+        const btn = ev.target.closest('[data-daily-add]');
+        if(btn){
+          const w = parseInt(btn.getAttribute('data-week')||'0',10)||0;
+          const d = parseInt(btn.getAttribute('data-day')||'0',10)||0;
+          openDailyTaskModal('create', { weekIdx:w, dayIdx:d });
+        }
+
+        const doneBtn = ev.target.closest('[data-daily-done]');
+        if(doneBtn){
+          const id = doneBtn.getAttribute('data-id');
+          if(id) markDailyDone(id);
+        }
+
+        const editBtn = ev.target.closest('[data-daily-edit]');
+        if(editBtn){
+          const id = editBtn.getAttribute('data-id');
+          if(id){
+            const t = DAILY.tasks.find(x=>x.id===id);
+            if(t) openDailyTaskModal('edit', t);
+          }
+        }
+      };
+    }
+
+    async function loadDailyTasks(){
+      ensureDailySelectors();
+
+      // wire controls once
+      const yEl = document.getElementById('dailyYear');
+      const mEl = document.getElementById('dailyMonth');
+      const reload = document.getElementById('dailyReload');
+      const openTxt = document.getElementById('dailyTextOpen');
+
+      if(yEl && !yEl.__wired){
+        yEl.__wired=true;
+        yEl.addEventListener('change', ()=>{ renderDailyWeeksSkeleton(); listenDailySnapshot(); });
+      }
+      if(mEl && !mEl.__wired){
+        mEl.__wired=true;
+        mEl.addEventListener('change', ()=>{ renderDailyWeeksSkeleton(); listenDailySnapshot(); });
+      }
+      if(reload && !reload.__wired){
+        reload.__wired=true;
+        reload.addEventListener('click', ()=>{ renderDailyWeeksSkeleton(); listenDailySnapshot(true); });
+      }
+      if(openTxt && !openTxt.__wired){
+        openTxt.__wired=true;
+        openTxt.addEventListener('click', ()=> openDailyEditor());
+      }
+
+      listenDailySnapshot(true);
+    }
+
+    function listenDailySnapshot(force=false){
+      if(unsubDaily){ unsubDaily(); unsubDaily=null; }
+      ensureDailySelectors();
+
+      const y = DAILY.year;
+      const m = DAILY.monthIndex;
+
+      const qy = query(
+        collection(db,'daily_tasks'),
+        where('year','==', y),
+        where('monthIndex','==', m)
+      );
+
+      unsubDaily = onSnapshot(qy, (snap)=>{
+        const tasks=[];
+        snap.forEach(d=> tasks.push({ id:d.id, ...(d.data()||{}) }));
+        DAILY.tasks = tasks;
+        renderDailyTasks();
+      }, (err)=>{
+        console.warn('daily_tasks snapshot failed', err);
+        toast('⚠️ Daily Task: تحقق من Rules');
+      });
+    }
+
+    function renderDailyTasks(){
+      // reset containers
+      for(let w=0; w<4; w++){
+        for(let d=0; d<6; d++){
+          const list = document.querySelector(`.daily-list[data-week="${w}"][data-day="${d}"]`);
+          if(list) list.innerHTML='';
+        }
+        const done = document.querySelector(`.daily-done[data-done-week="${w}"]`);
+        if(done) done.innerHTML='';
+        const badge = document.querySelector(`[data-done-count="${w}"]`);
+        if(badge) badge.textContent='0';
+      }
+
+      const byWeekDoneCount = [0,0,0,0];
+
+      DAILY.tasks.forEach(t=>{
+        const w = parseInt(t.weekIdx ?? t.weekIndex ?? 0,10)||0;
+        const d = parseInt(t.dayIdx ?? t.dayIndex ?? 0,10)||0;
+        const title = t.title || t.name || '—';
+        const desc = t.description || t.desc || '';
+        const notes = t.notes || '';
+        const done = String(t.status||'todo')==='done' || t.done===true;
+
+        if(done){
+          byWeekDoneCount[w] = (byWeekDoneCount[w]||0)+1;
+          const wrap = document.querySelector(`.daily-done[data-done-week="${w}"]`);
+          if(wrap){
+            const row = document.createElement('div');
+            row.className='dash-task';
+            row.style.background='#ecfdf5';
+            row.innerHTML = `
+              <div>
+                <div class="t-title">${escapeHtml(title)}</div>
+                <div class="t-sub">${escapeHtml(desc||notes||'')}</div>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+                <button class="btn secondary xs" type="button" data-daily-edit="1" data-id="${escapeAttr(t.id)}">تعديل</button>
+              </div>
+            `;
+            wrap.appendChild(row);
+          }
+          return;
+        }
+
+        const list = document.querySelector(`.daily-list[data-week="${w}"][data-day="${d}"]`);
+        if(!list) return;
+
+        const row = document.createElement('div');
+        row.className='dash-task';
+        row.innerHTML = `
+          <div>
+            <div class="t-title">${escapeHtml(title)}</div>
+            <div class="t-sub">${escapeHtml(desc||notes||'')}</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+            <button class="btn secondary xs" type="button" data-daily-edit="1" data-id="${escapeAttr(t.id)}">تعديل</button>
+            <button class="btn xs" type="button" data-daily-done="1" data-id="${escapeAttr(t.id)}">تم الانتهاء</button>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+
+      for(let w=0; w<4; w++){
+        const badge = document.querySelector(`[data-done-count="${w}"]`);
+        if(badge) badge.textContent = String(byWeekDoneCount[w]||0);
+      }
+    }
+
+    // ---- Daily Task Modal CRUD ----
+    const dailyTaskModal = document.getElementById('dailyTaskModal');
+    const dailyTaskModalClose = document.getElementById('dailyTaskModalClose');
+    const dailyCancel = document.getElementById('dailyCancel');
+
+    function openDailyTaskModal(mode, data){
+      if(!dailyTaskModal) return;
+      const isEdit = mode==='edit';
+
+      document.getElementById('dailyTaskModalTitle').textContent = isEdit ? 'تعديل مهمة يومية' : 'مهمة يومية';
+      document.getElementById('dailyTaskId').value = isEdit ? (data.id||'') : '';
+      document.getElementById('dailyWeekIdx').value = String(data.weekIdx ?? data.weekIndex ?? data.weekIdx ?? 0);
+      document.getElementById('dailyDayIdx').value  = String(data.dayIdx ?? data.dayIndex ?? data.dayIdx ?? 0);
+
+      document.getElementById('dailyTitle').value = isEdit ? (data.title||data.name||'') : '';
+      document.getElementById('dailyDesc').value  = isEdit ? (data.description||data.desc||'') : '';
+      document.getElementById('dailyStatus').value= isEdit ? (String(data.status||'todo')==='done' ? 'done':'todo') : 'todo';
+      const notesEl = document.getElementById('dailyNotes');
+      if(notesEl) notesEl.innerHTML = isEdit ? String(data.notes||'') : '';
+
+      const delBtn = document.getElementById('dailyDelete');
+      if(delBtn) delBtn.style.display = isEdit ? '' : 'none';
+
+      dailyTaskModal.style.display = 'flex';
+    }
+
+    function closeDailyTaskModal(){
+      if(!dailyTaskModal) return;
+      dailyTaskModal.style.display = 'none';
+    }
+
+    if(dailyTaskModalClose && !dailyTaskModalClose.__wired){
+      dailyTaskModalClose.__wired=true;
+      dailyTaskModalClose.addEventListener('click', closeDailyTaskModal);
+    }
+    if(dailyCancel && !dailyCancel.__wired){
+      dailyCancel.__wired=true;
+      dailyCancel.addEventListener('click', closeDailyTaskModal);
+    }
+    if(dailyTaskModal && !dailyTaskModal.__wired){
+      dailyTaskModal.__wired=true;
+      dailyTaskModal.addEventListener('click', (e)=>{ if(e.target===dailyTaskModal) closeDailyTaskModal(); });
+    }
+
+    const dailySaveBtn = document.getElementById('dailySave');
+    const dailyDelBtn  = document.getElementById('dailyDelete');
+
+    if(dailySaveBtn && !dailySaveBtn.__wired){
+      dailySaveBtn.__wired=true;
+      dailySaveBtn.addEventListener('click', async ()=>{
+        ensureDailySelectors();
+        const id = document.getElementById('dailyTaskId').value || '';
+        const weekIdx = parseInt(document.getElementById('dailyWeekIdx').value||'0',10)||0;
+        const dayIdx  = parseInt(document.getElementById('dailyDayIdx').value||'0',10)||0;
+        const title = String(document.getElementById('dailyTitle').value||'').trim();
+        const description = String(document.getElementById('dailyDesc').value||'').trim();
+        const status = String(document.getElementById('dailyStatus').value||'todo');
+        const notes = String(document.getElementById('dailyNotes')?.innerHTML||'');
+
+        if(!title) return toast('اكتب عنوان المهمة');
+
+        const payload = {
+          year: DAILY.year,
+          monthIndex: DAILY.monthIndex,
+          monthName: DAILY.monthName,
+          weekIdx,
+          dayIdx,
+          title,
+          description,
+          notes,
+          status,
+          updatedAt: serverTimestamp(),
+        };
+
+        try{
+          if(id){
+            await setDoc(doc(db,'daily_tasks', id), payload, { merge:true });
+          }else{
+            payload.createdAt = serverTimestamp();
+            await addDoc(collection(db,'daily_tasks'), payload);
+          }
+          closeDailyTaskModal();
+          toast('✅ تم الحفظ');
+        }catch(e){
+          console.warn('daily save', e);
+          toast('⚠️ لم يتم الحفظ (Rules)');
+        }
+      });
+    }
+
+    if(dailyDelBtn && !dailyDelBtn.__wired){
+      dailyDelBtn.__wired=true;
+      dailyDelBtn.addEventListener('click', async ()=>{
+        const id = document.getElementById('dailyTaskId').value || '';
+        if(!id) return;
+        try{
+          await deleteDoc(doc(db,'daily_tasks', id));
+          closeDailyTaskModal();
+          toast('🗑️ تم الحذف');
+        }catch(e){
+          console.warn('daily delete', e);
+          toast('⚠️ لم يتم الحذف');
+        }
+      });
+    }
+
+    async function markDailyDone(id){
+      try{
+        await setDoc(doc(db,'daily_tasks', id), { status:'done', updatedAt: serverTimestamp() }, { merge:true });
+      }catch(e){
+        console.warn('markDailyDone', e);
+        toast('⚠️ لا يمكن التحديث');
+      }
+    }
+
+    // ---- Daily Text Editor (per month) ----
+    const dailyEditorModal = document.getElementById('dailyEditorModal');
+    let DAILY_EDITOR_DOCID = '';
+
+    function openDailyEditor(){
+      ensureDailySelectors();
+      DAILY_EDITOR_DOCID = DAILY.monthKey;
+
+      const meta = document.getElementById('dailyEditorMeta');
+      if(meta) meta.textContent = `الشهر: ${DAILY.monthName} ${DAILY.year} — حفظ داخل daily_texts/${DAILY_EDITOR_DOCID}`;
+
+      loadDailyEditorDoc();
+      if(dailyEditorModal) dailyEditorModal.style.display='flex';
+    }
+
+    function closeDailyEditor(){
+      if(dailyEditorModal) dailyEditorModal.style.display='none';
+    }
+
+    async function loadDailyEditorDoc(){
+      const box = document.getElementById('dailyEditorBox');
+      if(box) box.innerHTML = '';
+
+      try{
+        const snap = await getDoc(doc(db,'daily_texts', DAILY_EDITOR_DOCID));
+        if(snap.exists()){
+          const d = snap.data()||{};
+          if(box) box.innerHTML = String(d.html||'');
+        }
+      }catch(e){
+        console.warn('loadDailyEditorDoc', e);
+      }
+    }
+
+    function applyExec(cmd, value=null){
+      try{ document.execCommand(cmd, false, value); }catch(e){}
+    }
+
+    function wireDailyEditor(){
+      const closeBtn = document.getElementById('dailyEditorClose');
+      const cancelBtn = document.getElementById('dailyEditorCancel');
+      const saveBtn = document.getElementById('dailyEditorSave');
+      const delBtn = document.getElementById('dailyEditorDelete');
+      const box = document.getElementById('dailyEditorBox');
+      const fontSel = document.getElementById('dailyRteFont');
+      const sizeSel = document.getElementById('dailyRteSize');
+      const colorInp = document.getElementById('dailyRteColor');
+
+      if(closeBtn && !closeBtn.__wired){ closeBtn.__wired=true; closeBtn.addEventListener('click', closeDailyEditor); }
+      if(cancelBtn && !cancelBtn.__wired){ cancelBtn.__wired=true; cancelBtn.addEventListener('click', closeDailyEditor); }
+      if(dailyEditorModal && !dailyEditorModal.__wired){ dailyEditorModal.__wired=true; dailyEditorModal.addEventListener('click',(e)=>{ if(e.target===dailyEditorModal) closeDailyEditor(); }); }
+
+      // toolbar
+      if(dailyEditorModal && !dailyEditorModal.__toolbar){
+        dailyEditorModal.__toolbar=true;
+        dailyEditorModal.addEventListener('click', (e)=>{
+          const b = e.target.closest('[data-drte]');
+          if(!b) return;
+          const a = b.getAttribute('data-drte');
+          if(a==='bold') return applyExec('bold');
+          if(a==='italic') return applyExec('italic');
+          if(a==='underline') return applyExec('underline');
+          if(a==='ul') return applyExec('insertUnorderedList');
+          if(a==='ol') return applyExec('insertOrderedList');
+          if(a==='clear') return applyExec('removeFormat');
+        });
+      }
+
+      if(fontSel && !fontSel.__wired){
+        fontSel.__wired=true;
+        fontSel.addEventListener('change', ()=>{ applyExec('fontName', fontSel.value); });
+      }
+      if(sizeSel && !sizeSel.__wired){
+        sizeSel.__wired=true;
+        sizeSel.addEventListener('change', ()=>{ applyExec('fontSize', sizeSel.value); });
+      }
+      if(colorInp && !colorInp.__wired){
+        colorInp.__wired=true;
+        colorInp.addEventListener('input', ()=>{ applyExec('foreColor', colorInp.value); });
+      }
+
+      if(saveBtn && !saveBtn.__wired){
+        saveBtn.__wired=true;
+        saveBtn.addEventListener('click', async ()=>{
+          ensureDailySelectors();
+          const htmlv = String(box?.innerHTML||'');
+          const payload = {
+            year: DAILY.year,
+            monthIndex: DAILY.monthIndex,
+            monthName: DAILY.monthName,
+            html: htmlv,
+            updatedAt: serverTimestamp(),
+          };
+          try{
+            await setDoc(doc(db,'daily_texts', DAILY_EDITOR_DOCID), payload, { merge:true });
+            toast('✅ تم حفظ النص');
+            closeDailyEditor();
+          }catch(e){
+            console.warn('daily editor save', e);
+            toast('⚠️ لم يتم الحفظ (Rules)');
+          }
+        });
+      }
+
+      if(delBtn && !delBtn.__wired){
+        delBtn.__wired=true;
+        delBtn.addEventListener('click', async ()=>{
+          try{
+            await deleteDoc(doc(db,'daily_texts', DAILY_EDITOR_DOCID));
+            toast('🗑️ تم حذف النص');
+            closeDailyEditor();
+          }catch(e){
+            console.warn('daily editor delete', e);
+            toast('⚠️ لم يتم الحذف');
+          }
+        });
+      }
+    }
+
+    // wire editor once
+    try{ wireDailyEditor(); }catch(e){ console.warn(e); }
+
+</script>
+
+
+  <!-- Rich Text Editor Modal -->
+  <div class="modal" id="rteModal" style="display:none">
+    <div class="modal-card" style="max-width:860px">
+      <div class="modal-head">
+        <strong id="rteModalTitle">محرر نصوص</strong>
+        <button class="btn secondary xs" id="rteClose" type="button">إغلاق</button>
+      </div>
+      <div class="modal-body">
+        <div class="rte">
+          <div class="rte-bar">
+            <select id="rteFont" class="inp" style="min-width:160px">
+              <option value="Tajawal">Tajawal</option>
+              <option value="Arial">Arial</option>
+              <option value="Tahoma">Tahoma</option>
+              <option value="Cairo">Cairo</option>
+            </select>
+            <select id="rteSize" class="inp" style="width:120px">
+              <option value="3">عادي</option>
+              <option value="2">صغير</option>
+              <option value="4">كبير</option>
+              <option value="5">أكبر</option>
+            </select>
+            <input id="rteColor" type="color" class="inp" style="width:54px;padding:6px" value="#111111" />
+            <button class="btn secondary xs" type="button" data-rte="bold"><b>B</b></button>
+            <button class="btn secondary xs" type="button" data-rte="italic"><i>I</i></button>
+            <button class="btn secondary xs" type="button" data-rte="underline"><u>U</u></button>
+            <button class="btn secondary xs" type="button" data-rte="ul">• List</button>
+            <button class="btn secondary xs" type="button" data-rte="ol">1. List</button>
+            <button class="btn ghost xs" type="button" data-rte="clear">مسح تنسيق</button>
+          </div>
+          <div id="rteBox" class="rte-box" contenteditable="true"></div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+          <button class="btn danger" id="rteDelete" type="button">حذف</button>
+          <button class="btn" id="rteSave" type="button">حفظ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Daily Text Editor Modal -->
+  <div class="modal" id="dailyEditorModal">
+    <div class="modal-card" style="max-width:900px">
+      <div class="modal-head">
+        <strong>محرر النصوص</strong>
+        <button class="btn secondary xs" id="dailyEditorClose" type="button">إغلاق</button>
+      </div>
+      <div class="modal-body">
+        <div class="muted" id="dailyEditorMeta" style="font-size:12px;margin-bottom:10px">—</div>
+        <div class="rte">
+          <div class="rte-bar">
+            <select id="dailyRteFont" class="inp" style="min-width:160px">
+              <option value="Tajawal">Tajawal</option>
+              <option value="Arial">Arial</option>
+              <option value="Cairo">Cairo</option>
+              <option value="Tahoma">Tahoma</option>
+            </select>
+            <select id="dailyRteSize" class="inp" style="width:140px">
+              <option value="3">عادي</option>
+              <option value="4">كبير</option>
+              <option value="5">أكبر</option>
+              <option value="2">صغير</option>
+            </select>
+            <input id="dailyRteColor" type="color" class="inp" style="width:54px;padding:6px" value="#111111" />
+            <button class="btn secondary xs" type="button" data-drte="bold"><b>B</b></button>
+            <button class="btn secondary xs" type="button" data-drte="italic"><i>I</i></button>
+            <button class="btn secondary xs" type="button" data-drte="underline"><u>U</u></button>
+            <button class="btn secondary xs" type="button" data-drte="ul">• List</button>
+            <button class="btn secondary xs" type="button" data-drte="ol">1. List</button>
+            <button class="btn ghost xs" type="button" data-drte="clear">مسح تنسيق</button>
+          </div>
+          <div id="dailyEditorBox" class="rte-box" contenteditable="true"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn danger" id="dailyEditorDelete" type="button">حذف</button>
+        <div style="flex:1"></div>
+        <button class="btn secondary" id="dailyEditorCancel" type="button">إلغاء</button>
+        <button class="btn" id="dailyEditorSave" type="button">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Daily Task Modal -->
+  <div class="modal" id="dailyTaskModal">
+    <div class="sheet">
+      <div class="m-head">
+        <strong id="dailyTaskModalTitle">مهمة يومية</strong>
+        <button class="btn secondary xs" id="dailyTaskModalClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <input type="hidden" id="dailyTaskId" />
+        <input type="hidden" id="dailyWeekIdx" />
+        <input type="hidden" id="dailyDayIdx" />
+
+        <div class="grid2">
+          <div>
+            <label>عنوان المهمة</label>
+            <input id="dailyTitle" placeholder="مثال: تصميم صورة / ريل مواصفات..." />
+          </div>
+          <div>
+            <label>الحالة</label>
+            <select id="dailyStatus">
+              <option value="todo">لم يتم</option>
+              <option value="done">تم الانتهاء</option>
+            </select>
+          </div>
+        </div>
+
+        <label>وصف المهمة</label>
+        <textarea id="dailyDesc" placeholder="اكتب وصف مختصر..." ></textarea>
+
+        <label>محرر نصوص (اختياري)</label>
+        <div class="rte">
+          <div class="rte-bar">
+            <select id="rteFont" class="inp" style="min-width:140px">
+              <option value="Tajawal">Tajawal</option>
+              <option value="Arial">Arial</option>
+              <option value="Tahoma">Tahoma</option>
+              <option value="Times New Roman">Times New Roman</option>
+            </select>
+            <select id="rteSize" class="inp" style="width:120px">
+              <option value="12">12</option>
+              <option value="14" selected>14</option>
+              <option value="16">16</option>
+              <option value="18">18</option>
+              <option value="22">22</option>
+              <option value="28">28</option>
+            </select>
+            <input id="rteColor" type="color" class="inp" style="width:54px;padding:6px" value="#111111" />
+            <button class="btn secondary xs" type="button" data-rte="bold"><b>B</b></button>
+            <button class="btn secondary xs" type="button" data-rte="italic"><i>I</i></button>
+            <button class="btn secondary xs" type="button" data-rte="underline"><u>U</u></button>
+            <button class="btn secondary xs" type="button" data-rte="ul">• List</button>
+            <button class="btn secondary xs" type="button" data-rte="ol">1. List</button>
+            <button class="btn ghost xs" type="button" data-rte="clear">مسح تنسيق</button>
+          </div>
+          <div id="dailyNotes" class="rte-box" contenteditable="true"></div>
+        </div>
+      </div>
+      <div class="m-foot">
+        <button class="btn danger" id="dailyDelete" type="button" style="display:none">حذف</button>
+        <button class="btn secondary" id="dailyCancel" type="button">إلغاء</button>
+        <button class="btn" id="dailySave" type="button">حفظ</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
