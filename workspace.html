@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -596,6 +597,11 @@
           <div class="sb-text">stock</div>
         </div>
 
+        <div class="sb-link" id="navAdmin" style="display:none">
+          <div class="sb-ico">🛡️</div>
+          <div class="sb-text">admin</div>
+        </div>
+
       </div>
 
       <div class="sb-foot">
@@ -741,6 +747,56 @@
           <div class="empty" id="stockEmpty" style="display:none">لا توجد بيانات حالياً.</div>
           <div class="table-wrap" id="stockTableWrap" style="display:none">
             <table class="stock-table" id="stockTable"></table>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="viewAdmin" style="display:none">
+        <div class="head">
+          <div>
+            <strong>Admin</strong>
+            <span class="muted">إضافة مستخدم جديد وتحديد الصلاحية داخل نفس مشروع Firebase (mzj-workspace-c7d4e)</span>
+          </div>
+        </div>
+        <div class="body">
+          <div class="card" style="max-width:720px">
+            <div class="card-head">
+              <strong>إضافة يوزر جديد</strong>
+              <span class="muted">سيتم إنشاء حساب Authentication (Email/Password) + إنشاء Document في users/{uid} بنفس المسار.</span>
+            </div>
+            <div class="card-body">
+              <div class="grid2">
+                <div>
+                  <label>البريد الإلكتروني</label>
+                  <input id="adminNewEmail" placeholder="name@example.com" autocomplete="off"/>
+                </div>
+                <div>
+                  <label>كلمة المرور</label>
+                  <input id="adminNewPass" type="password" placeholder="********" autocomplete="new-password"/>
+                </div>
+              </div>
+              <div class="grid2" style="margin-top:10px">
+                <div>
+                  <label>الصلاحية</label>
+                  <select id="adminNewRole">
+                    <option value="member">member (عضو)</option>
+                    <option value="finisher">finisher (ينهي فقط)</option>
+                    <option value="admin">admin (مدير)</option>
+                  </select>
+                </div>
+                <div>
+                  <label>اسم اليوزر (اختياري)</label>
+                  <input id="adminNewName" placeholder="مثال: أحمد"/>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+                <button class="btn secondary" id="adminClear" type="button">مسح</button>
+                <button class="btn" id="adminCreateUser" type="button">➕ إنشاء المستخدم</button>
+              </div>
+
+              <div class="hint" id="adminMsg" style="margin-top:10px;color:var(--muted)"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -979,7 +1035,7 @@
     import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
     import {
       getAuth, onAuthStateChanged, signOut, signInAnonymously,
-      signInWithEmailAndPassword, setPersistence, browserLocalPersistence
+      signInWithEmailAndPassword, createUserWithEmailAndPassword, setPersistence, browserLocalPersistence
     } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
     import {
       getFirestore, collection, doc, getDoc, getDocs,
@@ -1012,6 +1068,11 @@
     if(!getApps().length) initializeApp(firebaseConfig);
     const auth = getAuth();
     const db = getFirestore();
+
+    // Secondary app instance for creating users without affecting current session
+    const adminCreateApp = initializeApp(firebaseConfig, "adminCreate");
+    const adminCreateAuth = getAuth(adminCreateApp);
+
 
     // Agenda/Stock App (مشروع مختلف) — لتعبئة Unique Spec Key
     // ملاحظة: لازم Anonymous Auth يكون مفعّل في مشروع mzj-agenda + Rules تسمح بالقراءة.
@@ -1238,7 +1299,7 @@ function initials(name){
     });
     if(localStorage.getItem("ws_sb_collapsed")==="1") appEl.classList.add("collapsed");
 
-    const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard"), stock: $("viewStock") };
+    const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard"), stock: $("viewStock"), admin: $("viewAdmin") };
 
     // Last rendered rows for Excel export (stock tab)
     let __LAST_STOCK_ROWS = [];
@@ -1303,7 +1364,33 @@ function initials(name){
     let CURRENT_ROLE = "member";
     let USERS = [];
 
-    let MODE = "home";
+    // ===== Persist last opened tab (refresh keeps same tab) =====
+    const LAST_VIEW_KEY = "ws_last_view";
+    function saveLastView(view, extra={}){
+      try{ localStorage.setItem(LAST_VIEW_KEY, JSON.stringify({view, ...extra})); }catch(e){}
+    }
+    async function restoreLastView(){
+      let state=null;
+      try{ state = JSON.parse(localStorage.getItem(LAST_VIEW_KEY)||"null"); }catch(e){ state=null; }
+      if(!state || !state.view){ openHome(); return; }
+
+      if(state.view==="home") return openHome();
+      if(state.view==="list") return openList(state.type||"agenda");
+      if(state.view==="stock") return openStock();
+      if(state.view==="admin") return openAdmin();
+      if(state.view==="board"){
+        try{
+          if(state.workspaceId){
+            const snap = await getDoc(doc(db,"workspaces", state.workspaceId));
+            if(snap.exists()) return openBoard({id:snap.id, ...(snap.data()||{})});
+          }
+        }catch(e){}
+        return openHome();
+      }
+      return openHome();
+    }
+
+let MODE = "home";
     let LIST_TYPE = null;
     let CURRENT_WORKSPACE = null;
     let CURRENT_TASK = null;
@@ -1323,7 +1410,7 @@ function initials(name){
     });
 
     function setNavActive(which){
-      ["navHome","navAgendas","navCampaigns","navStock"].forEach(id=>{
+      ["navHome","navAgendas","navCampaigns","navStock","navAdmin"].forEach(id=>{
         $(id).classList.toggle("active", id===which);
       });
     }
@@ -1332,6 +1419,8 @@ function initials(name){
     $("navCampaigns").addEventListener("click", ()=> openList("campaign"));
 
     $("navStock").addEventListener("click", ()=> openStock());
+
+    $("navAdmin").addEventListener("click", ()=> openAdmin());
 
     $("goAgendas").addEventListener("click", ()=> openList("agenda"));
     $("goCampaigns").addEventListener("click", ()=> openList("campaign"));
@@ -1391,17 +1480,20 @@ function initials(name){
 
       $("whoName").textContent = displayName;
       $("whoRole").textContent = (CURRENT_ROLE==="admin" ? "مدير" : "عضو");
+      // show Admin tab for admins only
+      try{ $("navAdmin").style.display = (CURRENT_ROLE==="admin" ? "" : "none"); }catch(e){}
       $("avatar").textContent = initials(displayName);
 
       await loadUsers();
       // مهام Tab stock (لا تمس mzj-agenda) — نحتاجها لتصفية Unique Spec Key "بدون مونتاج"
       await loadStockTasksOnce();
-      openHome();
+      restoreLastView();
       listenKPIs();
 
       // مصادر الـ Spec Key (1) كاش محلي داخل مشروع الـ Workspace + (2) مصدر حي من مشروع الـ Agenda
       initLocalSpecCache();
       initSpecKeySource();
+      wireAdminTab();
     });
 
     async function loadUsers(){
@@ -1429,7 +1521,88 @@ function initials(name){
       });
     }
 
-    let unsubKpiWs=null, unsubKpiTasks=null;
+    
+
+    // ===== Admin Tab: Create new user (Auth + users/{uid}) =====
+    function setAdminMsg(msg, isErr=false){
+      const el = $("adminMsg");
+      if(!el) return;
+      el.style.color = isErr ? "var(--danger)" : "var(--muted)";
+      el.textContent = msg || "";
+    }
+
+    function wireAdminTab(){
+      const btn = $("adminCreateUser");
+      if(!btn) return;
+      $("adminClear").addEventListener("click", ()=>{
+        $("adminNewEmail").value = "";
+        $("adminNewPass").value = "";
+        $("adminNewName").value = "";
+        $("adminNewRole").value = "member";
+        setAdminMsg("");
+      });
+
+      btn.addEventListener("click", async ()=>{
+        if(CURRENT_ROLE !== "admin"){
+          setAdminMsg("غير مسموح — هذه الصفحة للمدير فقط.", true);
+          return;
+        }
+
+        const email = String($("adminNewEmail").value||"").trim().toLowerCase();
+        const pass  = String($("adminNewPass").value||"").trim();
+        const role  = String($("adminNewRole").value||"member").trim();
+        const name  = String($("adminNewName").value||"").trim();
+
+        if(!email || !pass){
+          setAdminMsg("اكتب البريد وكلمة المرور.", true);
+          return;
+        }
+        if(pass.length < 6){
+          setAdminMsg("كلمة المرور لازم تكون 6 أحرف أو أكثر.", true);
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "جاري الإنشاء...";
+        setAdminMsg("");
+
+        try{
+          // Create auth user via secondary auth instance (does NOT sign out current admin)
+          const cred = await createUserWithEmailAndPassword(adminCreateAuth, email, pass);
+          const newUser = cred.user;
+
+          // Create users/{uid} document in same workspace Firestore
+          await setDoc(doc(db, "users", newUser.uid), {
+            email,
+            name: name || email.split("@")[0],
+            role: role || "member",
+            createdAt: serverTimestamp(),
+            createdBy: CURRENT_USER?.uid || null
+          }, { merge: true });
+
+          setAdminMsg(`✅ تم إنشاء المستخدم وحفظ الصلاحية: ${role}`);
+          toast("✅ تم إنشاء المستخدم");
+          await loadUsers();
+
+          // keep secondary auth clean
+          try{ await signOut(adminCreateAuth); }catch(e){}
+
+        }catch(err){
+          console.warn("admin create user failed", err);
+          const code = err?.code || "";
+          let msg = "فشل إنشاء المستخدم.";
+          if(code.includes("auth/email-already-in-use")) msg = "هذا البريد موجود بالفعل.";
+          if(code.includes("auth/invalid-email")) msg = "البريد غير صالح.";
+          if(code.includes("auth/weak-password")) msg = "كلمة المرور ضعيفة.";
+          setAdminMsg("⚠️ " + msg, true);
+        }finally{
+          btn.disabled = false;
+          btn.textContent = "➕ إنشاء المستخدم";
+        }
+      });
+    }
+
+let unsubKpiWs=null, unsubKpiTasks=null;
     function listenKPIs(){
       if(unsubKpiWs) unsubKpiWs();
       if(unsubKpiTasks) unsubKpiTasks();
@@ -1462,6 +1635,7 @@ function initials(name){
 
     function openStock(){
       MODE="stock"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      saveLastView("stock");
       if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
       if(unsubTasks){unsubTasks();unsubTasks=null;}
 
@@ -1475,6 +1649,23 @@ function initials(name){
       showView("stock");
       renderStockTab();
     }
+
+    function openAdmin(){
+      MODE="admin"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+
+      saveLastView("admin");
+      setNavActive("navAdmin");
+      $("pageTitle").textContent = "admin";
+      $("pageDesc").textContent  = "";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+
+      showView("admin");
+    }
+
 
     // نفس منطق فلتر صفحة المخزون:
     // استبعاد السيارات اللي مكانها يحتوي على:
@@ -1823,6 +2014,7 @@ function initials(name){
 
     function openHome(){
       MODE="home"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      saveLastView("home");
       if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
       if(unsubTasks){unsubTasks();unsubTasks=null;}
 
@@ -1848,6 +2040,7 @@ function initials(name){
 
     function openList(type){
       MODE = type==="agenda" ? "agendas" : "campaigns";
+      saveLastView("list", {type});
       LIST_TYPE = type;
       CURRENT_WORKSPACE = null;
       if(unsubTasks){unsubTasks();unsubTasks=null;}
@@ -1934,6 +2127,7 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
     function openBoard(workspace){
       MODE="board";
       CURRENT_WORKSPACE = workspace;
+      saveLastView("board", {workspaceId: workspace.id});
 
       $("btnBack").style.display="";
       $("btnCreateAgenda").style.display="none";
