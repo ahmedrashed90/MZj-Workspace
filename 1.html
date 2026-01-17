@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -240,6 +233,73 @@
     /* ===== Home cards ===== */
     .home-grid{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:14px}
     @media(max-width:980px){.home-grid{grid-template-columns:1fr}}
+
+    /* ===== Dashboard ===== */
+    /* Dashboard layout */
+    .dash-controls{display:flex;flex-direction:column;gap:10px;align-items:stretch;flex:1;min-width:300px}
+    .dash-controls-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr auto;gap:10px;align-items:end}
+    /* keep controls in one row on desktop; wrap to 2 cols only on smaller screens */
+    @media(max-width:900px){.dash-controls-top{grid-template-columns:repeat(2,minmax(0,1fr));}}
+    .dash-controls-bottom{display:grid;grid-template-columns:1fr;gap:10px}
+    /* Dashboard layout tweaks (single-row controls + agendas first) */
+    .dash-controls{display:flex;flex-direction:column;gap:10px;align-items:stretch;flex:1;min-width:300px}
+    .dash-controls-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr auto;gap:10px;align-items:end}
+    (max-width:1100px){.dash-controls-top{grid-template-columns:repeat(2,minmax(0,1fr));}}
+    .dash-controls-bottom{display:grid;grid-template-columns:1fr;gap:10px}
+    /* Dashboard layout tweaks (single-row controls + agendas first) */
+    .dash-controls{display:flex;flex-direction:column;gap:10px;align-items:stretch;flex:1;min-width:300px}
+    .dash-controls-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr auto;gap:10px;align-items:end}
+    @media(max-width:1100px){.dash-controls-top{grid-template-columns:repeat(2,minmax(0,1fr));}}
+    .dash-controls-bottom{display:grid;grid-template-columns:1fr;gap:10px}
+    .dash-grid{display:grid;grid-template-columns:1fr;gap:14px}
+    #dashAgendas, #dashCampaigns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    #dashAgendas .dash-ws, #dashCampaigns .dash-ws{margin:0}
+    @media(max-width:980px){#dashAgendas, #dashCampaigns{grid-template-columns:1fr}}
+
+    /* Dashboard layout tweaks (single-row controls + agendas first) */
+    .dash-controls{display:flex;flex-direction:column;gap:10px;align-items:stretch;flex:1;min-width:300px}
+    .dash-controls-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr auto;gap:10px;align-items:end}
+    @media(max-width:1100px){.dash-controls-top{grid-template-columns:repeat(2,minmax(0,1fr));}}
+    .dash-controls-bottom{display:grid;grid-template-columns:1fr;gap:10px}
+    .dash-grid{display:grid;grid-template-columns:1fr;gap:14px}
+    #dashAgendas,#dashCampaigns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    @media(max-width:980px){#dashAgendas,#dashCampaigns{grid-template-columns:1fr}}
+
+    .dash-ctrl{display:flex;flex-direction:column;gap:6px}
+    .dash-ctrl label{font-size:12px;color:var(--muted)}
+    .dash-ctrl input,.dash-ctrl select{height:42px;border-radius:14px;border:1px solid #e7ddd5;background:#fff;padding:0 12px;outline:none}
+    .dash-ctrl input:focus,.dash-ctrl select:focus{box-shadow:0 0 0 4px rgba(188,143,116,.18);border-color:rgba(188,143,116,.55)}
+    .dash-ctrl-wide{grid-column:span 3}
+    @media(max-width:1100px){.dash-ctrl-wide{grid-column:span 2}}
+    .dash-ctrl-actions{display:flex;gap:10px;justify-content:flex-end;align-items:flex-end}
+    @media(max-width:1100px){.dash-ctrl-actions{justify-content:stretch}.dash-ctrl-actions .btn{flex:1}}
+    .dash-pick{min-height:42px;border:1px solid #e7ddd5;background:#fff;border-radius:14px;padding:10px;max-height:160px;overflow:auto}
+    .dash-pick .pick-row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:12px}
+    .dash-pick .pick-row:hover{background:rgba(188,143,116,.08)}
+    .dash-pick input[type=checkbox]{width:18px;height:18px;accent-color:var(--beige)}
+    .dash-pick .pick-title{font-weight:800}
+    .dash-pick .pick-sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .dash-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    @media(max-width:980px){.dash-grid{grid-template-columns:1fr}}
+    .dash-card{background:var(--card);border:1px solid #efe5dd;border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+    .dash-card-head{padding:14px 14px 10px;border-bottom:1px solid #f1e7df;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .dash-card-title{margin:0;font-size:15px;color:var(--brown);font-weight:900}
+    .dash-card-body{padding:12px 14px}
+    .dash-ws{border:1px solid #f1e7df;border-radius:16px;padding:12px;margin-bottom:12px;background:linear-gradient(180deg,#fff,#fffaf4)}
+    .dash-ws:last-child{margin-bottom:0}
+    .dash-ws-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .dash-ws-name{font-weight:1000;color:var(--brown)}
+    .dash-ws-meta{font-size:12px;color:var(--muted);margin-top:4px}
+    .dash-badges{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .dash-badge{font-size:12px;font-weight:900;border:1px solid #eadfd7;background:#fff;border-radius:999px;padding:6px 10px;white-space:nowrap}
+    .dash-table{width:100%;border-collapse:separate;border-spacing:0 8px;margin-top:10px}
+    .dash-table th{font-size:12px;color:var(--muted);text-align:right;padding:0 10px 6px}
+    .dash-row{background:#fff;border:1px solid #efe5dd}
+    .dash-row td{padding:10px;border-top:1px solid transparent;border-bottom:1px solid transparent}
+    .dash-row td:first-child{border-radius:14px 0 0 14px}
+    .dash-row td:last-child{border-radius:0 14px 14px 0}
+    .dash-status{font-weight:1000}
+    .dash-empty{padding:14px;border:1px dashed #eadfd7;border-radius:16px;color:var(--muted);background:#fff}
     .hero-card{
       border-radius:18px;border:1px solid rgba(62,36,32,.10);
       background: linear-gradient(140deg, #fff, #fff8ef 60%, rgba(188,143,116,.10));
@@ -588,6 +648,37 @@
       box-shadow: 0 12px 24px rgba(188,143,116,.25);
     }
     .hide-app{display:none !important}
+    /* =========================
+       Dashboard tweaks (requested)
+       - controls in a single row
+       - agendas first (2 per row) then campaigns
+    ========================= */
+    #viewHome .head{flex-wrap:nowrap}
+    @media(max-width:1100px){#viewHome .head{flex-wrap:wrap}}
+    .dash-controls{display:flex;flex-direction:column;gap:10px;align-items:stretch}
+    .dash-controls-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr auto;gap:10px;align-items:end}
+    @media(max-width:1100px){.dash-controls-top{grid-template-columns:repeat(2,minmax(0,1fr));}}
+    .dash-controls-bottom{display:grid;grid-template-columns:1fr;gap:10px}
+    .dash-grid{grid-template-columns:1fr}
+    #dashAgendas, #dashCampaigns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    #dashAgendas .dash-ws, #dashCampaigns .dash-ws{margin:0}
+    @media(max-width:980px){#dashAgendas, #dashCampaigns{grid-template-columns:1fr}}
+
+    /* =========================
+       Daily Task tweaks (Notes column + Rich Text editor)
+    ========================= */
+    .day-cols{grid-template-columns:1fr 1fr 1fr}
+    @media(max-width:980px){.day-cols{grid-template-columns:1fr}}
+    .day-col.notes{background:#fff;border-style:dashed}
+    .daily-note{background:#fff;border:1px solid rgba(62,36,32,.10);border-radius:12px;padding:8px;display:grid;gap:8px}
+    .daily-note .tt{font-weight:900;color:var(--brown);font-size:12px;line-height:1.5}
+    .daily-note .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .daily-note textarea{min-height:44px;height:44px;resize:vertical;padding:8px 10px;border-radius:12px}
+    .rtf-badge{font-size:11px;font-weight:900;border:1px solid rgba(188,143,116,.35);background:rgba(188,143,116,.10);color:var(--brown);border-radius:999px;padding:4px 8px}
+    .rtf-editor{min-height:220px;border:1px solid #e7ddd5;border-radius:14px;padding:12px;background:#fff;outline:none}
+    .rtf-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .rtf-toolbar select,.rtf-toolbar input[type=color]{height:38px;border-radius:12px;border:1px solid #e7ddd5;background:#fff;padding:0 10px;outline:none}
+    .rtf-toolbar .btn{box-shadow:none}
   </style>
 </head>
 
@@ -648,7 +739,7 @@
       <div class="sb-nav">
         <div class="sb-link active" id="navHome">
           <div class="sb-ico">🏠</div>
-          <div class="sb-text">الصفحة الرئيسية</div>
+          <div class="sb-text">الداش بورد</div>
         </div>
 
         <div class="sb-link" id="navAgendas">
@@ -705,70 +796,76 @@
       </div>
 
       <section class="panel" id="viewHome">
-        <div class="head">
-          <strong>اختر نوع الإدارة</strong>
-          <span class="muted" id="homeMeta">...</span>
-        </div>
-        <div class="body">
-          <div class="home-grid">
-            <div class="hero-card" id="goAgendas">
-              <div class="hero-left">
-                <h3 class="hero-title">الأجندات (Tasks)</h3>
-                <p class="hero-desc">
-                  أنشئ أجندة باسم وحدد أعمدة الكروت، ثم أضف تاسكات لكل عمود.
-                  التاسك يحتوي Unique Spec Key + وصف + تاريخ تسليم + مسؤول.
-                </p>
-                <div class="kpi-row">
-                  <div class="kpi">
-                    <div>
-                      <strong>عدد الأجندات</strong>
-                      <span class="muted">Active</span>
-                    </div>
-                    <div class="num" id="kpiAgendas">0</div>
-                  </div>
-                  <div class="kpi">
-                    <div>
-                      <strong>تاسكات الأجندات</strong>
-                      <span class="muted">الإجمالي</span>
-                    </div>
-                    <div class="num" id="kpiAgendaTasks">0</div>
-                  </div>
-                </div>
+        <div class="head" style="align-items:flex-start;gap:14px;flex-wrap:nowrap">
+          <div>
+            <strong>الداش بورد</strong>
+            <div class="muted" id="dashMeta" style="margin-top:6px">...</div>
+          </div>
+
+          <div class="dash-controls">
+            <div class="dash-controls-top">
+              <div class="dash-ctrl">
+                <label>اختر نوع العرض</label>
+                <select id="dashMode">
+                  <option value="auto">الشهر الحالي (أجندات + حملات)</option>
+                  <option value="agenda">أجندات فقط</option>
+                  <option value="campaign">حملات فقط</option>
+                </select>
               </div>
-              <div class="hero-actions">
-                <div class="pill"><span class="dot"></span> Board مرتب</div>
-                <button class="btn sm" type="button">فتح الأجندات</button>
+
+              <div class="dash-ctrl" id="dashMonthWrap">
+                <label>الشهر</label>
+                <select id="dashMonth"></select>
+              </div>
+
+              <div class="dash-ctrl" id="dashYearWrap">
+                <label>السنة</label>
+                <select id="dashYear"></select>
+              </div>
+
+              <div class="dash-ctrl">
+                <label>عدد العناصر (اختياري)</label>
+                <input id="dashLimit" type="number" min="1" step="1" placeholder="مثال: 6" />
+              </div>
+
+              <div class="dash-ctrl dash-ctrl-actions">
+                <button class="btn sm" id="dashApply" type="button">عرض</button>
+                <button class="btn secondary sm" id="dashReload" type="button">⟳ تحديث</button>
               </div>
             </div>
 
-            <div class="hero-card" id="goCampaigns">
-              <div class="hero-left">
-                <h3 class="hero-title">الحملات (Campaigns)</h3>
-                <p class="hero-desc">
-                  أنشئ حملة باسم ووصف + تاريخ بداية/نهاية + أعمدة، ثم أضف تاسكات لكل عمود.
-                  التاسك يحتوي Unique Spec Key + وصف + تاريخ تسليم + روابط + مسؤول.
-                </p>
-                <div class="kpi-row">
-                  <div class="kpi">
-                    <div>
-                      <strong>عدد الحملات</strong>
-                      <span class="muted">Active</span>
-                    </div>
-                    <div class="num" id="kpiCampaigns">0</div>
-                  </div>
-                  <div class="kpi">
-                    <div>
-                      <strong>تاسكات الحملات</strong>
-                      <span class="muted">الإجمالي</span>
-                    </div>
-                    <div class="num" id="kpiCampaignTasks">0</div>
-                  </div>
+            <div class="dash-controls-bottom">
+              <div class="dash-ctrl">
+                <label>اختيار الأجندات/الحملات لعرضها</label>
+                <div class="dash-pick" id="dashPick">
+                  <div class="muted" style="font-size:12px">اختر نوع العرض أولاً ليظهر لك قائمة الاختيار…</div>
                 </div>
               </div>
-              <div class="hero-actions">
-                <div class="pill"><span class="dot"></span> تواريخ + روابط</div>
-                <button class="btn sm" type="button">فتح الحملات</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="body">
+          <div class="dash-grid">
+            <div class="dash-card" id="dashAgendasCard">
+              <div class="dash-card-head">
+                <div>
+                  <h3 class="dash-card-title">أجندات الشهر</h3>
+                  <div class="muted" id="dashAgendasMeta">...</div>
+                </div>
               </div>
+              <div class="dash-card-body" id="dashAgendas"> </div>
+            </div>
+
+            <div class="dash-card" id="dashCampaignsCard">
+              <div class="dash-card-head">
+                <div>
+                  <h3 class="dash-card-title">حملات الشهر</h3>
+                  <div class="muted" id="dashCampaignsMeta">...</div>
+                </div>
+              </div>
+              <div class="dash-card-body" id="dashCampaigns"> </div>
             </div>
           </div>
         </div>
@@ -1178,6 +1275,48 @@
     </div>
   </div>
 
+  <div class="modal" id="rtfModal">
+    <div class="sheet" style="max-width:980px">
+      <div class="m-head">
+        <strong>تحرير النصوص</strong>
+        <button class="btn secondary sm" id="rtfClose" type="button">✖</button>
+      </div>
+      <div class="m-body">
+        <div class="rtf-toolbar" style="margin-bottom:10px">
+          <select id="rtfFont" title="الخط">
+            <option value="Tajawal">Tajawal</option>
+            <option value="Arial">Arial</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+          </select>
+          <select id="rtfSize" title="الحجم">
+            <option value="2">صغير</option>
+            <option value="3" selected>عادي</option>
+            <option value="4">كبير</option>
+            <option value="5">أكبر</option>
+          </select>
+          <input id="rtfColor" type="color" value="#3e2420" title="اللون"/>
+          <button class="btn secondary xs" data-rtf="bold" type="button"><b>B</b></button>
+          <button class="btn secondary xs" data-rtf="italic" type="button"><i>I</i></button>
+          <button class="btn secondary xs" data-rtf="underline" type="button"><u>U</u></button>
+          <button class="btn secondary xs" data-rtf="justifyleft" type="button">يسار</button>
+          <button class="btn secondary xs" data-rtf="justifycenter" type="button">وسط</button>
+          <button class="btn secondary xs" data-rtf="justifyright" type="button">يمين</button>
+          <button class="btn secondary xs" data-rtf="insertunorderedlist" type="button">• قائمة</button>
+          <button class="btn secondary xs" data-rtf="insertorderedlist" type="button">1) قائمة</button>
+          <button class="btn secondary xs" data-rtf="removeFormat" type="button">مسح تنسيق</button>
+        </div>
+        <div class="rtf-editor" id="rtfEditor" contenteditable="true"></div>
+        <div class="hint" style="color:var(--muted);margin-top:8px">* النص المنسق يُحفظ للمهمة ويمكنك الرجوع له وتعديله أو مسحه في أي وقت.</div>
+      </div>
+      <div class="m-foot">
+        <button class="btn danger" id="rtfDelete" type="button">مسح النص</button>
+        <button class="btn secondary" id="rtfCancel" type="button">إلغاء</button>
+        <button class="btn" id="rtfSave" type="button">حفظ</button>
+      </div>
+    </div>
+  </div>
+
 <div class="toast" id="toast">...</div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -1577,8 +1716,28 @@ let MODE = "home";
 
     $("navAdmin").addEventListener("click", ()=> openAdmin());
 
-    $("goAgendas").addEventListener("click", ()=> openList("agenda"));
-    $("goCampaigns").addEventListener("click", ()=> openList("campaign"));
+    // Home shortcuts (legacy)
+    try{ const ga=$("goAgendas"); if(ga) ga.addEventListener("click", ()=> openList("agenda")); }catch(_e){}
+    try{ const gc=$("goCampaigns"); if(gc) gc.addEventListener("click", ()=> openList("campaign")); }catch(_e){}
+
+    // Dashboard controls
+    try{
+      const applyBtn=$("dashApply");
+      const reloadBtn=$("dashReload");
+      const modeSel=$("dashMode");
+      const monthSel=$("dashMonth");
+      const yearSel=$("dashYear");
+      const limitInp=$("dashLimit");
+
+      if(applyBtn) applyBtn.addEventListener("click", ()=> dashApply());
+      if(reloadBtn) reloadBtn.addEventListener("click", async ()=>{ await dashLoadWorkspacesOnce(); dashUpdatePickerByMode(); await dashApply(); });
+
+      const onFilterChange = ()=>{ dashUpdatePickerByMode(); };
+      if(modeSel) modeSel.addEventListener("change", onFilterChange);
+      if(monthSel) monthSel.addEventListener("change", onFilterChange);
+      if(yearSel) yearSel.addEventListener("change", onFilterChange);
+      if(limitInp) limitInp.addEventListener("input", ()=>{ dashUpdatePickerByMode(); });
+    }catch(_e){}
 
     $("btnLogout").addEventListener("click", async ()=>{
       await signOut(auth);
@@ -1944,8 +2103,8 @@ let unsubKpiWs=null, unsubKpiTasks=null;
           if(x.type==="agenda") agendas++;
           if(x.type==="campaign") campaigns++;
         });
-        $("kpiAgendas").textContent = agendas;
-        $("kpiCampaigns").textContent = campaigns;
+        const kA=$("kpiAgendas"); if(kA) kA.textContent = agendas;
+        const kC=$("kpiCampaigns"); if(kC) kC.textContent = campaigns;
       });
 
       unsubKpiTasks = onSnapshot(collection(db,"workspace_tasks"), (snap)=>{
@@ -1955,8 +2114,8 @@ let unsubKpiWs=null, unsubKpiTasks=null;
           if(t.type==="agenda") a++;
           if(t.type==="campaign") c++;
         });
-        $("kpiAgendaTasks").textContent = a;
-        $("kpiCampaignTasks").textContent = c;
+        const kAT=$("kpiAgendaTasks"); if(kAT) kAT.textContent = a;
+        const kCT=$("kpiCampaignTasks"); if(kCT) kCT.textContent = c;
       });
     }
 
@@ -2106,20 +2265,39 @@ let unsubKpiWs=null, unsubKpiTasks=null;
           const renderTask = (t, isDone)=>{
             const title = escapeHtml(t.title||"");
             const desc  = escapeHtml(t.desc||"");
-            const notes = escapeHtml(t.notes||"");
-            const doneBtn = isDone ? `<span class="badge" style="background:#f0fdf4;border-color:rgba(22,163,74,.22);color:#0f5a2a"><span class="dot" style="background:#16a34a"></span>تم</span>` : `<button class="btn sm" data-act="done" data-id="${escapeAttr(t.id)}" type="button">تم الانتهاء</button>`;
+            const doneBtn = isDone
+              ? `<span class="badge" style="background:#f0fdf4;border-color:rgba(22,163,74,.22);color:#0f5a2a"><span class="dot" style="background:#16a34a"></span>تم</span>`
+              : `<button class="btn sm" data-act="done" data-id="${escapeAttr(t.id)}" type="button">تم الانتهاء</button>`;
             return `
               <div class="daily-task" data-task="${escapeAttr(t.id)}">
                 <div class="tt">${title}</div>
                 ${desc ? `<div class="td">${desc}</div>` : ``}
-                <textarea class="inp" data-act="note" data-id="${escapeAttr(t.id)}" placeholder="ملاحظات...">${notes}</textarea>
                 <div class="row">${doneBtn}</div>
+              </div>
+            `;
+          };
+
+          const renderNote = (t)=>{
+            const title = escapeHtml(t.title||"");
+            const notes = escapeHtml(t.notes||"");
+            const rtf = String(t.richNoteHtml || t.richHtml || t.richText || "").trim();
+            const badge = rtf ? `<span class="rtf-badge">📝 نص منسق</span>` : `<span class="muted" style="font-size:11px">—</span>`;
+            return `
+              <div class="daily-note" data-task="${escapeAttr(t.id)}">
+                <div class="tt">${title}</div>
+                <textarea class="inp" data-act="note" data-id="${escapeAttr(t.id)}" placeholder="ملاحظات...">${notes}</textarea>
+                <div class="row">
+                  <button class="btn secondary xs" data-act="rtf" data-id="${escapeAttr(t.id)}" type="button">✍️ تحرير نص</button>
+                  <button class="btn danger xs" data-act="rtf-clear" data-id="${escapeAttr(t.id)}" type="button">مسح</button>
+                  ${badge}
+                </div>
               </div>
             `;
           };
 
           const todoHtml = todo.map(t=> renderTask(t,false)).join("") || `<div class="hint" style="color:var(--muted)">—</div>`;
           const doneHtml = done.map(t=> renderTask(t,true)).join("") || `<div class="hint" style="color:var(--muted)">—</div>`;
+          const notesHtml = list.map(t=> renderNote(t)).join("") || `<div class="hint" style="color:var(--muted)">—</div>`;
 
           return `
             <div class="day-block">
@@ -2135,6 +2313,10 @@ let unsubKpiWs=null, unsubKpiTasks=null;
                 <div class="day-col done">
                   <div class="col-label">تم الانتهاء</div>
                   ${doneHtml}
+                </div>
+                <div class="day-col notes">
+                  <div class="col-label">ملاحظات</div>
+                  ${notesHtml}
                 </div>
               </div>
             </div>
@@ -2198,6 +2380,32 @@ let unsubKpiWs=null, unsubKpiTasks=null;
           timers.set(id, t);
         });
       });
+
+      // Rich Text editor (formatted text)
+      wrap.querySelectorAll("[data-act='rtf']").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.getAttribute("data-id");
+          if(!id) return;
+          openRtfModal(id);
+        });
+      });
+
+      wrap.querySelectorAll("[data-act='rtf-clear']").forEach(btn=>{
+        btn.addEventListener("click", async ()=>{
+          const id = btn.getAttribute("data-id");
+          if(!id) return;
+          btn.disabled = true;
+          try{
+            await updateDoc(doc(db,"daily_tasks", id), { richNoteHtml: "" });
+            toast("تم مسح النص المنسق");
+          }catch(e){
+            console.error(e);
+            toast("⚠️ لم يتم مسح النص");
+          }finally{
+            btn.disabled = false;
+          }
+        });
+      });
     }
 
     function openDailyTaskModal(ctx){
@@ -2249,6 +2457,90 @@ let unsubKpiWs=null, unsubKpiTasks=null;
     $("dailyRefresh").addEventListener("click", ()=>{ if(MODE==="daily") loadDaily(); });
 
 
+
+
+    // ===== Rich Text Editor (Daily Task) =====
+    let RTF_TASK_ID = null;
+
+    function openRtfModal(taskId){
+      RTF_TASK_ID = taskId;
+      const t = (DAILY_DOCS||[]).find(x=> x.id===taskId) || {};
+      const html = String(t.richNoteHtml || t.richHtml || t.richText || "");
+      $("rtfEditor").innerHTML = html || "";
+      $("rtfModal").classList.add("show");
+      setTimeout(()=>{ try{ $("rtfEditor").focus(); }catch(e){} }, 50);
+    }
+
+    function closeRtfModal(){
+      $("rtfModal").classList.remove("show");
+      RTF_TASK_ID = null;
+    }
+
+    function rtfExec(cmd, val=null){
+      try{ document.execCommand(cmd, false, val); }catch(e){}
+      try{ $("rtfEditor").focus(); }catch(e){}
+    }
+
+    function initRtf(){
+      const modal = $("rtfModal");
+      if(!modal) return;
+
+      $("rtfClose").addEventListener("click", closeRtfModal);
+      $("rtfCancel").addEventListener("click", closeRtfModal);
+      modal.addEventListener("click", (e)=>{ if(e.target===modal) closeRtfModal(); });
+
+      const editor = $("rtfEditor");
+      // Paste as plain text (avoid messy HTML)
+      editor.addEventListener("paste", (e)=>{
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+        try{ document.execCommand("insertText", false, text); }catch(err){
+          // fallback
+          editor.textContent += text;
+        }
+      });
+
+      $("rtfFont").addEventListener("change", ()=> rtfExec("fontName", $("rtfFont").value));
+      $("rtfSize").addEventListener("change", ()=> rtfExec("fontSize", $("rtfSize").value));
+      $("rtfColor").addEventListener("input", ()=> rtfExec("foreColor", $("rtfColor").value));
+
+      modal.querySelectorAll("[data-cmd]").forEach(btn=>{
+        btn.addEventListener("click", ()=> rtfExec(btn.getAttribute("data-cmd")));
+      });
+
+      $("rtfSave").addEventListener("click", async ()=>{
+        if(!RTF_TASK_ID) return closeRtfModal();
+        $("rtfSave").disabled = true;
+        try{
+          const html = $("rtfEditor").innerHTML || "";
+          await updateDoc(doc(db, "daily_tasks", RTF_TASK_ID), { richNoteHtml: html });
+          toast("تم حفظ النص المنسق");
+          closeRtfModal();
+        }catch(e){
+          console.error(e);
+          toast("⚠️ لم يتم حفظ النص");
+        }finally{
+          $("rtfSave").disabled = false;
+        }
+      });
+
+      $("rtfDelete").addEventListener("click", async ()=>{
+        if(!RTF_TASK_ID) return closeRtfModal();
+        $("rtfDelete").disabled = true;
+        try{
+          await updateDoc(doc(db, "daily_tasks", RTF_TASK_ID), { richNoteHtml: "" });
+          $("rtfEditor").innerHTML = "";
+          toast("تم مسح النص المنسق");
+          closeRtfModal();
+        }catch(e){
+          console.error(e);
+          toast("⚠️ لم يتم مسح النص");
+        }finally{
+          $("rtfDelete").disabled = false;
+        }
+      });
+    }
+    initRtf();
     // نفس منطق فلتر صفحة المخزون:
     // استبعاد السيارات اللي مكانها يحتوي على:
     // (مباع تحت التسليم) أو (مباع تم التسليم)
@@ -2594,6 +2886,358 @@ let unsubKpiWs=null, unsubKpiTasks=null;
       };
     }
 
+
+
+    // ===== Dashboard (Home) =====
+    let DASH_WS_ALL = { agenda: [], campaign: [] };
+    let DASH_LAST_SELECTION = { mode:'auto', year:null, month:null, ids:[] };
+
+    function monthNameFromMM(mm){
+      const m = Number(mm);
+      if(!m || m<1 || m>12) return '';
+      return (Array.isArray(MONTHS_AR) ? MONTHS_AR[m-1] : String(m));
+    }
+
+    function monthKeyFromYM(y, mm){
+      const m = String(mm||'').padStart(2,'0');
+      const yr = String(y||'');
+      if(!yr || !m) return '';
+      return `${yr}-${m}`;
+    }
+
+    function parseYearFromName(name){
+      const s = String(name||'');
+      const m = s.match(/(20\d{2})/);
+      return m ? Number(m[1]) : null;
+    }
+
+    function parseMonthFromName(name){
+      const s = String(name||'');
+      if(!s || !Array.isArray(MONTHS_AR)) return null;
+      for(let i=0;i<MONTHS_AR.length;i++){
+        const mn = MONTHS_AR[i];
+        if(mn && s.includes(mn)) return String(i+1).padStart(2,'0');
+      }
+      return null;
+    }
+
+    function tsToDate(ts){
+      try{
+        if(!ts) return null;
+        if(typeof ts==='string') return new Date(ts);
+        if(typeof ts==='number') return new Date(ts);
+        if(typeof ts?.seconds==='number') return new Date(ts.seconds*1000);
+      }catch(_e){}
+      return null;
+    }
+
+    function isAgendaInMonth(ws, y, mm){
+      const key = monthKeyFromYM(y, mm);
+      const wk = String(ws?.monthKey||'');
+      if(wk && wk===key) return true;
+
+      const name = String(ws?.name||'');
+      const nameMm = parseMonthFromName(name);
+      const nameY = parseYearFromName(name);
+      if(nameMm){
+        if(nameY && monthKeyFromYM(nameY, nameMm)===key) return true;
+        if(!nameY && nameMm===String(mm).padStart(2,'0')) return true;
+      }
+
+      const d = tsToDate(ws?.createdAt);
+      if(d){
+        const cy = d.getFullYear();
+        const cm = String(d.getMonth()+1).padStart(2,'0');
+        if(monthKeyFromYM(cy, cm)===key) return true;
+      }
+      return false;
+    }
+
+    function isCampaignInMonth(ws, y, mm){
+      const key = monthKeyFromYM(y, mm);
+      // Prefer overlap by date range if provided
+      const s = ws?.startDate ? new Date(ws.startDate) : null;
+      const e = ws?.endDate ? new Date(ws.endDate) : null;
+      if(s && !isNaN(s)){
+        const startKey = monthKeyFromYM(s.getFullYear(), String(s.getMonth()+1).padStart(2,'0'));
+        if(!e || isNaN(e)) return startKey===key;
+        const endKey = monthKeyFromYM(e.getFullYear(), String(e.getMonth()+1).padStart(2,'0'));
+        // compare keys lexicographically (YYYY-MM)
+        return (startKey <= key && key <= endKey);
+      }
+      // fallback: parse from name
+      const name = String(ws?.name||'');
+      const nameMm = parseMonthFromName(name);
+      const nameY = parseYearFromName(name);
+      if(nameMm){
+        if(nameY && monthKeyFromYM(nameY, nameMm)===key) return true;
+        if(!nameY && nameMm===String(mm).padStart(2,'0')) return true;
+      }
+      const d = tsToDate(ws?.createdAt);
+      if(d){
+        const cy = d.getFullYear();
+        const cm = String(d.getMonth()+1).padStart(2,'0');
+        if(monthKeyFromYM(cy, cm)===key) return true;
+      }
+      return false;
+    }
+
+    async function dashLoadWorkspacesOnce(){
+      try{
+        const [aSnap, cSnap] = await Promise.all([
+          getDocs(query(collection(db,'workspaces'), where('type','==','agenda'))),
+          getDocs(query(collection(db,'workspaces'), where('type','==','campaign')))
+        ]);
+        const agendas=[], campaigns=[];
+        aSnap.forEach(d=>{ const x=d.data()||{}; if(x.active===false) return; agendas.push({id:d.id, ...x}); });
+        cSnap.forEach(d=>{ const x=d.data()||{}; if(x.active===false) return; campaigns.push({id:d.id, ...x}); });
+        agendas.sort((a,b)=> (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+        campaigns.sort((a,b)=> (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+        DASH_WS_ALL = { agenda: agendas, campaign: campaigns };
+      }catch(e){
+        console.warn('dashLoadWorkspacesOnce', e);
+        DASH_WS_ALL = { agenda: [], campaign: [] };
+      }
+    }
+
+    function dashFillMonthYear(){
+      const mSel = $('dashMonth');
+      const ySel = $('dashYear');
+      if(!mSel || !ySel) return;
+
+      const now = new Date();
+      const nowY = now.getFullYear();
+      const nowM = String(now.getMonth()+1).padStart(2,'0');
+
+      // months
+      mSel.innerHTML = Array.isArray(MONTHS_AR)
+        ? MONTHS_AR.map((n,i)=> `<option value="${String(i+1).padStart(2,'0')}">${escapeHtml(n)}</option>`).join('')
+        : Array.from({length:12}).map((_,i)=> `<option value="${String(i+1).padStart(2,'0')}">${i+1}</option>`).join('');
+
+      // years
+      const years=[nowY-1, nowY, nowY+1, nowY+2];
+      ySel.innerHTML = years.map(y=> `<option value="${y}">${y}</option>`).join('');
+
+      // default
+      mSel.value = nowM;
+      ySel.value = String(nowY);
+    }
+
+    function dashGetSelectedMonthYear(){
+      const mm = String($('dashMonth')?.value || '').padStart(2,'0');
+      const yy = Number($('dashYear')?.value || 0);
+      return { yy, mm };
+    }
+
+    function dashRenderPicker(items, precheckedIds=[]){
+      const pick = $('dashPick');
+      if(!pick) return;
+      if(!items.length){
+        pick.innerHTML = `<div class="dash-empty">لا توجد عناصر مطابقة للشهر المحدد.</div>`;
+        return;
+      }
+      const set = new Set(precheckedIds);
+      pick.innerHTML = items.map(ws=>{
+        const metaParts=[];
+        if(ws.type==='campaign'){
+          if(ws.startDate || ws.endDate) metaParts.push(`الفترة: ${ws.startDate||'—'} → ${ws.endDate||'—'}`);
+        }
+        const cols = Array.isArray(ws.columns) ? ws.columns.length : 0;
+        metaParts.push(`أعمدة: ${cols}`);
+        return `
+          <label class="pick-row">
+            <input type="checkbox" class="dashPickCb" value="${escapeAttr(ws.id)}" ${set.has(ws.id)?'checked':''} />
+            <div style="min-width:0">
+              <div class="pick-title">${escapeHtml(ws.name||'—')}</div>
+              <div class="pick-sub">${escapeHtml(metaParts.join(' | '))}</div>
+            </div>
+          </label>`;
+      }).join('');
+    }
+
+    function dashComputeDefaultSelection(mode, yy, mm){
+      const agendas = DASH_WS_ALL.agenda.filter(ws=> isAgendaInMonth(ws, yy, mm));
+      const campaigns = DASH_WS_ALL.campaign.filter(ws=> isCampaignInMonth(ws, yy, mm));
+
+      if(mode==='agenda') return agendas;
+      if(mode==='campaign') return campaigns;
+      return [...agendas, ...campaigns];
+    }
+
+    function dashCollectCheckedIds(){
+      const cbs = Array.from(document.querySelectorAll('.dashPickCb'));
+      return cbs.filter(cb=> cb.checked).map(cb=> cb.value);
+    }
+
+    async function dashLoadTasksForWorkspaces(ids){
+      const all=[];
+      const chunks=[];
+      for(let i=0;i<ids.length;i+=10) chunks.push(ids.slice(i,i+10));
+      for(const ch of chunks){
+        try{
+          const qy = query(collection(db,'workspace_tasks'), where('workspaceId','in', ch));
+          const snap = await getDocs(qy);
+          snap.forEach(d=> all.push({id:d.id, ...(d.data()||{})}));
+        }catch(e){
+          console.warn('dashLoadTasks chunk failed', e);
+        }
+      }
+      // order: by type then column then status then createdAt
+      all.sort((a,b)=>{
+        const ta = String(a.type||'');
+        const tb = String(b.type||'');
+        if(ta!==tb) return ta.localeCompare(tb);
+        const ca = String(a.column||'');
+        const cb = String(b.column||'');
+        if(ca!==cb) return ca.localeCompare(cb,'ar',{numeric:true,sensitivity:'base'});
+        const da = isTaskDone(a) ? 1 : 0;
+        const db = isTaskDone(b) ? 1 : 0;
+        if(da!==db) return da-db; // not done first
+        return (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0);
+      });
+      return all;
+    }
+
+    function isTaskDone(t){
+      if(String(t?.status||'')==='تم الانتهاء') return true;
+      if(t?.doneAt) return true;
+      if(/تم الانتهاء/.test(String(t?.column||''))) return true;
+      return false;
+    }
+
+    function dashRenderWorkspacesBlock(containerId, workspaces, tasks){
+      const el = $(containerId);
+      if(!el) return;
+      if(!workspaces.length){
+        el.innerHTML = `<div class="dash-empty">لا يوجد عناصر للعرض.</div>`;
+        return;
+      }
+
+      const tasksByWs = {};
+      for(const t of tasks){
+        const wid = t.workspaceId;
+        (tasksByWs[wid] ||= []).push(t);
+      }
+
+      el.innerHTML = workspaces.map(ws=>{
+        const list = tasksByWs[ws.id] || [];
+        const done = list.filter(isTaskDone).length;
+        const todo = list.length - done;
+        const cols = Array.isArray(ws.columns) ? ws.columns : [];
+
+        const rows = list.map(t=>{
+          const doneFlag = isTaskDone(t);
+          const status = doneFlag ? '✅ تم' : '⏳ باقي';
+          return `
+            <tr class="dash-row">
+              <td>${escapeHtml(t.column||'—')}</td>
+              <td style="font-weight:900">${escapeHtml(t.specKey||'—')}</td>
+              <td class="dash-status">${status}</td>
+              <td>${escapeHtml(t.assigneeName||'—')}</td>
+              <td>${escapeHtml(t.description||'')}</td>
+            </tr>`;
+        }).join('');
+
+        const table = list.length ? `
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>المحتوى</th>
+                <th>Unique Spec Key</th>
+                <th>الحالة</th>
+                <th>المسؤول</th>
+                <th>ملاحظات</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>` : `<div class="dash-empty" style="margin-top:10px">لا توجد تاسكات داخل هذا العنصر.</div>`;
+
+        const metaParts=[];
+        if(ws.type==='campaign') metaParts.push(`الفترة: ${ws.startDate||'—'} → ${ws.endDate||'—'}`);
+        metaParts.push(`أعمدة: ${cols.length}`);
+
+        return `
+          <div class="dash-ws">
+            <div class="dash-ws-head">
+              <div style="min-width:0">
+                <div class="dash-ws-name">${escapeHtml(ws.name||'—')}</div>
+                <div class="dash-ws-meta">${escapeHtml(metaParts.join(' | '))}</div>
+              </div>
+              <div class="dash-badges">
+                <div class="dash-badge">إجمالي: ${list.length}</div>
+                <div class="dash-badge">✅ تم: ${done}</div>
+                <div class="dash-badge">⏳ باقي: ${todo}</div>
+              </div>
+            </div>
+            ${table}
+          </div>`;
+      }).join('');
+    }
+
+    async function dashApply(){
+      const mode = String($('dashMode')?.value || 'auto');
+      const {yy, mm} = dashGetSelectedMonthYear();
+      const limit = Number(String($('dashLimit')?.value || '').trim() || 0);
+
+      // Build selected ids from picker (if empty, auto pick defaults)
+      let ids = dashCollectCheckedIds();
+      if(!ids.length){
+        const defaults = dashComputeDefaultSelection(mode, yy, mm);
+        ids = defaults.map(x=> x.id);
+      }
+
+      // apply optional limit
+      if(limit>0) ids = ids.slice(0, limit);
+
+      DASH_LAST_SELECTION = { mode, year: yy, month: mm, ids: [...ids] };
+
+      // split selected workspaces by type (keep order)
+      const selectedAgendas = DASH_WS_ALL.agenda.filter(w=> ids.includes(w.id));
+      const selectedCampaigns = DASH_WS_ALL.campaign.filter(w=> ids.includes(w.id));
+
+      // fetch tasks once
+      const tasks = await dashLoadTasksForWorkspaces(ids);
+
+      const monthLabel = `${monthNameFromMM(mm)} ${yy}`;
+      $('dashMeta').textContent = `عرض: ${monthLabel}`;
+
+      // metas
+      $('dashAgendasMeta').textContent = `${selectedAgendas.length} أجندة`;
+      $('dashCampaignsMeta').textContent = `${selectedCampaigns.length} حملة`;
+
+      // show/hide cards based on mode
+      $('dashAgendasCard').style.display = (mode==='campaign') ? 'none' : '';
+      $('dashCampaignsCard').style.display = (mode==='agenda') ? 'none' : '';
+
+      dashRenderWorkspacesBlock('dashAgendas', selectedAgendas, tasks);
+      dashRenderWorkspacesBlock('dashCampaigns', selectedCampaigns, tasks);
+    }
+
+    function dashUpdatePickerByMode(){
+      const mode = String($('dashMode')?.value || 'auto');
+      const {yy, mm} = dashGetSelectedMonthYear();
+      const limit = Number(String($('dashLimit')?.value || '').trim() || 0);
+
+      let defaults = dashComputeDefaultSelection(mode, yy, mm);
+      if(limit>0) defaults = defaults.slice(0, limit);
+
+      // items to show in picker
+      let items = [];
+      if(mode==='agenda') items = DASH_WS_ALL.agenda.filter(ws=> isAgendaInMonth(ws, yy, mm));
+      else if(mode==='campaign') items = DASH_WS_ALL.campaign.filter(ws=> isCampaignInMonth(ws, yy, mm));
+      else items = [...DASH_WS_ALL.agenda.filter(ws=> isAgendaInMonth(ws, yy, mm)), ...DASH_WS_ALL.campaign.filter(ws=> isCampaignInMonth(ws, yy, mm))];
+
+      dashRenderPicker(items, defaults.map(x=>x.id));
+    }
+
+    async function initDashboardHome(){
+      // fill month/year once
+      dashFillMonthYear();
+      await dashLoadWorkspacesOnce();
+      dashUpdatePickerByMode();
+      await dashApply();
+    }
+
     function openHome(){
       MODE="home"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
       saveLastView("home");
@@ -2602,13 +3246,14 @@ let unsubKpiWs=null, unsubKpiTasks=null;
       if(unsubDaily){unsubDaily();unsubDaily=null;}
 
       setNavActive("navHome");
-      $("pageTitle").textContent = "Workspace — إدارة الأجندات والحملات";
-      $("pageDesc").textContent = "أنشئ أجندات للمهام أو حملات بتواريخ ووصف… ثم أضف تاسكات داخل الأعمدة.";
+      $("pageTitle").textContent = "الداش بورد";
+      $("pageDesc").textContent  = "عرض سريع للأجندات والحملات حسب الشهر، مع حالة كل تاسك (تم/باقي).";
       $("btnBack").style.display="none";
       $("btnCreateAgenda").style.display="";
       $("btnCreateCampaign").style.display="";
-      $("homeMeta").textContent = "متصل بقاعدة البيانات الجديدة (mzj-workspace-c7d4e)";
       showView("home");
+      // Dashboard init
+      initDashboardHome();
     }
 
     $("btnRefresh").addEventListener("click", ()=> { if(LIST_TYPE) openList(LIST_TYPE); });
