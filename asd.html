@@ -787,7 +787,8 @@
             <datalist id="specKeyList"></datalist>
             <div class="hint" style="color:var(--muted)">* يتم جلب الخيارات تلقائيًا من صفحة/قاعدة Unique Spec Key (المخزون) — بدون إضافة أي صفحة في السايد بار.</div>
           </div>
-          <div>
+          <!-- تم إلغاء تاريخ التسليم حسب الطلب -->
+          <div style="display:none">
             <label>تاريخ التسليم</label>
             <input id="taskDue" type="date"/>
           </div>
@@ -844,7 +845,8 @@
       <div class="m-body">
         <div class="grid2">
           <div><label>Unique Spec Key</label><input id="dSpecKey" readonly/></div>
-          <div><label>تاريخ التسليم</label><input id="dDue" readonly/></div>
+          <!-- تم إلغاء تاريخ التسليم حسب الطلب -->
+          <div style="display:none"><label>تاريخ التسليم</label><input id="dDue" readonly/></div>
         </div>
         <div class="grid2">
           <div><label>المسؤول</label><input id="dAssignee" readonly/></div>
@@ -1001,6 +1003,9 @@
 
 // ===== Spec Key Options (بدون ألوان) =====
     const SPEC_DATALIST_ID = "specKeyList";
+    // كل الـ Spec Keys القادمة من المخزون (بعد فلتر الأماكن) قبل فلتر المونتاج
+    let SPEC_KEY_ALL = [];
+    // اللي هنظهره داخل الداتا ليست
     let SPEC_KEY_OPTIONS = [];
     let agendaUnsub = null;
 
@@ -1025,6 +1030,7 @@
       return SOLD_STATES_SPEC.some(st => placeRaw.includes(st));
     }
 
+    // يجهز كل الـ Spec Keys من المخزون (بدون الوكالة/المباع) ثم يطبق فلتر "غير معمول لها مونتاج"
     function setSpecKeyOptionsFromStock(stockArr){
       try{
         const set = new Set();
@@ -1033,10 +1039,32 @@
           const key = buildSpecKeyNoColors(r);
           if(key && key !== "- | - | -") set.add(key);
         }
-        SPEC_KEY_OPTIONS = Array.from(set).sort((a,b)=> a.localeCompare(b,"ar"));
-        renderSpecKeyDatalist();
+        SPEC_KEY_ALL = Array.from(set).sort((a,b)=> a.localeCompare(b,"ar"));
+        applySpecKeyNotMontagedFilter();
       }catch(e){
         console.warn("setSpecKeyOptionsFromStock error", e);
+      }
+    }
+
+    // يظهر فقط السيارات اللي "لسة مش معمولها مونتاج" حسب stock_tasks في مشروع workspace
+    function applySpecKeyNotMontagedFilter(){
+      try{
+        // لو مش لاقيين بيانات مهام لسه، اعرض الكل مؤقتًا
+        const list = Array.isArray(SPEC_KEY_ALL) ? SPEC_KEY_ALL : [];
+        if(!STOCK_TASKS_MAP || STOCK_TASKS_MAP.size === 0){
+          SPEC_KEY_OPTIONS = list;
+        }else{
+          SPEC_KEY_OPTIONS = list.filter(k=>{
+            const t = STOCK_TASKS_MAP.get(String(k)) || {};
+            // يعتبر "تم المونتاج" فقط لو montage == نعم
+            return String(t.montage || "").trim() !== "نعم";
+          });
+        }
+        renderSpecKeyDatalist();
+      }catch(e){
+        console.warn("applySpecKeyNotMontagedFilter error", e);
+        SPEC_KEY_OPTIONS = Array.isArray(SPEC_KEY_ALL) ? SPEC_KEY_ALL : [];
+        renderSpecKeyDatalist();
       }
     }
 
@@ -1256,6 +1284,8 @@ function initials(name){
       $("avatar").textContent = initials(displayName);
 
       await loadUsers();
+      // مهام Tab stock (لا تمس mzj-agenda) — نحتاجها لتصفية Unique Spec Key "بدون مونتاج"
+      await loadStockTasksOnce();
       openHome();
       listenKPIs();
 
@@ -1408,6 +1438,9 @@ function initials(name){
         });
       }catch(e){
         console.warn('loadStockTasksOnce', e);
+      }finally{
+        // بعد تحميل مهام الاستوك، طبق فلتر "غير معمول لها مونتاج" على الداتا ليست
+        try{ applySpecKeyNotMontagedFilter(); }catch(_e){}
       }
     }
 
@@ -1418,13 +1451,14 @@ function initials(name){
       const prev = STOCK_TASKS_MAP.get(key) || { specKey: key };
       const next = { ...prev, ...patch, specKey: key, updatedAt: serverTimestamp() };
       STOCK_TASKS_MAP.set(key, next);
+      // حدث الداتا ليست فورًا (لأننا بنفلتر "غير معمول لها مونتاج")
+      try{ applySpecKeyNotMontagedFilter(); }catch(_e){}
 
       // debounce per row
       if(stockSaveTimers.has(key)) clearTimeout(stockSaveTimers.get(key));
       stockSaveTimers.set(key, setTimeout(async ()=>{
         try{
           await setDoc(doc(db, "stock_tasks", stockTaskDocId(key)), next, { merge:true });
-          await setDoc(doc(db, "stock_tasks_backup", stockTaskDocId(key)), next, { merge:true });
         }catch(e){
           console.warn('saveStockTask', e);
         }
@@ -2032,6 +2066,7 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
     const taskModal = $("taskModal");
     const taskSpecKey = $("taskSpecKey");
 const taskDesc = $("taskDesc");
+    // تم إلغاء تاريخ التسليم
     const taskDue = $("taskDue");
     const taskAssignee = $("taskAssignee");
     const taskColumn = $("taskColumn");
@@ -2110,7 +2145,7 @@ const taskDesc = $("taskDesc");
         taskColumn.value = CURRENT_TASK.column || "";
         taskSpecKey.value = CURRENT_TASK.specKey || "";
         taskDesc.value = CURRENT_TASK.description || "";
-        taskDue.value = CURRENT_TASK.due || "";
+        taskDue.value = "";
         taskAssignee.value = CURRENT_TASK.assigneeUid || "";
 
         
@@ -2132,7 +2167,8 @@ const taskDesc = $("taskDesc");
     $("taskSave").addEventListener("click", async ()=>{
       const specKey = (taskSpecKey.value||"").trim();
       const description = (taskDesc.value||"").trim() || null;
-      const due = taskDue.value || null;
+      // تم إلغاء تاريخ التسليم
+      const due = null;
       const assigneeUid = taskAssignee.value || null;
       const assigneeObj = USERS.find(u=> u.uid===assigneeUid);
       const assigneeName = assigneeObj?.name || null;
@@ -2149,7 +2185,7 @@ const taskDesc = $("taskDesc");
         column: TASK_CTX.column,
         specKey,
         description,
-        due,
+        // due removed
         assigneeUid,
         assigneeName
       };
@@ -2195,7 +2231,7 @@ const taskDesc = $("taskDesc");
       CURRENT_TASK = task;
 
       $("dSpecKey").value = task.specKey || "";
-      $("dDue").value = task.due || "";
+      $("dDue").value = "";
       $("dAssignee").value = task.assigneeName || "—";
       $("dColumn").value = task.column || "";
       $("dDesc").value = task.description || "";
