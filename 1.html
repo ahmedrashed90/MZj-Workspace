@@ -1,1 +1,3469 @@
 
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <link rel="icon" type="image/x-icon" href="assets/favicon.png">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MZJ-WORKSPACE</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* Tajawal for the whole file */
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+    html, body, button, input, select, textarea {
+      font-family: 'Tajawal', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Make Unique Spec Key inputs wider + more readable (all modals) */
+    .modal input[list],
+    .modal input[type="text"],
+    .modal select {
+      font-size: 15px;
+    }
+    /* Specifically: Unique Spec Key fields */
+    #taskSpecKey, #dSpecKey {
+      font-size: 16px;
+      padding: 12px 12px;
+      height: 46px;
+    }
+    /* Let the Unique Spec Key field take full row in the modal */
+    #taskModal .grid2 .speckey-full { grid-column: 1 / -1; }
+    /* VIN hint under the dropdown */
+    .vin-hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+
+    /* Finish modal color rows */
+    .color-row{
+      display:flex;gap:10px;align-items:center;
+      background:#fff;
+      border:1px solid #e6ded6;
+      border-radius:12px;
+      padding:10px;
+      margin-top:10px;
+    }
+    .color-row .grow{flex:1;min-width:0;}
+    .color-row label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+    .color-row select{width:100%;height:42px;border-radius:12px}
+    .color-row .btn{white-space:nowrap}
+    :root{
+      --brown:#3e2420;
+      --beige:#bc8f74;
+      --cream:#fff8ef;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --line:#e5e7eb;
+      --radius:16px;
+      --shadow: 0 12px 30px rgba(62,36,32,.12);
+      --shadow2: 0 18px 50px rgba(62,36,32,.18);
+      --danger:#b91c1c;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--cream);
+      color:var(--text);
+      font-family:"Tajawal",system-ui,Arial;
+    }
+    a{color:inherit;text-decoration:none}
+    button,input,select,textarea{font-family:inherit}
+
+    /* ===== Layout ===== */
+    .app{
+      height:100%;
+      display:grid;
+      grid-template-columns: 300px 1fr;
+      transition: grid-template-columns .18s ease;
+    }
+    .app.collapsed{ grid-template-columns: 88px 1fr; }
+
+    /* ===== Sidebar ===== */
+    .sidebar{
+      background: linear-gradient(180deg, var(--brown), #2f1c19);
+      color:#fff;
+      padding:14px;
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    }
+    .sb-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:6px 4px 14px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      margin-bottom:12px;
+    }
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .brand-badge{
+      inline-size:34px;
+      block-size:34px;
+      border-radius:12px;
+      background:linear-gradient(135deg,var(--beige),#d9b39a);
+      flex:0 0 auto;
+      box-shadow: 0 12px 24px rgba(188,143,116,.25);
+    }
+    .brand-title{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .brand-title strong{
+      font-size:14px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .brand-title span{
+      font-size:12px;opacity:.85;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .toggle-btn{
+      border:0;
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      padding:10px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:.15s;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .toggle-btn:hover{background:rgba(255,255,255,.18)}
+    .app.collapsed .brand-title{display:none}
+
+    .sb-user{
+      margin:10px 0 14px;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      background:rgba(255,255,255,.06);
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .avatar{
+      width:36px;height:36px;border-radius:12px;
+      background:rgba(255,255,255,.14);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:800;
+      flex:0 0 auto;
+    }
+    .sb-user .meta{min-width:0}
+    .sb-user .meta .name{
+      font-weight:800;font-size:13px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .sb-user .meta .role{
+      font-size:12px;opacity:.85;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .app.collapsed .sb-user .meta{display:none}
+
+    .sb-nav{display:grid;gap:8px;margin-top:10px}
+    .sb-link{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.06);
+      cursor:pointer;transition:.15s;user-select:none;
+    }
+    .sb-link:hover{background:rgba(255,255,255,.10)}
+    .sb-link.active{
+      background:rgba(255,255,255,.16);
+      border-color:rgba(255,255,255,.16);
+    }
+    .sb-ico{
+      width:34px;height:34px;border-radius:12px;
+      background:rgba(255,255,255,.12);
+      display:flex;align-items:center;justify-content:center;
+      flex:0 0 auto;font-size:16px;
+    }
+    .sb-text{font-weight:800}
+    .app.collapsed .sb-text{display:none}
+
+    .sb-foot{
+      margin-top:14px;padding-top:12px;
+      border-top:1px solid rgba(255,255,255,.12);
+      display:grid;gap:8px;
+    }
+    .hint{font-size:12px;line-height:1.6}
+
+    /* ===== Main ===== */
+    .main{padding:18px;min-width:0}
+    .page-head{
+      display:flex;align-items:flex-start;justify-content:space-between;
+      gap:14px;margin-bottom:14px;
+    }
+    .title-wrap h1{margin:0;font-size:20px;color:var(--brown);letter-spacing:.2px}
+    .title-wrap p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{
+      padding:10px 12px;border-radius:14px;border:0;
+      background:var(--brown);color:#fff;cursor:pointer;font-weight:800;
+      box-shadow: 0 10px 24px rgba(62,36,32,.18);transition:.15s;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn.secondary{background:#fff;color:var(--brown);border:1px solid var(--brown);box-shadow:none}
+    .btn.danger{background:var(--danger);box-shadow: 0 10px 24px rgba(185,28,28,.18)}
+    .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--brown);box-shadow:none}
+    .btn.sm{padding:8px 10px;border-radius:12px;font-size:13px}
+    .btn.xs{padding:6px 9px;border-radius:999px;font-size:12px}
+
+    .panel{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:1px solid rgba(62,36,32,.06);
+      overflow:hidden;
+    }
+    .panel .head{
+      padding:12px 14px;border-bottom:1px solid #f1f1f1;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      background: linear-gradient(180deg, #fff, #fff8ef);
+    }
+    .panel .body{padding:14px}
+    .muted{color:var(--muted)}
+
+    /* ===== Home cards ===== */
+    .home-grid{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:14px}
+    @media(max-width:980px){.home-grid{grid-template-columns:1fr}}
+    .hero-card{
+      border-radius:18px;border:1px solid rgba(62,36,32,.10);
+      background: linear-gradient(140deg, #fff, #fff8ef 60%, rgba(188,143,116,.10));
+      box-shadow: var(--shadow);
+      padding:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+      position:relative;overflow:hidden;min-height:150px;cursor:pointer;
+    }
+    .hero-card::before{
+      content:"";position:absolute;inset:auto -40px -40px auto;
+      width:160px;height:160px;border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, rgba(188,143,116,.35), transparent 60%);
+      transform: rotate(12deg);
+    }
+    .hero-left{position:relative;z-index:1;min-width:0}
+    .hero-title{margin:0;font-size:18px;color:var(--brown);font-weight:900}
+    .hero-desc{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.7;max-width:560px}
+    .hero-actions{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;background:#fff;
+      border:1px solid rgba(62,36,32,.10);color:var(--brown);
+      font-weight:800;font-size:12px;box-shadow: 0 8px 18px rgba(62,36,32,.10);
+    }
+    .pill .dot{width:8px;height:8px;border-radius:999px;background:var(--beige)}
+
+    /* ===== Lists ===== */
+    .list{display:grid;gap:10px}
+    .list-item{
+      border:1px solid rgba(62,36,32,.10);border-radius:16px;padding:12px;
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+      background:#fff;transition:.15s;cursor:pointer;
+    }
+    .list-item:hover{transform:translateY(-1px);box-shadow: 0 14px 36px rgba(62,36,32,.12)}
+    .li-main{min-width:0}
+    .li-title{
+      margin:0;font-size:14px;font-weight:900;color:var(--brown);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .li-sub{
+      margin:6px 0 0;font-size:12px;color:var(--muted);line-height:1.6;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    }
+    .li-right{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
+    .tag{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:999px;background:#fff8ef;
+      border:1px solid rgba(188,143,116,.30);color:var(--brown);
+      font-size:12px;font-weight:800;
+    }
+    .tag .mini{width:6px;height:6px;border-radius:999px;background:var(--beige)}
+
+    /* ===== Board ===== */
+    .board{display:grid;gap:14px;grid-template-columns:repeat(4, minmax(0, 1fr));margin-top:12px}
+    @media(max-width:1400px){.board{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:980px){.board{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.board{grid-template-columns:1fr}}
+
+    .col{
+      background:#fff;border:1px solid rgba(62,36,32,.08);
+      border-radius:16px;box-shadow: 0 10px 28px rgba(62,36,32,.08);
+      overflow:hidden;display:flex;flex-direction:column;min-height:220px;
+    }
+    .col-head{
+      background: linear-gradient(180deg, #fff8ef, #fff);
+      border-bottom:1px solid rgba(62,36,32,.06);
+      padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    }
+
+
+    /* ===== Done Column (green) ===== */
+    .col.done-col{border-color: rgba(22,163,74,.35); box-shadow: 0 14px 34px rgba(22,163,74,.10)}
+    .col.done-col .col-head{background: linear-gradient(180deg, #f0fdf4, #ffffff); border-bottom-color: rgba(22,163,74,.20)}
+    .col.done-col .col-title{color:#166534}
+    .col.done-col .count-badge{border-color: rgba(22,163,74,.28); color:#166534}
+    .col-title{
+      font-weight:900;color:var(--brown);font-size:13px;
+      display:flex;align-items:center;gap:8px;min-width:0;
+    }
+    .col-title span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .count-badge{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:24px;height:24px;padding:0 8px;border-radius:999px;
+      background:#fff;border:1px solid rgba(62,36,32,.12);
+      font-size:12px;font-weight:900;color:var(--brown);
+    }
+    .col-body{padding:10px;display:grid;gap:10px}
+
+    .task-card{
+      border:1px solid rgba(62,36,32,.10);border-radius:14px;padding:10px;
+      background:#fff;box-shadow: 0 10px 22px rgba(62,36,32,.08);
+      cursor:pointer;transition:.15s;
+    }
+    .task-card:hover{transform:translateY(-1px)}
+    .t-title{margin:0;font-size:13px;font-weight:900;color:var(--brown);line-height:1.5}
+    .t-meta{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:12px}
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:999px;background:#fff8ef;
+      border:1px solid rgba(188,143,116,.25);color:var(--brown);
+      font-weight:800;font-size:12px;
+    }
+    .badge .dot{width:8px;height:8px;border-radius:999px;background:var(--beige)}
+
+
+    /* Done column (تم الانتهاء) */
+    .col.done-col{border-color: rgba(22,163,74,.35); box-shadow: 0 12px 34px rgba(22,163,74,.10);}
+    .col.done-col .col-head{background: linear-gradient(180deg, rgba(220,252,231,.9), #fff); border-bottom-color: rgba(22,163,74,.18);}
+    .col.done-col .col-title{color:#0f5a2a}
+    .col.done-col .count-badge{border-color: rgba(22,163,74,.35); color:#0f5a2a}
+    /* ===== Modal ===== */
+    .modal{
+      position:fixed;inset:0;background:rgba(0,0,0,.40);
+      display:none;place-items:center;padding:16px;z-index:999;
+    }
+    .modal.show{display:grid}
+    .sheet{
+      width:min(900px, 100%);background:#fff;border-radius:18px;box-shadow: var(--shadow2);
+      overflow:hidden;display:flex;flex-direction:column;max-height:92vh;
+    }
+    .sheet .m-head{
+      padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+      border-bottom:1px solid #f1f1f1;background: linear-gradient(180deg, #fff, #fff8ef);
+    }
+    .sheet .m-head strong{color:var(--brown);font-size:14px;font-weight:900}
+    .sheet .m-body{padding:14px;overflow:auto;display:grid;gap:10px}
+    .sheet .m-foot{
+      padding:12px 14px;border-top:1px solid #f1f1f1;background: #fff8ef;
+      display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;
+    }
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(max-width:860px){.grid2{grid-template-columns:1fr}}
+    label{display:block;margin:4px 0 6px;font-size:12px;font-weight:900;color:var(--brown)}
+    input,select,textarea{
+      width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);
+      outline:none;background:#fff;font-size:14px;
+    }
+    textarea{min-height:110px;resize:vertical;line-height:1.8}
+    input:focus,select:focus,textarea:focus{
+      border-color: rgba(188,143,116,.65);
+      box-shadow: 0 0 0 4px rgba(188,143,116,.18);
+    }
+
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;border:1px solid rgba(62,36,32,.10);
+      background:#fff;font-size:12px;color:var(--brown);font-weight:800;
+    }
+    .chip button{
+      border:0;background:#fff8ef;color:var(--brown);
+      border-radius:10px;cursor:pointer;padding:4px 8px;font-weight:900;
+    }
+
+    .divider{height:1px;background: #f1f1f1;margin:4px 0}
+    .empty{
+      padding:14px;border:1px dashed rgba(62,36,32,.18);
+      border-radius:16px;background:#fff;color:var(--muted);
+      line-height:1.8;font-size:13px;
+    }
+
+    .toast{
+      position:fixed;left:16px;bottom:16px;background:#111827;color:#fff;
+      padding:10px 12px;border-radius:14px;box-shadow: 0 14px 40px rgba(0,0,0,.25);
+      display:none;z-index:2000;font-size:13px;
+    }
+    .toast.show{display:block}
+
+    .kpi-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .kpi{
+      flex:1 1 220px;background:#fff;border-radius:16px;border:1px solid rgba(62,36,32,.08);
+      box-shadow: 0 10px 28px rgba(62,36,32,.08);padding:12px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .kpi strong{display:block;color:var(--brown);font-weight:900;font-size:13px}
+    .kpi span{color:var(--muted);font-size:12px}
+    .kpi .num{font-weight:900;font-size:18px;color:var(--brown)}
+
+    /* ===== Daily Task ===== */
+    .daily-weeks{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:10px;
+    }
+    @media(max-width:1100px){ .daily-weeks{grid-template-columns: repeat(2, minmax(0,1fr));} }
+    @media(max-width:680px){ .daily-weeks{grid-template-columns: 1fr;} }
+    .week-card{
+      background:#fff;
+      border:1px solid rgba(62,36,32,.10);
+      border-radius:16px;
+      box-shadow: 0 10px 28px rgba(62,36,32,.08);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:220px;
+    }
+    .week-head{
+      padding:10px 12px;
+      background: linear-gradient(180deg, #fff, #fff8ef);
+      border-bottom:1px solid rgba(62,36,32,.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .week-head strong{color:var(--brown);font-weight:900;font-size:13px}
+    .week-body{padding:10px 10px 12px;display:grid;gap:10px}
+    .day-block{
+      border:1px solid rgba(62,36,32,.08);
+      border-radius:14px;
+      padding:10px;
+      background:#fff;
+    }
+    .day-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .day-top .dname{font-weight:900;color:var(--brown);font-size:12px}
+    .day-cols{display:grid;grid-template-columns: 1fr 1fr;gap:8px}
+    .day-col{
+      border:1px dashed rgba(62,36,32,.14);
+      border-radius:12px;
+      padding:8px;
+      background:#fff8ef;
+      min-height:58px;
+      display:grid;
+      gap:8px;
+      align-content:start;
+    }
+    .day-col.done{background:#f0fdf4;border-color: rgba(22,163,74,.22)}
+    .day-col .col-label{font-size:11px;color:var(--muted);font-weight:900}
+    .daily-task{
+      background:#fff;
+      border:1px solid rgba(62,36,32,.10);
+      border-radius:12px;
+      padding:8px;
+      display:grid;
+      gap:8px;
+    }
+    .daily-task .tt{font-weight:900;color:var(--brown);font-size:12px;line-height:1.5}
+    .daily-task .td{font-size:12px;color:var(--muted);line-height:1.7}
+    .daily-task .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .daily-task textarea{
+      min-height:44px;
+      height:44px;
+      resize:vertical;
+      padding:8px 10px;
+      border-radius:12px;
+    }
+
+
+
+    /* ===== Stock Table ===== */
+    /* Tajawal for stock tab */
+    #viewStock, #viewStock *{font-family:"Tajawal",system-ui,Arial !important;}
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid #e6ded6;
+      border-radius:14px;
+      background:#fff;
+      box-shadow: 0 10px 28px rgba(62,36,32,.08);
+    }
+
+    .stock-table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1550px;
+      background:#fff;
+      table-layout:fixed;
+      font-size:13px;
+    }
+
+    .stock-table thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#f9f4ef;
+      color:var(--brown);
+      font-weight:800;
+      padding:12px 10px;
+      border-bottom:1px solid #e6ded6;
+      text-align:right;
+      white-space:nowrap;
+    }
+
+    .stock-table tbody td{
+      padding:11px 10px;
+      border-bottom:1px solid #f0ebe6;
+      color:var(--text);
+      vertical-align:middle;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      background:#fff;
+    }
+
+    .stock-table tbody tr:nth-child(even) td{background:#fffaf5;}
+    .stock-table tbody tr:hover td{background:#f3ece6;}
+
+    .stock-table td.wrap{white-space:normal;line-height:1.7;}
+    .stock-table td.center{text-align:center;font-weight:700;}
+    .stock-table td.mono{direction:ltr;text-align:left;white-space:nowrap;font-family:inherit;}
+
+    /* Stock table controls */
+    .stock-ctrl{width:100%;padding:8px 10px;border:1px solid #e6ded6;border-radius:10px;background:#fff;font-size:13px;outline:none}
+    .stock-ctrl:focus{border-color: var(--beige); box-shadow: 0 0 0 3px rgba(188,143,116,.18)}
+    .stock-ctrl.small{padding:7px 10px;font-size:12px}
+    .stock-ctrl[disabled]{background:#f7f3ef;color:#9aa3af}
+    .stock-badge-mini{display:inline-block;padding:4px 10px;border-radius:999px;background:#f1e7dd;color:#3e2420;font-size:12px;white-space:nowrap}
+    .stock-count{font-weight:800}
+
+    .stock-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+    /* ===== Auth Gate (Inline Login) ===== */
+    .auth-gate{
+      position:fixed; inset:0; z-index:3000;
+      background:linear-gradient(180deg, rgba(62,36,32,.92), rgba(47,28,25,.92));
+      display:none; place-items:center; padding:16px;
+    }
+    .auth-gate.show{display:grid}
+    .auth-card{
+      width:min(520px, 100%);
+      background:#fff;
+      border-radius:20px;
+      box-shadow: 0 22px 70px rgba(0,0,0,.35);
+      border:1px solid rgba(62,36,32,.10);
+      overflow:hidden;
+    }
+    .auth-head{
+      padding:14px 16px;
+      background:linear-gradient(180deg, #fff, #fff8ef);
+      border-bottom:1px solid #f1f1f1;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .auth-head strong{color:var(--brown);font-weight:900}
+    .auth-body{padding:16px; display:grid; gap:10px}
+    .auth-foot{padding:12px 16px; background:#fff8ef; border-top:1px solid #f1f1f1; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap}
+    .auth-note{color:var(--muted); font-size:12px; line-height:1.7}
+    .auth-err{color:var(--danger); font-weight:900; font-size:13px; display:none}
+    .auth-err.show{display:block}
+    .auth-brand{
+      display:flex; align-items:center; gap:10px;
+    }
+    .auth-badge{
+      inline-size:38px; block-size:38px;
+      border-radius:14px;
+      background:linear-gradient(135deg,var(--beige),#d9b39a);
+      box-shadow: 0 12px 24px rgba(188,143,116,.25);
+    }
+    .hide-app{display:none !important}
+  </style>
+</head>
+
+<body>
+  <!-- Inline Login Gate (بديل login.html) -->
+  <div class="auth-gate" id="authGate">
+    <div class="auth-card">
+      <div class="auth-head">
+        <div class="auth-brand">
+          <div class="auth-badge"></div>
+          <div>
+            <strong>MZJ Workspace</strong>
+            <div class="auth-note">تسجيل الدخول بالبريد وكلمة المرور</div>
+          </div>
+        </div>
+        <span class="pill" style="margin:0"><span class="dot"></span> Secure</span>
+      </div>
+      <div class="auth-body">
+        <div class="auth-err" id="authErr">…</div>
+        <div>
+          <label>البريد الإلكتروني</label>
+          <input id="loginEmail" type="email" autocomplete="username" placeholder="name@email.com" />
+        </div>
+        <div>
+          <label>كلمة المرور</label>
+          <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••" />
+        </div>
+        <div class="auth-note">ملاحظة: نفس الإيميل/الباسورد الموجودين في Firebase Auth للمشروع <b>mzj-workspace-c7d4e</b>.</div>
+      </div>
+      <div class="auth-foot">
+        <button class="btn secondary" id="btnLoginDemo" type="button" style="display:none">دخول تجريبي</button>
+        <button class="btn" id="btnLogin" type="button">تسجيل الدخول</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app" id="app">
+    <aside class="sidebar">
+      <div class="sb-top">
+        <div class="brand">
+          <div class="brand-badge"></div>
+          <div class="brand-title">
+            <strong>MZJ Workspace</strong>
+            <span>Tasks & Campaigns</span>
+          </div>
+        </div>
+        <button class="toggle-btn" id="sbToggle" title="فتح / قفل القائمة">☰</button>
+      </div>
+
+      <div class="sb-user">
+        <div class="avatar" id="avatar">M</div>
+        <div class="meta">
+          <div class="name" id="whoName">...</div>
+          <div class="role" id="whoRole">...</div>
+        </div>
+      </div>
+
+      <div class="sb-nav">
+        <div class="sb-link active" id="navHome">
+          <div class="sb-ico">🏠</div>
+          <div class="sb-text">الصفحة الرئيسية</div>
+        </div>
+
+        <div class="sb-link" id="navAgendas">
+          <div class="sb-ico">🗂️</div>
+          <div class="sb-text">الأجندات</div>
+        </div>
+
+        <div class="sb-link" id="navCampaigns">
+          <div class="sb-ico">📣</div>
+          <div class="sb-text">الحملات</div>
+        </div>
+
+        <div class="sb-link" id="navDaily">
+          <div class="sb-ico">🗓️</div>
+          <div class="sb-text">Daily Task</div>
+        </div>
+
+
+        <div class="sb-link" id="navStock">
+          <div class="sb-ico">🚗</div>
+          <div class="sb-text">stock</div>
+        </div>
+
+        <div class="sb-link" id="navAdmin" style="display:none">
+          <div class="sb-ico">🛡️</div>
+          <div class="sb-text">admin</div>
+        </div>
+
+      </div>
+
+      <div class="sb-foot">
+        <a class="sb-link" href="javascript:void(0)" id="btnLogout">
+          <div class="sb-ico">🚪</div>
+          <div class="sb-text">تسجيل الخروج</div>
+        </a>
+        <div class="hint" style="color:rgba(255,255,255,.75);padding:6px 6px 0">
+          © مجموعة محمد بن ذعار العجمي للسيارات — نجم الطريق
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="page-head">
+        <div class="title-wrap">
+          <h1 id="pageTitle">Workspace — إدارة الأجندات والحملات</h1>
+          <p id="pageDesc">أنشئ أجندات لتقسيم المهام اليومية/الأسبوعية، وأنشئ حملات بتواريخ ووصف وأعمدة… ثم أضف تاسكات داخل كل عمود بسهولة.</p>
+        </div>
+
+        <div class="actions" id="topActions">
+          <button class="btn secondary sm" id="btnBack" style="display:none">⬅ رجوع</button>
+          <button class="btn sm" id="btnCreateAgenda">➕ أجندة جديدة</button>
+          <button class="btn secondary sm" id="btnCreateCampaign">➕ حملة جديدة</button>
+        </div>
+      </div>
+
+      <section class="panel" id="viewHome">
+        <div class="head">
+          <strong>اختر نوع الإدارة</strong>
+          <span class="muted" id="homeMeta">...</span>
+        </div>
+        <div class="body">
+          <div class="home-grid">
+            <div class="hero-card" id="goAgendas">
+              <div class="hero-left">
+                <h3 class="hero-title">الأجندات (Tasks)</h3>
+                <p class="hero-desc">
+                  أنشئ أجندة باسم وحدد أعمدة الكروت، ثم أضف تاسكات لكل عمود.
+                  التاسك يحتوي Unique Spec Key + وصف + تاريخ تسليم + مسؤول.
+                </p>
+                <div class="kpi-row">
+                  <div class="kpi">
+                    <div>
+                      <strong>عدد الأجندات</strong>
+                      <span class="muted">Active</span>
+                    </div>
+                    <div class="num" id="kpiAgendas">0</div>
+                  </div>
+                  <div class="kpi">
+                    <div>
+                      <strong>تاسكات الأجندات</strong>
+                      <span class="muted">الإجمالي</span>
+                    </div>
+                    <div class="num" id="kpiAgendaTasks">0</div>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-actions">
+                <div class="pill"><span class="dot"></span> Board مرتب</div>
+                <button class="btn sm" type="button">فتح الأجندات</button>
+              </div>
+            </div>
+
+            <div class="hero-card" id="goCampaigns">
+              <div class="hero-left">
+                <h3 class="hero-title">الحملات (Campaigns)</h3>
+                <p class="hero-desc">
+                  أنشئ حملة باسم ووصف + تاريخ بداية/نهاية + أعمدة، ثم أضف تاسكات لكل عمود.
+                  التاسك يحتوي Unique Spec Key + وصف + تاريخ تسليم + روابط + مسؤول.
+                </p>
+                <div class="kpi-row">
+                  <div class="kpi">
+                    <div>
+                      <strong>عدد الحملات</strong>
+                      <span class="muted">Active</span>
+                    </div>
+                    <div class="num" id="kpiCampaigns">0</div>
+                  </div>
+                  <div class="kpi">
+                    <div>
+                      <strong>تاسكات الحملات</strong>
+                      <span class="muted">الإجمالي</span>
+                    </div>
+                    <div class="num" id="kpiCampaignTasks">0</div>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-actions">
+                <div class="pill"><span class="dot"></span> تواريخ + روابط</div>
+                <button class="btn sm" type="button">فتح الحملات</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="viewList" style="display:none">
+        <div class="head">
+          <strong id="listTitle">...</strong>
+          <div class="actions">
+            <button class="btn secondary sm" id="btnRefresh" type="button">⟳ تحديث</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="empty" id="listEmpty" style="display:none">لا يوجد عناصر حتى الآن. استخدم زر الإنشاء بالأعلى.</div>
+          <div class="list" id="listContainer"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="viewBoard" style="display:none">
+        <div class="head">
+          <div>
+            <strong id="boardTitle">...</strong>
+            <div class="muted" id="boardSub" style="font-size:12px;margin-top:6px"></div>
+            <div id="boardFilterWrap" style="display:none;margin-top:10px">
+              <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">فلترة حسب المسؤول</label>
+              <select id="boardUserFilter" class="inp" style="min-width:260px">
+                <option value="">الكل</option>
+              </select>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn ghost sm" id="btnEditBoard" type="button">✏️ تعديل</button>
+            <button class="btn danger sm" id="btnDeleteBoard" type="button">🗑️ حذف</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="board" id="boardCols"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="viewDaily" style="display:none">
+        <div class="head">
+          <div class="stock-meta" style="flex-wrap:wrap">
+            <strong>Daily Task</strong>
+            <span class="muted">نظام مهام يومية بالأسبوع (السبت → الخميس)</span>
+            <select id="dailyMonth" class="inp" style="min-width:220px">
+              <option value="">اختر الشهر...</option>
+              <option value="01">يناير</option>
+              <option value="02">فبراير</option>
+              <option value="03">مارس</option>
+              <option value="04">أبريل</option>
+              <option value="05">مايو</option>
+              <option value="06">يونيو</option>
+              <option value="07">يوليو</option>
+              <option value="08">أغسطس</option>
+              <option value="09">سبتمبر</option>
+              <option value="10">أكتوبر</option>
+              <option value="11">نوفمبر</option>
+              <option value="12">ديسمبر</option>
+            </select>
+            <select id="dailyYear" class="inp" style="min-width:160px"></select>
+            <button class="btn secondary sm" id="dailyRefresh" type="button">⟳ تحديث</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="empty" id="dailyEmpty">اختر الشهر والسنة لعرض الأسابيع.</div>
+          <div id="dailyWeeks" style="display:none"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="viewStock" style="display:none">
+        <div class="head">
+          <div class="stock-meta">
+            <strong>stock</strong>
+            <span class="muted">الإجمالي: <b id="stockCount">0</b> سيارة</span>
+            <input id="stockSearch" class="inp" style="min-width:260px" placeholder="بحث داخل stock (Unique Spec Key)…" />
+            <button class="btn secondary sm" id="btnStockExport" type="button">⬇️ تصدير Excel</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="empty" id="stockEmpty" style="display:none">لا توجد بيانات حالياً.</div>
+          <div class="table-wrap" id="stockTableWrap" style="display:none">
+            <table class="stock-table" id="stockTable"></table>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="viewAdmin" style="display:none">
+        <div class="head">
+          <div>
+            <strong>Admin</strong>
+            <span class="muted">إضافة مستخدم جديد وتحديد الصلاحية داخل نفس مشروع Firebase (mzj-workspace-c7d4e)</span>
+          </div>
+        </div>
+        <div class="body">
+          <div class="card" style="max-width:720px">
+            <div class="card-head">
+              <strong>إضافة يوزر جديد</strong>
+              <span class="muted">سيتم إنشاء حساب Authentication (Email/Password) + إنشاء Document في users/{uid} بنفس المسار.</span>
+            </div>
+            <div class="card-body">
+              <div class="grid2">
+                <div>
+                  <label>البريد الإلكتروني</label>
+                  <input id="adminNewEmail" placeholder="name@example.com" autocomplete="off"/>
+                </div>
+                <div>
+                  <label>كلمة المرور</label>
+                  <input id="adminNewPass" type="password" placeholder="********" autocomplete="new-password"/>
+                </div>
+              </div>
+              <div class="grid2" style="margin-top:10px">
+                <div>
+                  <label>الصلاحية</label>
+                  <select id="adminNewRole">
+                    <option value="member">member (عضو)</option>
+                    <option value="finisher">finisher (ينهي فقط)</option>
+                    <option value="admin">admin (مدير)</option>
+                  </select>
+                </div>
+                <div>
+                  <label>اسم اليوزر (اختياري)</label>
+                  <input id="adminNewName" placeholder="مثال: أحمد"/>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+                <button class="btn secondary" id="adminClear" type="button">مسح</button>
+                <button class="btn" id="adminCreateUser" type="button">➕ إنشاء المستخدم</button>
+              </div>
+
+              <div class="hint" id="adminMsg" style="margin-top:10px;color:var(--muted)"></div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:14px">
+            <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div>
+                <strong>إدارة المستخدمين</strong>
+                <span class="muted">عرض كل الأعضاء وتعديل صلاحية أي يوزر (role) + إرسال رابط إعادة تعيين كلمة المرور.</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <input id="adminUserSearch" class="inp" style="min-width:240px" placeholder="بحث بالاسم أو الإيميل..." />
+                <button class="btn secondary sm" id="adminUsersRefresh" type="button">تحديث</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-wrap">
+                <table class="stock-table" id="adminUsersTable"></table>
+              </div>
+              <div class="hint" id="adminUsersMsg" style="margin-top:10px;color:var(--muted)"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Create/Edit Board Modal -->
+  <div class="modal" id="boardModal">
+    <div class="sheet">
+      <div class="m-head">
+        <strong id="boardModalTitle">...</strong>
+        <button class="btn secondary xs" id="boardModalClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <div class="grid2">
+          <div>
+            <label>النوع</label>
+            <input id="boardType" readonly />
+            <div class="hint" style="color:var(--muted)">سيتم الحفظ داخل Collection: <b>workspaces</b>.</div>
+          </div>
+          <div>
+            <label>اسم (الأجندة / الحملة)</label>
+            <input id="boardName" placeholder="مثال: يناير 2026 / حملة الأقساط - فبراير"/>
+          </div>
+        </div>
+
+        <div id="campaignFields" style="display:none">
+          <label>وصف الحملة</label>
+          <textarea id="campaignDesc" placeholder="اكتب وصف الحملة بشكل واضح..."></textarea>
+          <div class="grid2">
+            <div>
+              <label>تاريخ بداية الحملة</label>
+              <input id="campaignStart" type="date"/>
+            </div>
+            <div>
+              <label>تاريخ نهاية الحملة</label>
+              <input id="campaignEnd" type="date"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div>
+          <label>أسماء الأعمدة (الكروت)</label>
+          <div class="hint" style="color:var(--muted)">أضف أكثر من عمود. مثال: (ريل مواصفات) (تصميم صور) (موشن) ...</div>
+
+          <div class="grid2" style="align-items:end">
+            <div><input id="colInput" placeholder="اكتب اسم عمود ثم اضغط إضافة"/></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end">
+              <button class="btn secondary sm" id="btnAddCol" type="button">إضافة عمود</button>
+              <button class="btn ghost sm" id="btnAddDefaults" type="button">إضافة افتراضي</button>
+            </div>
+          </div>
+
+          <div class="chips" id="colsChips" style="margin-top:10px"></div>
+        </div>
+      </div>
+      <div class="m-foot">
+        <button class="btn secondary" id="boardCancel" type="button">إلغاء</button>
+        <button class="btn" id="boardSave" type="button">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Modal -->
+  <div class="modal" id="taskModal">
+    <div class="sheet">
+      <div class="m-head">
+        <strong id="taskModalTitle">تاسك جديد</strong>
+        <button class="btn secondary xs" id="taskModalClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <div class="grid2">
+          <div class="speckey-full">
+            <label>Unique Spec Key</label>
+            <input id="taskSpecKey" list="specKeyList" placeholder="ابحث واختر (السيارة | البيان | الموديل)…"/>
+            <datalist id="specKeyList"></datalist>
+            <div class="hint" style="color:var(--muted)">* يتم جلب الخيارات تلقائيًا من صفحة/قاعدة Unique Spec Key (المخزون) — بدون إضافة أي صفحة في السايد بار.</div>
+          </div>
+          <!-- تم إلغاء تاريخ التسليم حسب الطلب -->
+          <div style="display:none">
+            <label>تاريخ التسليم</label>
+            <input id="taskDue" type="date"/>
+          </div>
+        </div>
+
+        <label>الوصف</label>
+        <textarea id="taskDesc" placeholder="اكتب وصف واضح للتاسك..."></textarea>
+
+        <div class="grid2">
+          <div>
+            <label>المسؤول (User)</label>
+            <select id="taskAssignee">
+              <option value="">— اختر يوزر —</option>
+            </select>
+          </div>
+          <div>
+            <label>العمود</label>
+            <input id="taskColumn" readonly/>
+          </div>
+        </div>
+
+        <div id="taskLinksWrap" style="display:none">
+          <div class="divider"></div>
+          <label>روابط مرتبطة (للحملات)</label>
+          <div class="grid2" style="align-items:end">
+            <div><input id="linkTitle" placeholder="عنوان الرابط — مثال: ملف جوجل درايف"/></div>
+            <div><input id="linkUrl" placeholder="https://..."/></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:10px">
+            <button class="btn secondary sm" id="btnAddLink" type="button">إضافة رابط</button>
+          </div>
+          <div class="chips" id="linksChips" style="margin-top:10px"></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="hint" style="color:var(--muted)">سيتم حفظ التاسك داخل Collection: <b>workspace_tasks</b>.</div>
+      </div>
+
+      <div class="m-foot">
+        <button class="btn danger" id="taskDelete" style="display:none" type="button">حذف</button>
+        <button class="btn secondary" id="taskCancel" type="button">إلغاء</button>
+        <button class="btn" id="taskSave" type="button">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Detail Modal -->
+  <div class="modal" id="detailModal">
+    <div class="sheet">
+      <div class="m-head">
+        <strong>تفاصيل التاسك</strong>
+        <button class="btn secondary xs" id="detailClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <div class="grid2">
+          <div><label>Unique Spec Key</label><input id="dSpecKey" readonly/></div>
+          <!-- تم إلغاء تاريخ التسليم حسب الطلب -->
+          <div style="display:none"><label>تاريخ التسليم</label><input id="dDue" readonly/></div>
+        </div>
+        <div class="grid2">
+          <div><label>المسؤول</label><input id="dAssignee" readonly/></div>
+          <div><label>العمود</label><input id="dColumn" readonly/></div>
+        </div>
+        <label>الوصف</label>
+        <textarea id="dDesc" readonly></textarea>
+
+        <div id="dLinksBlock" style="display:none">
+          <div class="divider"></div>
+          <label>الروابط</label>
+          <div class="chips" id="dLinks"></div>
+        </div>
+      </div>
+      <div class="m-foot">
+        <button class="btn secondary" id="detailEdit" type="button">تعديل</button>
+        <button class="btn danger" id="detailDelete" type="button">حذف</button>
+        <button class="btn" id="detailDone" type="button">تم الانتهاء</button>
+        <button class="btn" id="detailOk" type="button">تمام</button>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <!-- Stock Colors Modal (click count) -->
+  <div class="modal" id="colorsModal">
+    <div class="sheet" style="max-width:900px">
+      <div class="m-head">
+        <strong>ألوان السيارة (حسب Unique Spec Key)</strong>
+        <button class="btn secondary xs" id="colorsClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <label>Unique Spec Key</label>
+        <input id="cmSpecKey" readonly/>
+        <div class="grid2" style="margin-top:12px">
+          <div>
+            <label>الألوان الخارجية المتاحة</label>
+            <div class="chips" id="cmExt"></div>
+          </div>
+          <div>
+            <label>الألوان الداخلية المتاحة</label>
+            <div class="chips" id="cmInt"></div>
+          </div>
+        </div>
+        <div class="hint" style="color:var(--muted);margin-top:10px">* هذه الألوان يتم قراءتها من mzj-agenda (قراءة فقط).</div>
+      </div>
+      <div class="m-foot">
+        <button class="btn" id="colorsOk" type="button">تمام</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finish Task Modal -->
+  <div class="modal" id="finishModal">
+    <div class="sheet" style="max-width:980px">
+      <div class="m-head">
+        <strong>إنهاء التاسك</strong>
+        <button class="btn secondary xs" id="finishClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <label>Unique Spec Key</label>
+        <input id="fmSpecKey" readonly/>
+
+        <div class="grid2" style="margin-top:12px">
+          <div>
+            <label>تفاصيل المونتاج</label>
+            <select id="fmMontageDetails">
+              <option value="">-</option>
+              <option value="نعم">نعم</option>
+              <option value="لا">لا</option>
+            </select>
+            <div class="hint" style="color:var(--muted);margin-top:6px">سيتم تحديث Tab stock تلقائيًا: مونتاج = نعم + تفاصيل المونتاج حسب اختيارك.</div>
+          </div>
+          <div>
+            <label>الألوان المستخدمة في التاسك</label>
+            <button class="btn secondary sm" id="fmAddColor" type="button">+ إضافة لون مستخدم</button>
+          </div>
+        </div>
+
+        <div id="fmColorsWrap" style="margin-top:10px"></div>
+        <div class="hint" style="color:var(--muted);margin-top:10px">* اختيارات الألوان تُبنى حسب الألوان المتاحة لنفس Unique Spec Key (قراءة فقط من mzj-agenda).</div>
+      </div>
+      <div class="m-foot">
+        <button class="btn secondary" id="finishCancel" type="button">إلغاء</button>
+        <button class="btn" id="finishSave" type="button">تم الانتهاء</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="dailyTaskModal">
+    <div class="sheet" style="width:min(720px, 100%)">
+      <div class="m-head">
+        <strong>إضافة مهمة يومية</strong>
+        <button class="btn secondary sm" id="dailyTaskClose" type="button">✖</button>
+      </div>
+      <div class="m-body">
+        <div class="grid2">
+          <div class="speckey-full">
+            <label>عنوان المهمة</label>
+            <input id="dailyTaskTitle" type="text" placeholder="مثال: تجهيز 3 ريل" />
+          </div>
+        </div>
+        <div>
+          <label>وصف المهمة</label>
+          <textarea id="dailyTaskDesc" placeholder="اكتب التفاصيل..." style="min-height:120px"></textarea>
+        </div>
+        <div class="hint" style="color:var(--muted)">سيتم حفظ المهمة داخل الشهر/الأسبوع/اليوم المختارين.</div>
+      </div>
+      <div class="m-foot">
+        <button class="btn secondary" id="dailyTaskCancel" type="button">إلغاء</button>
+        <button class="btn" id="dailyTaskSave" type="button">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+<div class="toast" id="toast">...</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script type="module">
+    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged, signOut, signInAnonymously,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, setPersistence, browserLocalPersistence
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+    import {
+      getFirestore, collection, doc, getDoc, getDocs,
+      addDoc, setDoc, updateDoc, deleteDoc,
+      query, where, orderBy, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDXXDsJKnKb_0HynSTnP22QYc0yrUdx-cw",
+      authDomain: "mzj-workspace-c7d4e.firebaseapp.com",
+      projectId: "mzj-workspace-c7d4e",
+      storageBucket: "mzj-workspace-c7d4e.firebasestorage.app",
+      messagingSenderId: "1080687990992",
+      appId: "1:1080687990992:web:4a496249bbf330fc37a6d5"
+    };
+
+  // ===== Unique Spec Key Source (Agenda DB) =====
+  // يتم استخدام هذه القاعدة فقط لجلب خيارات الـ Spec Key داخل مودال إنشاء التاسك (بدون إضافة صفحة جديدة).
+  const agendaFirebaseConfig = {
+    apiKey: "AIzaSyC614bGqnYf4Q-weTNemzWENTpa8DjGeHw",
+    authDomain: "mzj-agenda.firebaseapp.com",
+    projectId: "mzj-agenda",
+    storageBucket: "mzj-agenda.firebasestorage.app",
+    messagingSenderId: "834700407721",
+    appId: "1:834700407721:web:75c17665d4f032fd65cab8"
+  };
+
+
+    // Workspace App (الصفحة الحالية)
+    if(!getApps().length) initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore();
+
+    // Secondary app instance for creating users without affecting current session
+    const adminCreateApp = initializeApp(firebaseConfig, "adminCreate");
+    const adminCreateAuth = getAuth(adminCreateApp);
+
+
+    // Agenda/Stock App (مشروع مختلف) — لتعبئة Unique Spec Key
+    // ملاحظة: لازم Anonymous Auth يكون مفعّل في مشروع mzj-agenda + Rules تسمح بالقراءة.
+    const agendaApp = initializeApp(agendaFirebaseConfig, "agenda");
+    const agendaAuth = getAuth(agendaApp);
+    const agendaDb = getFirestore(agendaApp);
+
+    const $ = (id)=> document.getElementById(id);
+    const appEl = $("app");
+    const toastEl = $("toast");
+
+    // ===== Auth Gate helpers (بدون صفحة login.html) =====
+    const authGate = $("authGate");
+    const authErr = $("authErr");
+    const loginEmail = $("loginEmail");
+    const loginPass = $("loginPass");
+    const btnLogin = $("btnLogin");
+
+    function showAuth(msg=null){
+      authErr.classList.toggle("show", !!msg);
+      authErr.textContent = msg || "";
+      authGate.classList.add("show");
+      appEl.classList.add("hide-app");
+    }
+    function hideAuth(){
+      authGate.classList.remove("show");
+      appEl.classList.remove("hide-app");
+      authErr.classList.remove("show");
+    }
+
+    function toast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      setTimeout(()=> toastEl.classList.remove("show"), 2200);
+    }
+    function escapeHtml(s){
+      return String(s??"")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    
+    
+    // Admin emails (للصلاحيات + مزامنة نسخة المخزون داخل قاعدة بيانات الـ Workspace)
+    const ADMIN_EMAILS = [
+      "hossamzayan10@gmail.com",
+      "an9036663@gmail.com",
+      "mr.ahmed_rashed@outlook.sa"
+    ];
+    function isAdminEmail(email){
+      const e = String(email||"").toLowerCase().trim();
+      return ADMIN_EMAILS.includes(e);
+    }
+
+    // Cache داخل قاعدة بيانات الـ Workspace (نفس مشروع الصفحة الجديدة)
+    // يتم حفظ نسخة محدثة من stock هنا لتستخدم لاحقًا بدون الاعتماد المباشر على مشروع المخزون
+    const SPEC_CACHE_DOC = doc(db, "spec_keys_cache", "v1");
+    let lastStockHash = "";
+    async function upsertSpecCache(stockArr){
+      try{
+        const email = auth.currentUser?.email || "";
+        if(!isAdminEmail(email)) return; // كتابة الكاش للأدمن فقط
+        const payload = Array.isArray(stockArr) ? stockArr : [];
+        const h = await stockHash(payload);
+        if(h && h === lastStockHash) return;
+        lastStockHash = h;
+        await setDoc(SPEC_CACHE_DOC, {
+          stock: payload,
+          updatedAt: serverTimestamp(),
+          updatedBy: email
+        }, { merge:true });
+      }catch(e){
+        console.warn("upsertSpecCache failed", e);
+      }
+    }
+    function stockHash(arr){
+      try{
+        // hash خفيف لتفادي كتابة متكررة
+        const txt = JSON.stringify(arr);
+        let hash = 0;
+        for(let i=0;i<txt.length;i++){
+          hash = ((hash<<5)-hash) + txt.charCodeAt(i);
+          hash |= 0;
+        }
+        return Promise.resolve(String(hash));
+      }catch(e){
+        return Promise.resolve("");
+      }
+    }
+
+// ===== Spec Key Options (بدون ألوان) =====
+    const SPEC_DATALIST_ID = "specKeyList";
+    // كل الـ Spec Keys القادمة من المخزون (بعد فلتر الأماكن) قبل فلتر المونتاج
+    let SPEC_KEY_ALL = [];
+    // اللي هنظهره داخل الداتا ليست
+    let SPEC_KEY_OPTIONS = []
+    let SPEC_KEY_SET = new Set();
+    let agendaUnsub = null;
+
+    let AGENDA_STOCK = [];
+
+    function cleanSpec(v){
+      return String(v ?? "").replace(/[--]/g,"").replace(/\s+/g," ").trim();
+    }
+
+    function buildSpecKeyNoColors(rec){
+      const car = cleanSpec(rec.car);
+      const variant = cleanSpec(rec.variant);
+      const year = cleanSpec(rec.modelYear);
+      const parts = [car, variant, year].map(x=> x || "-");
+      return parts.join(" | ");
+    }
+
+    const SOLD_STATES_SPEC = ["مباع تحت التسليم","مباع تم التسليم","الوكالة"];
+    function isSoldRowForSpec(rec){
+      const placeRaw = cleanSpec(rec.place || rec.location || rec["المكان"] || "");
+      if(!placeRaw) return false;
+      return SOLD_STATES_SPEC.some(st => placeRaw.includes(st));
+    }
+
+    // يجهز كل الـ Spec Keys من المخزون (بدون الوكالة/المباع) ثم يطبق فلتر "غير معمول لها مونتاج"
+    function setSpecKeyOptionsFromStock(stockArr){
+      try{
+        const set = new Set();
+        for(const r of (Array.isArray(stockArr)?stockArr:[])){
+          if(isSoldRowForSpec(r)) continue;
+          const key = buildSpecKeyNoColors(r);
+          if(key && key !== "- | - | -") set.add(key);
+        }
+        SPEC_KEY_ALL = Array.from(set).sort((a,b)=> a.localeCompare(b,"ar"));
+        applySpecKeyNotMontagedFilter();
+      }catch(e){
+        console.warn("setSpecKeyOptionsFromStock error", e);
+      }
+    }
+
+    // يظهر فقط السيارات اللي "لسة مش معمولها مونتاج" حسب stock_tasks في مشروع workspace
+    function applySpecKeyNotMontagedFilter(){
+      try{
+        // لو مش لاقيين بيانات مهام لسه، اعرض الكل مؤقتًا
+        const list = Array.isArray(SPEC_KEY_ALL) ? SPEC_KEY_ALL : [];
+        if(!STOCK_TASKS_MAP || STOCK_TASKS_MAP.size === 0){
+          SPEC_KEY_OPTIONS = list;
+        }else{
+          SPEC_KEY_OPTIONS = list.filter(k=>{
+            const t = STOCK_TASKS_MAP.get(String(k)) || {};
+            // يعتبر "تم المونتاج" فقط لو montage == نعم
+            return String(t.montage || "").trim() !== "نعم";
+          });
+        }
+        renderSpecKeyDatalist();
+      }catch(e){
+        console.warn("applySpecKeyNotMontagedFilter error", e);
+        SPEC_KEY_OPTIONS = Array.isArray(SPEC_KEY_ALL) ? SPEC_KEY_ALL : [];
+        renderSpecKeyDatalist();
+      }
+    }
+
+    function renderSpecKeyDatalist(){
+      const dl = document.getElementById(SPEC_DATALIST_ID);
+      if(!dl) return;
+      SPEC_KEY_SET = new Set((SPEC_KEY_OPTIONS||[]).map(k=>String(k).trim()));
+      dl.innerHTML = SPEC_KEY_OPTIONS.map(k=> `<option value="${escapeAttr(k)}"></option>`).join("");
+    }
+
+    // init live source
+    
+    function initLocalSpecCache(){
+      try{
+        onSnapshot(SPEC_CACHE_DOC, (snap)=>{
+          if(!snap.exists()) return;
+          const d = snap.data() || {};
+          if(Array.isArray(d.stock) && d.stock.length){
+            setSpecKeyOptionsFromStock(d.stock);
+          }
+        });
+      }catch(e){
+        console.warn("initLocalSpecCache failed", e);
+      }
+    }
+
+function initSpecKeySource(){
+      try{
+        // لازم يكون في Auth داخل مشروع المخزون (Firebase Project مختلف)
+        // هنستخدم Anonymous Auth علشان نقدر نقرأ الداتا (لو Anonymous مفعّل في المشروع).
+        signInAnonymously(agendaAuth).then(()=>{
+          const stateRef = doc(agendaDb, "mzj_admin_state", "v1");
+          if(agendaUnsub) agendaUnsub();
+          agendaUnsub = onSnapshot(stateRef, (snap)=>{
+            if(!snap.exists()) return;
+            const d = snap.data() || {};
+            setSpecKeyOptionsFromStock(d.stock || []);
+            AGENDA_STOCK = Array.isArray(d.stock) ? d.stock : [];
+            if(MODE==="stock") renderStockTab();
+            // حفظ نسخة محدثة داخل قاعدة بيانات الـ Workspace
+            upsertSpecCache(d.stock || []);
+          }, (err)=>{
+            console.warn("SpecKey source snapshot error", err);
+            toast("⚠️ فشل تحميل Unique Spec Key (تحقق من Rules/Anonymous Auth في مشروع المخزون)");
+          });
+        }).catch((err)=>{
+          console.warn("agenda anonymous auth failed", err);
+          toast("⚠️ فشل تحميل Unique Spec Key (Anonymous Auth غير مفعّل في مشروع المخزون)");
+        });
+      }catch(e){
+        console.warn("initSpecKeySource failed", e);
+        toast("⚠️ فشل تحميل Unique Spec Key");
+      }
+    }
+
+    function escapeAttr(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;"); }
+function initials(name){
+      const n = (name||"M").trim();
+      const parts = n.split(/\s+/).filter(Boolean);
+      if(parts.length===1) return parts[0][0].toUpperCase();
+      return (parts[0][0]+parts[1][0]).toUpperCase();
+    }
+
+    $("sbToggle").addEventListener("click", ()=>{
+      appEl.classList.toggle("collapsed");
+      localStorage.setItem("ws_sb_collapsed", appEl.classList.contains("collapsed") ? "1" : "0");
+    });
+    if(localStorage.getItem("ws_sb_collapsed")==="1") appEl.classList.add("collapsed");
+
+    const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard"), daily: $("viewDaily"), stock: $("viewStock"), admin: $("viewAdmin") };
+
+    // Last rendered rows for Excel export (stock tab)
+    let __LAST_STOCK_ROWS = [];
+
+
+    // stock tab search (فلتر فوري داخل جدول stock)
+    const stockSearchEl = document.getElementById('stockSearch');
+    if(stockSearchEl){
+      stockSearchEl.addEventListener('input', ()=>{
+        if(MODE==='stock') renderStockTab();
+      });
+    }
+
+    // Export Excel (stock tab)
+    const btnStockExport = document.getElementById('btnStockExport');
+    if(btnStockExport){
+      btnStockExport.addEventListener('click', ()=>{
+        try{
+          exportStockToExcel(__LAST_STOCK_ROWS);
+        }catch(err){
+          console.error(err);
+          toast('⚠️ تعذر تصدير Excel');
+        }
+      });
+    }
+
+    function exportStockToExcel(rows){
+      if(!rows || !rows.length){
+        toast('لا توجد بيانات للتصدير');
+        return;
+      }
+      if(typeof XLSX==='undefined'){
+        toast('⚠️ مكتبة Excel لم يتم تحميلها');
+        return;
+      }
+      const data = rows.map((r,i)=>({
+        'م': i+1,
+        'Unique Spec Key': r.specKey||'',
+        'العدد': r.count||0,
+        'تصوير': r.photo||'',
+        'مونتاج': r.montage||'',
+        'تفاصيل المونتاج': r.montageDetails||'',
+        'داخل الأجندة': r.inAgenda||'',
+        'الشهر': r.agendaMonth||'',
+        'السنة': r.agendaYear||''
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'stock');
+      const now = new Date();
+      const pad = (n)=> String(n).padStart(2,'0');
+      const fname = `stock_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.xlsx`;
+      XLSX.writeFile(wb, fname);
+    }
+
+    function showView(key){
+      Object.values(views).forEach(v=> v.style.display="none");
+      views[key].style.display="";
+    }
+
+    let CURRENT_USER = null;
+    let CURRENT_ROLE = "member";
+    let USERS = [];
+
+    // ===== Persist last opened tab (refresh keeps same tab) =====
+    const LAST_VIEW_KEY = "ws_last_view";
+    function saveLastView(view, extra={}){
+      try{ localStorage.setItem(LAST_VIEW_KEY, JSON.stringify({view, ...extra})); }catch(e){}
+    }
+    async function restoreLastView(){
+      let state=null;
+      try{ state = JSON.parse(localStorage.getItem(LAST_VIEW_KEY)||"null"); }catch(e){ state=null; }
+      if(!state || !state.view){ openHome(); return; }
+
+      if(state.view==="home") return openHome();
+      if(state.view==="list") return openList(state.type||"agenda");
+      if(state.view==="daily") return openDaily();
+      if(state.view==="stock") return openStock();
+      if(state.view==="admin") return openAdmin();
+      if(state.view==="board"){
+        try{
+          if(state.workspaceId){
+            const snap = await getDoc(doc(db,"workspaces", state.workspaceId));
+            if(snap.exists()) return openBoard({id:snap.id, ...(snap.data()||{})});
+          }
+        }catch(e){}
+        return openHome();
+      }
+      return openHome();
+    }
+
+let MODE = "home";
+    let LIST_TYPE = null;
+    let CURRENT_WORKSPACE = null;
+    let CURRENT_TASK = null;
+
+    // Board tasks filter (agenda only)
+    let BOARD_USER_FILTER_UID = "";
+    let BOARD_TASKS_ALL = [];
+
+    let unsubWorkspaces = null;
+    let unsubTasks = null;
+
+    $("btnCreateAgenda").addEventListener("click", ()=> openBoardModal("agenda", "create"));
+    $("btnCreateCampaign").addEventListener("click", ()=> openBoardModal("campaign", "create"));
+    $("btnBack").addEventListener("click", ()=> {
+      if(MODE==="board") openList(LIST_TYPE);
+      else openHome();
+    });
+
+    function setNavActive(which){
+      ["navHome","navAgendas","navCampaigns","navDaily","navStock","navAdmin"].forEach(id=>{
+        $(id).classList.toggle("active", id===which);
+      });
+    }
+    $("navHome").addEventListener("click", ()=> openHome());
+    $("navAgendas").addEventListener("click", ()=> openList("agenda"));
+    $("navCampaigns").addEventListener("click", ()=> openList("campaign"));
+
+    $("navDaily").addEventListener("click", ()=> openDaily());
+
+    $("navDaily").addEventListener("click", ()=> openDaily());
+
+    $("navStock").addEventListener("click", ()=> openStock());
+
+    $("navAdmin").addEventListener("click", ()=> openAdmin());
+
+    $("goAgendas").addEventListener("click", ()=> openList("agenda"));
+    $("goCampaigns").addEventListener("click", ()=> openList("campaign"));
+
+    $("btnLogout").addEventListener("click", async ()=>{
+      await signOut(auth);
+      showAuth("تم تسجيل الخروج. سجّل دخول مرة أخرى.");
+    });
+
+    // تثبيت الجلسة محليًا (علشان الريفريش مايرجعك لأي صفحة)
+    setPersistence(auth, browserLocalPersistence).catch((e)=>{
+      console.warn("setPersistence failed", e);
+    });
+
+    async function doLogin(){
+      const email = (loginEmail.value||"").trim();
+      const pass = (loginPass.value||"").trim();
+      if(!email || !pass) return showAuth("اكتب البريد وكلمة المرور");
+      btnLogin.disabled = true;
+      btnLogin.textContent = "جاري الدخول...";
+      try{
+        await signInWithEmailAndPassword(auth, email, pass);
+        hideAuth();
+      }catch(err){
+        console.warn("login failed", err);
+        const code = err?.code || "";
+        let msg = "فشل تسجيل الدخول. تحقق من البيانات.";
+        if(code.includes("auth/invalid-credential")) msg = "البريد أو كلمة المرور غير صحيحة.";
+        if(code.includes("auth/user-not-found")) msg = "هذا البريد غير موجود.";
+        if(code.includes("auth/wrong-password")) msg = "كلمة المرور غير صحيحة.";
+        if(code.includes("auth/too-many-requests")) msg = "محاولات كثيرة. جرّب بعد قليل.";
+        showAuth(msg);
+      }finally{
+        btnLogin.disabled = false;
+        btnLogin.textContent = "تسجيل الدخول";
+      }
+    }
+
+    btnLogin.addEventListener("click", doLogin);
+    loginPass.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
+    loginEmail.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
+
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ showAuth(); return; }
+      CURRENT_USER = user;
+      hideAuth();
+
+      let displayName = user.email || "مستخدم";
+      try{
+        const uSnap = await getDoc(doc(db, "users", user.uid));
+        if(uSnap.exists()){
+          const ud = uSnap.data() || {};
+          displayName = ud.name || ud.username || user.email || "مستخدم";
+          CURRENT_ROLE = ud.role || "member";
+        }
+      }catch{}
+
+      $("whoName").textContent = displayName;
+      $("whoRole").textContent = (CURRENT_ROLE==="admin" ? "مدير" : "عضو");
+      // show Admin tab for admins only
+      try{ $("navAdmin").style.display = (CURRENT_ROLE==="admin" ? "" : "none"); }catch(e){}
+      $("avatar").textContent = initials(displayName);
+
+      await loadUsers();
+      // مهام Tab stock (لا تمس mzj-agenda) — نحتاجها لتصفية Unique Spec Key "بدون مونتاج"
+      await loadStockTasksOnce();
+      restoreLastView();
+      listenKPIs();
+
+      // مصادر الـ Spec Key (1) كاش محلي داخل مشروع الـ Workspace + (2) مصدر حي من مشروع الـ Agenda
+      initLocalSpecCache();
+      initSpecKeySource();
+      wireAdminTab();
+    });
+
+    async function loadUsers(){
+      USERS = [];
+      try{
+        const snap = await getDocs(collection(db,"users"));
+        snap.forEach(d=>{
+          const u = d.data()||{};
+          USERS.push({
+            uid: d.id,
+            name: u.name || u.username || u.email || d.id.slice(0,6),
+            role: u.role || "member",
+            email: u.email || null,
+            createdAt: u.createdAt || null,
+            active: (u.active !== false)
+          });
+        });
+      }catch(err){ console.warn("users load failed", err); }
+
+      const sel = $("taskAssignee");
+      sel.innerHTML = `<option value="">— اختر يوزر —</option>`;
+      USERS.slice().sort((a,b)=> (a.name||"").localeCompare(b.name||"", "ar")).forEach(u=>{
+        const opt = document.createElement("option");
+        opt.value = u.uid;
+        opt.textContent = u.name + (u.role ? ` (${u.role})` : "");
+        sel.appendChild(opt);
+      });
+    }
+
+    
+
+    // ===== Admin Tab: Create new user (Auth + users/{uid}) =====
+    function setAdminMsg(msg, isErr=false){
+      const el = $("adminMsg");
+      if(!el) return;
+      el.style.color = isErr ? "var(--danger)" : "var(--muted)";
+      el.textContent = msg || "";
+    }
+
+    function setAdminUsersMsg(msg, isErr=false){
+      const el = $("adminUsersMsg");
+      if(!el) return;
+      el.style.color = isErr ? "var(--danger)" : "var(--muted)";
+      el.textContent = msg || "";
+    }
+
+    function fmtDateAny(v){
+      try{
+        if(!v) return "";
+        if(typeof v === "object" && typeof v.toDate === "function"){
+          const d = v.toDate();
+          return d.toLocaleDateString('ar-SA') + " " + d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+        }
+        if(typeof v === "number"){
+          const d = new Date(v);
+          return d.toLocaleDateString('ar-SA') + " " + d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+        }
+      }catch(e){}
+      return "";
+    }
+
+    function renderAdminUsersTable(){
+      const table = $("adminUsersTable");
+      if(!table) return;
+
+      const q = String($("adminUserSearch")?.value || "").trim().toLowerCase();
+      const list = USERS
+        .slice()
+        .filter(u=>{
+          const a = (u.name||"").toLowerCase();
+          const b = (u.email||"").toLowerCase();
+          const c = (u.uid||"").toLowerCase();
+          return !q || a.includes(q) || b.includes(q) || c.includes(q);
+        })
+        .sort((a,b)=> ((a.name||a.email||a.uid)||"").localeCompare((b.name||b.email||b.uid)||"", "ar"));
+
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th style="width:52px">#</th>
+            <th>الاسم</th>
+            <th>الإيميل</th>
+            <th style="width:160px">الصلاحية</th>
+            <th style="width:200px">تاريخ الإنشاء</th>
+            <th style="width:260px">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+
+      const tbody = table.querySelector('tbody');
+      if(!list.length){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="6" style="text-align:center;color:var(--muted);padding:18px">لا يوجد مستخدمين.</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      list.forEach((u, idx)=>{
+        const tr = document.createElement('tr');
+        const created = fmtDateAny(u.createdAt);
+        tr.innerHTML = `
+          <td>${idx+1}</td>
+          <td><b>${escapeHtml(u.name||"-")}</b></td>
+          <td>${escapeHtml(u.email||"-")}</td>
+          <td>
+            <select class="inp" data-role-sel="${escapeHtml(u.uid)}" style="min-width:140px">
+              <option value="member">member</option>
+              <option value="finisher">finisher</option>
+              <option value="admin">admin</option>
+            </select>
+          </td>
+          <td>${created || "-"}</td>
+          <td>
+            <div style="display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap">
+              <button class="btn sm" data-save-user="${escapeHtml(u.uid)}" type="button">حفظ</button>
+              <button class="btn secondary sm" data-reset-pass="${escapeHtml(u.uid)}" type="button">إعادة تعيين كلمة المرور</button>
+              <span class="pill" style="align-self:center">UID: ${escapeHtml(String(u.uid).slice(0,8))}…</span>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        // set default role
+        const sel = tr.querySelector(`[data-role-sel="${CSS.escape(u.uid)}"]`);
+        if(sel) sel.value = (u.role||"member");
+      });
+    }
+
+    function wireAdminTab(){
+      const btn = $("adminCreateUser");
+      if(!btn) return;
+
+      // Users list controls
+      const search = $("adminUserSearch");
+      const refresh = $("adminUsersRefresh");
+
+      const repaintUsers = () => {
+        renderAdminUsersTable();
+        setAdminUsersMsg(`الإجمالي: ${USERS.length} مستخدم`);
+      };
+
+      if(search){
+        search.addEventListener("input", ()=> repaintUsers());
+      }
+      if(refresh){
+        refresh.addEventListener("click", async ()=>{
+          if(CURRENT_ROLE !== "admin"){ setAdminUsersMsg("غير مسموح.", true); return; }
+          refresh.disabled = true;
+          try{
+            await loadUsers();
+            repaintUsers();
+            toast("✅ تم تحديث المستخدمين");
+          }catch(e){
+            setAdminUsersMsg("⚠️ فشل تحديث المستخدمين", true);
+          }finally{ refresh.disabled = false; }
+        });
+      }
+      $("adminClear").addEventListener("click", ()=>{
+        $("adminNewEmail").value = "";
+        $("adminNewPass").value = "";
+        $("adminNewName").value = "";
+        $("adminNewRole").value = "member";
+        setAdminMsg("");
+      });
+
+      btn.addEventListener("click", async ()=>{
+        if(CURRENT_ROLE !== "admin"){
+          setAdminMsg("غير مسموح — هذه الصفحة للمدير فقط.", true);
+          return;
+        }
+
+        const email = String($("adminNewEmail").value||"").trim().toLowerCase();
+        const pass  = String($("adminNewPass").value||"").trim();
+        const role  = String($("adminNewRole").value||"member").trim();
+        const name  = String($("adminNewName").value||"").trim();
+
+        if(!email || !pass){
+          setAdminMsg("اكتب البريد وكلمة المرور.", true);
+          return;
+        }
+        if(pass.length < 6){
+          setAdminMsg("كلمة المرور لازم تكون 6 أحرف أو أكثر.", true);
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "جاري الإنشاء...";
+        setAdminMsg("");
+
+        try{
+          // Create auth user via secondary auth instance (does NOT sign out current admin)
+          const cred = await createUserWithEmailAndPassword(adminCreateAuth, email, pass);
+          const newUser = cred.user;
+
+          // Create users/{uid} document in same workspace Firestore
+          await setDoc(doc(db, "users", newUser.uid), {
+            email,
+            name: name || email.split("@")[0],
+            role: role || "member",
+            createdAt: serverTimestamp(),
+            createdBy: CURRENT_USER?.uid || null
+          }, { merge: true });
+
+          setAdminMsg(`✅ تم إنشاء المستخدم وحفظ الصلاحية: ${role}`);
+          toast("✅ تم إنشاء المستخدم");
+          await loadUsers();
+          repaintUsers();
+
+          // keep secondary auth clean
+          try{ await signOut(adminCreateAuth); }catch(e){}
+
+        }catch(err){
+          console.warn("admin create user failed", err);
+          const code = err?.code || "";
+          let msg = "فشل إنشاء المستخدم.";
+          if(code.includes("auth/email-already-in-use")) msg = "هذا البريد موجود بالفعل.";
+          if(code.includes("auth/invalid-email")) msg = "البريد غير صالح.";
+          if(code.includes("auth/weak-password")) msg = "كلمة المرور ضعيفة.";
+          setAdminMsg("⚠️ " + msg, true);
+        }finally{
+          btn.disabled = false;
+          btn.textContent = "➕ إنشاء المستخدم";
+        }
+      });
+
+      // Table actions (save role / reset password)
+      const table = $("adminUsersTable");
+      if(table){
+        table.addEventListener("click", async (e)=>{
+          const saveBtn = e.target.closest("[data-save-user]");
+          const resetBtn = e.target.closest("[data-reset-pass]");
+
+          if(saveBtn){
+            if(CURRENT_ROLE !== "admin"){ setAdminUsersMsg("غير مسموح.", true); return; }
+            const uid = saveBtn.getAttribute("data-save-user");
+            const sel = table.querySelector(`[data-role-sel="${CSS.escape(uid)}"]`);
+            const newRole = String(sel?.value || "member");
+            saveBtn.disabled = true;
+            try{
+              await updateDoc(doc(db,"users", uid), { role: newRole, updatedAt: serverTimestamp(), updatedBy: CURRENT_USER?.uid || null });
+              // update local cache
+              const i = USERS.findIndex(x=> x.uid===uid);
+              if(i>=0) USERS[i].role = newRole;
+              toast("✅ تم حفظ الصلاحية");
+              setAdminUsersMsg("تم تحديث الصلاحيات بنجاح");
+              // refresh assignee dropdown labels
+              await loadUsers();
+              repaintUsers();
+            }catch(err){
+              console.warn("save user role failed", err);
+              setAdminUsersMsg("⚠️ فشل حفظ الصلاحية (راجع القواعد)", true);
+            }finally{
+              saveBtn.disabled = false;
+            }
+            return;
+          }
+
+          if(resetBtn){
+            if(CURRENT_ROLE !== "admin"){ setAdminUsersMsg("غير مسموح.", true); return; }
+            const uid = resetBtn.getAttribute("data-reset-pass");
+            const u = USERS.find(x=> x.uid===uid);
+            const email = (u?.email || "").trim();
+            if(!email){ setAdminUsersMsg("لا يوجد إيميل محفوظ لهذا المستخدم.", true); return; }
+            resetBtn.disabled = true;
+            try{
+              await sendPasswordResetEmail(auth, email);
+              toast("✅ تم إرسال رابط إعادة التعيين");
+              setAdminUsersMsg(`تم إرسال رابط إعادة تعيين كلمة المرور إلى: ${email}`);
+            }catch(err){
+              console.warn("reset pass failed", err);
+              setAdminUsersMsg("⚠️ فشل إرسال رابط إعادة التعيين", true);
+            }finally{ resetBtn.disabled = false; }
+            return;
+          }
+        });
+      }
+
+      // initial paint
+      repaintUsers();
+    }
+
+let unsubKpiWs=null, unsubKpiTasks=null;
+    function listenKPIs(){
+      if(unsubKpiWs) unsubKpiWs();
+      if(unsubKpiTasks) unsubKpiTasks();
+
+      unsubKpiWs = onSnapshot(collection(db,"workspaces"), (snap)=>{
+        let agendas=0, campaigns=0;
+        snap.forEach(d=>{
+          const x = d.data()||{};
+          if(x.active===false) return;
+          if(x.type==="agenda") agendas++;
+          if(x.type==="campaign") campaigns++;
+        });
+        $("kpiAgendas").textContent = agendas;
+        $("kpiCampaigns").textContent = campaigns;
+      });
+
+      unsubKpiTasks = onSnapshot(collection(db,"workspace_tasks"), (snap)=>{
+        let a=0,c=0;
+        snap.forEach(d=>{
+          const t=d.data()||{};
+          if(t.type==="agenda") a++;
+          if(t.type==="campaign") c++;
+        });
+        $("kpiAgendaTasks").textContent = a;
+        $("kpiCampaignTasks").textContent = c;
+      });
+    }
+
+
+
+    function openStock(){
+      MODE="stock"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      saveLastView("stock");
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+      if(unsubDaily){unsubDaily();unsubDaily=null;}
+
+      setNavActive("navStock");
+      $("pageTitle").textContent = "stock";
+      $("pageDesc").textContent  = "";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+
+      showView("stock");
+      renderStockTab();
+    }
+
+    function openAdmin(){
+      MODE="admin"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+      if(unsubDaily){unsubDaily();unsubDaily=null;}
+
+      saveLastView("admin");
+      setNavActive("navAdmin");
+      $("pageTitle").textContent = "admin";
+      $("pageDesc").textContent  = "";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+
+      showView("admin");
+    }
+
+    // ===== Daily Task =====
+    let unsubDaily = null;
+    let DAILY_DOCS = [];
+    let DAILY_CTX = null;
+
+    function fillDailyYearOptions(){
+      const ySel = $("dailyYear");
+      if(!ySel) return;
+      const nowY = new Date().getFullYear();
+      const years = [nowY-1, nowY, nowY+1, nowY+2];
+      ySel.innerHTML = years.map(y=> `<option value="${y}">${y}</option>`).join("");
+      ySel.value = String(nowY);
+    }
+
+    function getDailyMonthKey(){
+      const m = String($("dailyMonth").value||"").trim();
+      const y = String($("dailyYear").value||"").trim();
+      if(!m || !y) return "";
+      return `${y}-${m}`;
+    }
+
+    function openDaily(){
+      MODE="daily"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      saveLastView("daily");
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+      if(unsubDaily){unsubDaily();unsubDaily=null;}
+      if(unsubDaily){unsubDaily();unsubDaily=null;}
+
+      setNavActive("navDaily");
+      $("pageTitle").textContent = "Daily Task";
+      $("pageDesc").textContent  = "اختر الشهر والسنة ثم أضف مهام يومية لكل يوم (السبت → الخميس) عبر 4 أسابيع.";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+
+      fillDailyYearOptions();
+      const now = new Date();
+      const mm = String(now.getMonth()+1).padStart(2,"0");
+      if(!$("dailyMonth").value) $("dailyMonth").value = mm;
+      showView("daily");
+      loadDaily();
+    }
+
+    function loadDaily(){
+      const key = getDailyMonthKey();
+      const emptyEl = $("dailyEmpty");
+      const weeksWrap = $("dailyWeeks");
+      if(!key){
+        if(unsubDaily){unsubDaily();unsubDaily=null;}
+        DAILY_DOCS = [];
+        emptyEl.textContent = "اختر الشهر والسنة لعرض الأسابيع.";
+        emptyEl.style.display = "";
+        weeksWrap.style.display = "none";
+        return;
+      }
+
+      emptyEl.style.display = "none";
+      weeksWrap.style.display = "";
+
+      if(unsubDaily){unsubDaily();unsubDaily=null;}
+
+      const qy = query(
+        collection(db,"daily_tasks"),
+        where("monthKey","==", key)
+      );
+      unsubDaily = onSnapshot(qy, (snap)=>{
+        const items=[];
+        snap.forEach(d=> items.push({id:d.id, ...(d.data()||{})}));
+        items.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+        DAILY_DOCS = items;
+        renderDailyWeeks(key, items);
+      }, (err)=>{
+        console.error(err);
+        toast("⚠️ فشل تحميل Daily Task");
+      });
+    }
+
+    function renderDailyWeeks(monthKey, docs){
+      const weeksWrap = $("dailyWeeks");
+      const emptyEl = $("dailyEmpty");
+      if(!weeksWrap) return;
+
+      const days = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"];
+
+      if(!docs.length){
+        emptyEl.textContent = "لا توجد مهام لهذا الشهر.";
+        emptyEl.style.display = "";
+      }else{
+        emptyEl.style.display = "none";
+      }
+
+      const byWeekDay = {};
+      for(const t of docs){
+        const w = Number(t.weekIndex||0);
+        const d = Number(t.dayIndex||0);
+        const k = `${w}-${d}`;
+        (byWeekDay[k] ||= []).push(t);
+      }
+
+      const weeksHtml = [1,2,3,4].map(w=>{
+        const daysHtml = days.map((dn, di)=>{
+          const list = (byWeekDay[`${w}-${di}`]||[]);
+          const todo = list.filter(x=> String(x.status||"todo")!=="done");
+          const done = list.filter(x=> String(x.status||"")==="done");
+
+          const renderTask = (t, isDone)=>{
+            const title = escapeHtml(t.title||"");
+            const desc  = escapeHtml(t.desc||"");
+            const notes = escapeHtml(t.notes||"");
+            const doneBtn = isDone ? `<span class="badge" style="background:#f0fdf4;border-color:rgba(22,163,74,.22);color:#0f5a2a"><span class="dot" style="background:#16a34a"></span>تم</span>` : `<button class="btn sm" data-act="done" data-id="${escapeAttr(t.id)}" type="button">تم الانتهاء</button>`;
+            return `
+              <div class="daily-task" data-task="${escapeAttr(t.id)}">
+                <div class="tt">${title}</div>
+                ${desc ? `<div class="td">${desc}</div>` : ``}
+                <textarea class="inp" data-act="note" data-id="${escapeAttr(t.id)}" placeholder="ملاحظات...">${notes}</textarea>
+                <div class="row">${doneBtn}</div>
+              </div>
+            `;
+          };
+
+          const todoHtml = todo.map(t=> renderTask(t,false)).join("") || `<div class="hint" style="color:var(--muted)">—</div>`;
+          const doneHtml = done.map(t=> renderTask(t,true)).join("") || `<div class="hint" style="color:var(--muted)">—</div>`;
+
+          return `
+            <div class="day-block">
+              <div class="day-top">
+                <div class="dname">${dn}</div>
+                <button class="btn secondary sm" data-act="add" data-week="${w}" data-day="${di}" type="button">➕ إضافة</button>
+              </div>
+              <div class="day-cols">
+                <div class="day-col">
+                  <div class="col-label">قائمة المهام</div>
+                  ${todoHtml}
+                </div>
+                <div class="day-col done">
+                  <div class="col-label">تم الانتهاء</div>
+                  ${doneHtml}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <div class="week-card">
+            <div class="week-head">
+              <strong>الأسبوع ${w}</strong>
+              <span class="muted" style="font-size:12px">${escapeHtml(monthKey)}</span>
+            </div>
+            <div class="week-body">${daysHtml}</div>
+          </div>
+        `;
+      }).join("");
+
+      weeksWrap.innerHTML = `<div class="daily-weeks">${weeksHtml}</div>`;
+      bindDailyActions(monthKey);
+    }
+
+    function bindDailyActions(monthKey){
+      const wrap = $("dailyWeeks");
+      if(!wrap) return;
+
+      wrap.querySelectorAll("[data-act='add']").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const w = Number(btn.getAttribute("data-week")||"0");
+          const d = Number(btn.getAttribute("data-day")||"0");
+          openDailyTaskModal({monthKey, weekIndex:w, dayIndex:d});
+        });
+      });
+
+      wrap.querySelectorAll("[data-act='done']").forEach(btn=>{
+        btn.addEventListener("click", async ()=>{
+          const id = btn.getAttribute("data-id");
+          if(!id) return;
+          btn.disabled = true;
+          try{
+            await updateDoc(doc(db,"daily_tasks", id), { status:"done", doneAt: serverTimestamp() });
+            toast("تم نقل المهمة إلى تم الانتهاء");
+          }catch(e){
+            console.error(e);
+            toast("⚠️ لم يتم تحديث المهمة");
+          }finally{
+            btn.disabled = false;
+          }
+        });
+      });
+
+      // Notes (simple debounce)
+      const timers = new Map();
+      wrap.querySelectorAll("textarea[data-act='note']").forEach(tx=>{
+        tx.addEventListener("input", ()=>{
+          const id = tx.getAttribute("data-id");
+          if(!id) return;
+          if(timers.has(id)) clearTimeout(timers.get(id));
+          const t = setTimeout(async ()=>{
+            try{ await updateDoc(doc(db,"daily_tasks", id), { notes: tx.value||"" }); }catch(e){ console.warn(e); }
+          }, 550);
+          timers.set(id, t);
+        });
+      });
+    }
+
+    function openDailyTaskModal(ctx){
+      DAILY_CTX = ctx;
+      $("dailyTaskTitle").value = "";
+      $("dailyTaskDesc").value = "";
+      $("dailyTaskModal").classList.add("show");
+    }
+
+    function closeDailyTaskModal(){
+      $("dailyTaskModal").classList.remove("show");
+      DAILY_CTX = null;
+    }
+
+    $("dailyTaskClose").addEventListener("click", closeDailyTaskModal);
+    $("dailyTaskCancel").addEventListener("click", closeDailyTaskModal);
+    $("dailyTaskModal").addEventListener("click", (e)=>{ if(e.target===$("dailyTaskModal")) closeDailyTaskModal(); });
+
+    $("dailyTaskSave").addEventListener("click", async ()=>{
+      const title = (($("dailyTaskTitle").value)||"").trim();
+      const desc = (($("dailyTaskDesc").value)||"").trim();
+      if(!DAILY_CTX || !title) return toast("اكتب عنوان المهمة");
+      $("dailyTaskSave").disabled = true;
+      try{
+        await addDoc(collection(db,"daily_tasks"), {
+          monthKey: DAILY_CTX.monthKey,
+          year: Number(String(DAILY_CTX.monthKey).slice(0,4)),
+          month: String(DAILY_CTX.monthKey).slice(5,7),
+          weekIndex: Number(DAILY_CTX.weekIndex||0),
+          dayIndex: Number(DAILY_CTX.dayIndex||0),
+          title, desc,
+          notes: "",
+          status: "todo",
+          createdBy: CURRENT_USER ? CURRENT_USER.uid : "",
+          createdAt: serverTimestamp()
+        });
+        closeDailyTaskModal();
+        toast("تمت إضافة المهمة");
+      }catch(e){
+        console.error(e);
+        toast("⚠️ لم يتم حفظ المهمة");
+      }finally{
+        $("dailyTaskSave").disabled = false;
+      }
+    });
+
+    $("dailyMonth").addEventListener("change", ()=>{ if(MODE==="daily") loadDaily(); });
+    $("dailyYear").addEventListener("change", ()=>{ if(MODE==="daily") loadDaily(); });
+    $("dailyRefresh").addEventListener("click", ()=>{ if(MODE==="daily") loadDaily(); });
+
+
+    // نفس منطق فلتر صفحة المخزون:
+    // استبعاد السيارات اللي مكانها يحتوي على:
+    // (مباع تحت التسليم) أو (مباع تم التسليم)
+    // ملاحظة: أحيانًا بيكون النص فيه مسافات غير مرئية/تشكيل/كشيدة، فنعمل Normalization قوي.
+    function normalizeArabicText(input){
+      const s = String(input ?? "")
+        .replace(/\u00A0/g, " ")               // NBSP
+        .replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, "") // اتجاهات
+        .replace(/[\u064B-\u065F\u0670]/g, "") // تشكيل
+        .replace(/\u0640/g, "")               // كشيدة
+        .replace(/_/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      return s;
+    }
+
+    function extractLocationValue(rec){
+      if(!rec || typeof rec !== "object") return "";
+      const raw = (rec.location ?? rec.place ?? rec["المكان"] ?? rec["place"] ?? rec["Location"] ?? rec["LOC"] ?? rec["loc"]);
+      if(raw == null) return "";
+      if(typeof raw === "string" || typeof raw === "number") return String(raw);
+      if(Array.isArray(raw)) return raw.map(x=> String(x ?? "")).join(" ");
+      if(typeof raw === "object"){
+        // بعض الداتا بتكون Object بدل نص
+        const cand = raw.name ?? raw.label ?? raw.value ?? raw.text ?? raw.title;
+        if(cand != null) return String(cand);
+        try{ return JSON.stringify(raw); }catch(e){ return ""; }
+      }
+      return String(raw);
+    }
+
+    function isExcludedByInventoryFilter(rec){
+      // نفس منطق صفحة المخزون مع إضافة شرط "بدون الوكالة" حسب طلبك:
+      // استبعاد:
+      // 1) أي مكان يبدأ بـ "الوكالة :"
+      // 2) أي مكان يحتوي "مباع تحت التسليم" أو "مباع تم التسليم"
+      const locRaw = extractLocationValue(rec);
+      const loc = normalizeArabicText(locRaw);
+      if(!loc) return false;
+      const isAgency = loc.startsWith("الوكالة :");
+      const isUnder  = loc.includes("مباع تحت التسليم");
+      const isDone   = loc.includes("مباع تم التسليم");
+      return isAgency || isUnder || isDone;
+    }
+
+    // ===== Stock Aggregation (SpecKey) + Tasks Meta (Workspace DB) =====
+    let STOCK_TASKS_MAP = new Map();
+    let STOCK_TASKS_LOADED = false;
+
+    const MONTHS_AR = [
+      "يناير","فبراير","مارس","أبريل","مايو","يونيو",
+      "يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"
+    ];
+
+    function stockTaskDocId(specKey){
+      // Firestore doc ids cannot contain '/'
+      return encodeURIComponent(String(specKey||""));
+    }
+
+    async function loadStockTasksOnce(){
+      if(STOCK_TASKS_LOADED) return;
+      STOCK_TASKS_LOADED = true;
+      STOCK_TASKS_MAP = new Map();
+      try{
+        const snap = await getDocs(collection(db, "stock_tasks"));
+        snap.forEach(d=>{
+          const v = d.data() || {};
+          const k = v.specKey || decodeURIComponent(d.id);
+          if(k) STOCK_TASKS_MAP.set(String(k), { ...v, _id: d.id });
+        });
+      }catch(e){
+        console.warn('loadStockTasksOnce', e);
+      }finally{
+        // بعد تحميل مهام الاستوك، طبق فلتر "غير معمول لها مونتاج" على الداتا ليست
+        try{ applySpecKeyNotMontagedFilter(); }catch(_e){}
+      }
+    }
+
+    let stockSaveTimers = new Map();
+    function scheduleSaveStockTask(specKey, patch){
+      const key = String(specKey||"");
+      if(!key) return;
+      const prev = STOCK_TASKS_MAP.get(key) || { specKey: key };
+      const next = { ...prev, ...patch, specKey: key, updatedAt: serverTimestamp() };
+      STOCK_TASKS_MAP.set(key, next);
+      // حدث الداتا ليست فورًا (لأننا بنفلتر "غير معمول لها مونتاج")
+      try{ applySpecKeyNotMontagedFilter(); }catch(_e){}
+
+      // debounce per row
+      if(stockSaveTimers.has(key)) clearTimeout(stockSaveTimers.get(key));
+      stockSaveTimers.set(key, setTimeout(async ()=>{
+        try{
+          await setDoc(doc(db, "stock_tasks", stockTaskDocId(key)), next, { merge:true });
+        }catch(e){
+          console.warn('saveStockTask', e);
+        }
+      }, 350));
+    }
+
+    function ynSelect(value=""){
+      const v = String(value||"");
+      const y = v === "نعم" ? "selected" : "";
+      const n = v === "لا" ? "selected" : "";
+      return `<select class="stock-ctrl small" data-type="yn"><option value="">—</option><option value="نعم" ${y}>نعم</option><option value="لا" ${n}>لا</option></select>`;
+    }
+
+    function montageDetailsSelect(value=""){
+      const v = String(value||"");
+      const a = v === "صور + ريل مواصفات" ? "selected" : "";
+      const b = v === "صور فقط" ? "selected" : "";
+      return `<select class="stock-ctrl small" data-type="montageDetails"><option value="">—</option><option value="صور + ريل مواصفات" ${a}>صور + ريل مواصفات</option><option value="صور فقط" ${b}>صور فقط</option></select>`;
+    }
+
+    function monthSelect(value=""){
+      const v = String(value||"");
+      return `<select class="stock-ctrl small" data-type="month"><option value="">—</option>${MONTHS_AR.map(m=>`<option value="${escapeAttr(m)}" ${(m===v)?'selected':''}>${escapeHtml(m)}</option>`).join('')}</select>`;
+    }
+
+    function yearInput(value=""){
+      const v = String(value||"");
+      return `<input class="stock-ctrl small" data-type="year" inputmode="numeric" placeholder="السنة" value="${escapeAttr(v)}" />`;
+    }
+
+    async function renderStockTab(){
+      const emptyEl = $("stockEmpty");
+      const wrapEl  = $("stockTableWrap");
+      const tableEl = $("stockTable");
+      const searchEl = document.getElementById('stockSearch');
+
+      const arr = Array.isArray(AGENDA_STOCK) ? AGENDA_STOCK : [];
+      // فلتر stock (بدون الوكالة + بدون مباع تحت/تم التسليم)
+      const filtered = arr.filter(r => !isExcludedByInventoryFilter(r));
+
+      // تجميع حسب Unique Spec Key (بدون ألوان)
+      const groups = new Map();
+      for(const r of filtered){
+        const key = buildSpecKeyNoColors({
+          car: r.car ?? r["السيارة"],
+          variant: r.variant ?? r["البيان"],
+          modelYear: r.modelYear ?? r["الموديل"],
+        });
+        if(!key || key === "- | - | -") continue;
+        const g = groups.get(key) || { specKey:key, count:0 };
+        g.count += 1;
+        groups.set(key, g);
+      }
+
+      let rows = Array.from(groups.values());
+
+      // بحث داخل الـ SpecKey
+      const q = normalizeArabicText(searchEl?.value || "");
+      if(q){
+        rows = rows.filter(r => normalizeArabicText(r.specKey).includes(q));
+      }
+
+      // ترتيب أبجدي
+      rows.sort((a,b)=> a.specKey.localeCompare(b.specKey,'ar',{numeric:true,sensitivity:'base'}));
+
+      $("stockCount").textContent = rows.reduce((s,r)=> s + (r.count||0), 0);
+
+      if(!rows.length){
+        emptyEl.style.display = "";
+        wrapEl.style.display = "none";
+        tableEl.innerHTML = "";
+        return;
+      }
+
+      emptyEl.style.display = "none";
+      wrapEl.style.display = "";
+
+      // حمل بيانات التحكم المحفوظة (مرة واحدة)
+      await loadStockTasksOnce();
+
+      const months = [
+        "يناير","فبراير","مارس","أبريل","مايو","يونيو",
+        "يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"
+      ];
+
+      const yesNoOptions = (val)=>
+        `
+          <option value="" ${!val?'selected':''}>-</option>
+          <option value="نعم" ${val==='نعم'?'selected':''}>نعم</option>
+          <option value="لا" ${val==='لا'?'selected':''}>لا</option>`;
+
+      const montageDetailsOptions = (val)=>
+        `
+          <option value="" ${!val?'selected':''}>-</option>
+          <option value="صور + ريل مواصفات: نعم" ${val==='صور + ريل مواصفات: نعم'?'selected':''}>صور + ريل مواصفات: نعم</option>
+          <option value="صور + ريل مواصفات: لا" ${val==='صور + ريل مواصفات: لا'?'selected':''}>صور + ريل مواصفات: لا</option>`;
+
+      const cols = [
+        {k:'idx',  label:'م', w:70},
+        {k:'spec', label:'Unique Spec Key (الضغط للنسخ)', w:520},
+        {k:'count',label:'العدد', w:90},
+        {k:'photo',label:'تصوير', w:140},
+        {k:'montage',label:'مونتاج', w:140},
+        {k:'montageDetails',label:'تفاصيل المونتاج', w:240},
+        {k:'inAgenda',label:'داخل الأجندة', w:170},
+        {k:'agendaMonth',label:'الشهر', w:160},
+        {k:'agendaYear',label:'السنة', w:120},
+      ];
+
+      const colgroup = `<colgroup>${cols.map(c=>`<col style="width:${c.w}px">`).join('')}</colgroup>`;
+      const thead = `<thead><tr>${cols.map(c=>`<th>${escapeHtml(c.label)}</th>`).join('')}</tr></thead>`;
+
+
+
+      // Prepare rows for Excel export (merge saved controls)
+      __LAST_STOCK_ROWS = rows.map(r=>{
+        const saved = STOCK_TASKS_MAP.get(r.specKey) || {};
+        return {
+          specKey: r.specKey,
+          count: r.count || 0,
+          photo: saved.photo || '',
+          montage: saved.montage || '',
+          montageDetails: saved.montageDetails || '',
+          inAgenda: saved.inAgenda || '',
+          agendaMonth: saved.agendaMonth || '',
+          agendaYear: saved.agendaYear || ''
+        };
+      });
+      const tbody = `<tbody>${rows.map((r,i)=>{
+        const specKey = r.specKey;
+        const saved = STOCK_TASKS_MAP.get(specKey) || {};
+        const photo = saved.photo || '';
+        const montage = saved.montage || '';
+        const montageDetails = saved.montageDetails || '';
+        const inAgenda = saved.inAgenda || '';
+        const agendaMonth = saved.agendaMonth || '';
+        const agendaYear = saved.agendaYear || '';
+
+        const montageDisabled = montage !== 'نعم';
+        const agendaDisabled = inAgenda !== 'نعم';
+
+        return `
+          <tr data-spec="${escapeAttr(specKey)}">
+            <td class="center">${i+1}</td>
+            <td class="wrap">
+              <button type="button" class="btn secondary xs" data-copy="1" style="width:100%;justify-content:space-between;gap:8px">
+                <span style="text-align:right;white-space:normal;line-height:1.6">${escapeHtml(specKey)}</span>
+                <span class="stock-badge-mini">نسخ</span>
+              </button>
+            </td>
+            <td class="center">
+              <button type="button" class="btn secondary xs stock-count-btn" data-show-colors="1" title="عرض الألوان" style="min-width:44px;justify-content:center">
+                <span class="stock-badge-mini stock-count">${r.count}</span>
+              </button>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="photo">${yesNoOptions(photo)}</select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="montage">${yesNoOptions(montage)}</select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="montageDetails" ${montageDisabled ? 'disabled' : ''}>
+                ${montageDetailsOptions(montageDetails)}
+              </select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="inAgenda">${yesNoOptions(inAgenda)}</select>
+            </td>
+            <td>
+              <select class="stock-ctrl" data-field="agendaMonth" ${agendaDisabled ? 'disabled' : ''}>
+                <option value="" ${!agendaMonth?'selected':''}>-</option>
+                ${months.map(m=>`<option value="${escapeAttr(m)}" ${agendaMonth===m?'selected':''}>${escapeHtml(m)}</option>`).join('')}
+              </select>
+            </td>
+            <td>
+              <input class="stock-ctrl small" data-field="agendaYear" type="number" min="2000" max="2100" placeholder="YYYY" value="${escapeAttr(agendaYear)}" ${agendaDisabled ? 'disabled' : ''}/>
+            </td>
+          </tr>`;
+      }).join('')}</tbody>`;
+
+      tableEl.innerHTML = colgroup + thead + tbody;
+
+      // Delegation: copy + save
+      tableEl.onclick = (ev)=>{
+        const tr = ev.target.closest('tr');
+        const key = tr?.getAttribute('data-spec') || '';
+
+        const copyBtn = ev.target.closest('[data-copy]');
+        if(copyBtn){
+          if(key){
+            navigator.clipboard.writeText(key).then(()=> toast('تم النسخ')).catch(()=> toast('لم يتم النسخ'));
+          }
+          return;
+        }
+
+        const colorsBtn = ev.target.closest('[data-show-colors]');
+        if(colorsBtn){
+          if(key) openColorsModal(key);
+          return;
+        }
+      };
+
+      tableEl.onchange = (ev)=>{
+        const el = ev.target;
+        if(!(el instanceof HTMLSelectElement)) return;
+        const tr = el.closest('tr');
+        const key = tr?.getAttribute('data-spec') || '';
+        const field = el.getAttribute('data-field');
+        if(!key || !field) return;
+
+        const value = el.value || '';
+        scheduleSaveStockTask(key, { [field]: value });
+
+        // تفعيل/تعطيل الحقول التابعة
+        if(field === 'montage'){
+          const md = tr.querySelector('[data-field="montageDetails"]');
+          if(md){
+            md.disabled = (value !== 'نعم');
+            if(md.disabled){
+              md.value = '';
+              scheduleSaveStockTask(key, { montageDetails: '' });
+            }
+          }
+        }
+        if(field === 'inAgenda'){
+          const m = tr.querySelector('[data-field="agendaMonth"]');
+          const y = tr.querySelector('[data-field="agendaYear"]');
+          const dis = (value !== 'نعم');
+          if(m){
+            m.disabled = dis;
+            if(dis){ m.value=''; scheduleSaveStockTask(key,{agendaMonth:''}); }
+          }
+          if(y){
+            y.disabled = dis;
+            if(dis){ y.value=''; scheduleSaveStockTask(key,{agendaYear:''}); }
+          }
+        }
+      };
+
+      tableEl.oninput = (ev)=>{
+        const el = ev.target;
+        if(!(el instanceof HTMLInputElement)) return;
+        const tr = el.closest('tr');
+        const key = tr?.getAttribute('data-spec') || '';
+        const field = el.getAttribute('data-field');
+        if(!key || field !== 'agendaYear') return;
+        const v = String(el.value || '').trim();
+        scheduleSaveStockTask(key, { agendaYear: v });
+      };
+    }
+
+    function openHome(){
+      MODE="home"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      saveLastView("home");
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+      if(unsubDaily){unsubDaily();unsubDaily=null;}
+
+      setNavActive("navHome");
+      $("pageTitle").textContent = "Workspace — إدارة الأجندات والحملات";
+      $("pageDesc").textContent = "أنشئ أجندات للمهام أو حملات بتواريخ ووصف… ثم أضف تاسكات داخل الأعمدة.";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="";
+      $("btnCreateCampaign").style.display="";
+      $("homeMeta").textContent = "متصل بقاعدة البيانات الجديدة (mzj-workspace-c7d4e)";
+      showView("home");
+    }
+
+    $("btnRefresh").addEventListener("click", ()=> { if(LIST_TYPE) openList(LIST_TYPE); });
+
+    // Board filter (agenda): show tasks for selected user
+    $("boardUserFilter").addEventListener("change", (e)=>{
+      BOARD_USER_FILTER_UID = String(e.target.value||"");
+      if(MODE==="board" && CURRENT_WORKSPACE){
+        renderBoardColumns(CURRENT_WORKSPACE, applyBoardUserFilter(BOARD_TASKS_ALL));
+      }
+    });
+
+    function openList(type){
+      MODE = type==="agenda" ? "agendas" : "campaigns";
+      saveLastView("list", {type});
+      LIST_TYPE = type;
+      CURRENT_WORKSPACE = null;
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+      if(unsubDaily){unsubDaily();unsubDaily=null;}
+
+      setNavActive(type==="agenda" ? "navAgendas" : "navCampaigns");
+
+      $("btnBack").style.display="";
+      $("btnCreateAgenda").style.display = type==="agenda" ? "" : "none";
+      $("btnCreateCampaign").style.display = type==="campaign" ? "" : "none";
+
+      $("pageTitle").textContent = type==="agenda" ? "الأجندات" : "الحملات";
+      $("pageDesc").textContent  = type==="agenda"
+        ? "اختر أجندة أو أنشئ واحدة جديدة. بعد الدخول ستجد الأعمدة وتضيف تاسكات بسهولة."
+        : "اختر حملة أو أنشئ واحدة جديدة مع وصف + تاريخ بداية/نهاية + أعمدة.";
+
+      $("listTitle").textContent = type==="agenda" ? "قائمة الأجندات" : "قائمة الحملات";
+
+      showView("list");
+      listenWorkspaces(type);
+    }
+
+    function listenWorkspaces(type){
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+
+      const qy = query(
+        collection(db,"workspaces"),
+        where("type","==", type)
+      );
+unsubWorkspaces = onSnapshot(qy, (snap)=>{
+        let items=[];
+        snap.forEach(d=> items.push({ id:d.id, ...(d.data()||{}) }));
+        // تصفية العناصر غير النشطة + ترتيب محلي لتفادي متطلبات الـ Composite Index
+        items = items.filter(x=> x.active !== false);
+        items.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+        renderList(type, items);
+      }, (err)=>{
+        console.error(err);
+        toast("⚠️ فشل تحميل القائمة");
+      });
+    }
+
+    function renderList(type, items){
+      const container = $("listContainer");
+      const empty = $("listEmpty");
+      container.innerHTML = "";
+      empty.style.display = items.length ? "none" : "";
+
+      items.forEach(x=>{
+        const el = document.createElement("div");
+        el.className = "list-item";
+
+        const columnsCount = Array.isArray(x.columns) ? x.columns.length : 0;
+        let sub = "";
+        if(type==="agenda"){
+          sub = `أعمدة: ${columnsCount}`;
+        }else{
+          const s = x.startDate || "—";
+          const e = x.endDate || "—";
+          sub = `الفترة: ${s} → ${e} | أعمدة: ${columnsCount}`;
+        }
+
+        const desc = type==="campaign" ? (x.description||"") : "";
+        el.innerHTML = `
+          <div class="li-main">
+            <p class="li-title">${escapeHtml(x.name||"بدون اسم")}</p>
+            <p class="li-sub">${escapeHtml(desc ? (desc + " — " + sub) : sub)}</p>
+          </div>
+          <div class="li-right">
+            <span class="tag"><span class="mini"></span>${type==="agenda"?"Agenda":"Campaign"}</span>
+            <button class="btn sm secondary" data-open="1" type="button">فتح</button>
+          </div>
+        `;
+
+        el.querySelector('[data-open="1"]').addEventListener("click", (e)=>{
+          e.stopPropagation();
+          openBoard(x);
+        });
+
+        el.addEventListener("click", ()=> openBoard(x));
+        container.appendChild(el);
+      });
+    }
+
+    function openBoard(workspace){
+      MODE="board";
+      CURRENT_WORKSPACE = workspace;
+      saveLastView("board", {workspaceId: workspace.id});
+
+      $("btnBack").style.display="";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+
+      $("pageTitle").textContent = workspace.type==="agenda" ? "لوحة الأجندة" : "لوحة الحملة";
+      $("pageDesc").textContent  = "اضغط ➕ داخل أي عمود لإضافة تاسك. اضغط على التاسك لرؤية التفاصيل أو التعديل.";
+
+      $("boardTitle").textContent = workspace.name || "بدون اسم";
+      if(workspace.type==="campaign"){
+        const s = workspace.startDate || "—";
+        const e = workspace.endDate || "—";
+        const d = workspace.description ? workspace.description : "لا يوجد وصف";
+        $("boardSub").textContent = `الفترة: ${s} → ${e} | ${d}`;
+      }else{
+        $("boardSub").textContent = `عدد الأعمدة: ${(workspace.columns||[]).length}`;
+      }
+
+      // Agenda-only: filter tasks by assignee
+      const bfWrap = $("boardFilterWrap");
+      const bfSel = $("boardUserFilter");
+      if(workspace.type === "agenda"){
+        bfWrap.style.display = "";
+        // rebuild options each time (users may update)
+        const cur = BOARD_USER_FILTER_UID || "";
+        bfSel.innerHTML = `<option value="">الكل</option>`;
+        USERS.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||"","ar")).forEach(u=>{
+          const opt = document.createElement("option");
+          opt.value = u.uid;
+          opt.textContent = u.name;
+          bfSel.appendChild(opt);
+        });
+        bfSel.value = cur;
+      }else{
+        bfWrap.style.display = "none";
+        BOARD_USER_FILTER_UID = "";
+      }
+
+      // show VIN for the selected spec key
+      
+      showView("board");
+
+      $("btnEditBoard").onclick = ()=> openBoardModal(workspace.type, "edit", workspace);
+      $("btnDeleteBoard").onclick = ()=> deleteWorkspace(workspace);
+
+      renderBoardColumns(workspace, []);
+      listenTasksForWorkspace(workspace.id);
+    }
+
+    function applyBoardUserFilter(tasks){
+      const arr = Array.isArray(tasks)?tasks:[];
+      if(!CURRENT_WORKSPACE || CURRENT_WORKSPACE.type!=="agenda") return arr;
+      const uid = String(BOARD_USER_FILTER_UID||"");
+      if(!uid) return arr;
+      return arr.filter(t=> String(t.assigneeUid||"") === uid);
+    }
+
+    function renderBoardColumns(workspace, tasks){
+      const colsEl = $("boardCols");
+      colsEl.innerHTML = "";
+
+      const cols = Array.isArray(workspace.columns) && workspace.columns.length ? workspace.columns : ["قائمة"];
+      const byCol = {};
+      cols.forEach(c=> byCol[c]=[]);
+      tasks.forEach(t=>{
+        const c = t.column || cols[0];
+        if(!byCol[c]) byCol[c]=[];
+        byCol[c].push(t);
+      });
+
+      cols.forEach(colName=>{
+        const col = document.createElement("section");
+        col.className = "col";
+        if(String(colName||'').includes('تم الانتهاء')) col.classList.add('done-col');
+        if(/تم الانتهاء/.test(colName)) col.classList.add("done-col");
+
+        const list = byCol[colName] || [];
+        const head = document.createElement("div");
+        head.className = "col-head";
+        head.innerHTML = `
+          <div class="col-title">
+            <span>${escapeHtml(colName)}</span>
+            <span class="count-badge">${list.length}</span>
+          </div>
+          <button class="btn secondary xs" type="button">➕ تاسك</button>
+        `;
+        head.querySelector("button").addEventListener("click", (e)=>{
+          e.stopPropagation();
+          openTaskModal("create", { workspace, column: colName });
+        });
+
+        const body = document.createElement("div");
+        body.className = "col-body";
+
+        if(!list.length){
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.style.fontSize = "12px";
+          empty.textContent = "لا يوجد تاسكات هنا. اضغط ➕ لإضافة تاسك.";
+          body.appendChild(empty);
+        }else{
+          list.slice().sort((a,b)=> (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).forEach(t=>{
+            const card = document.createElement("div");
+            card.className = "task-card";
+
+            const assignee = t.assigneeName || "—";
+            const due = t.due || "—";
+            const specKey = t.specKey || "—";
+
+            card.innerHTML = `
+              <p class="t-title">${escapeHtml(specKey)}</p>
+              <div class="t-meta">
+                <span class="badge"><span class="dot"></span>${escapeHtml(assignee)}</span>
+                <span class="badge" style="background:#fff;border-color:rgba(62,36,32,.10)"><span class="dot" style="background:#6b7280"></span>📅 ${escapeHtml(due)}</span>
+              </div>
+            `;
+
+            card.addEventListener("click", ()=> openTaskDetail(t));
+            body.appendChild(card);
+          });
+        }
+
+        col.appendChild(head);
+        col.appendChild(body);
+        colsEl.appendChild(col);
+      });
+    }
+
+    function listenTasksForWorkspace(workspaceId){
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+      // ملاحظة: where + orderBy يحتاج Composite Index، فهنسحب بدون orderBy ونرتّب محليًا لتفادي الـ Index
+      const qy = query(
+        collection(db,"workspace_tasks"),
+        where("workspaceId","==", workspaceId)
+      );
+      unsubTasks = onSnapshot(qy, (snap)=>{
+        let tasks=[];
+        snap.forEach(d=> tasks.push({ id:d.id, ...(d.data()||{}) }));
+        // ترتيب محلي بالأحدث (createdAt)
+        tasks.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+        BOARD_TASKS_ALL = tasks;
+        renderBoardColumns(CURRENT_WORKSPACE, applyBoardUserFilter(tasks));
+      }, (err)=>{
+        console.error(err);
+        const msg = (err?.code ? (err.code + " — ") : "") + (err?.message || "");
+        toast("⚠️ فشل تحميل التاسكات: " + (msg || "تحقق من الصلاحيات/Rules"));
+      });
+    }
+
+    // Board modal
+    const boardModal = $("boardModal");
+    const boardType = $("boardType");
+    const boardName = $("boardName");
+    const campaignFields = $("campaignFields");
+    const campaignDesc = $("campaignDesc");
+    const campaignStart = $("campaignStart");
+    const campaignEnd = $("campaignEnd");
+    const colInput = $("colInput");
+    const colsChips = $("colsChips");
+
+    let BOARD_MODAL_MODE = "create";
+    let BOARD_MODAL_TYPE = "agenda";
+    let BOARD_EDIT_ID = null;
+    let COLUMNS_TMP = [];
+
+    const DEFAULT_AGENDA_COLS = ["ريل مواصفات","ريل قصير","تصميم صور","يوتيوب","تحت المراجعة"];
+    const DEFAULT_CAMPAIGN_COLS = ["ريلز - كاش","موشن - كاش","جرافيك - كاش","ريلز اقساط","Ai اقساط","جرافيك - اقساط","شركات - لينكد ان"];
+
+    $("boardModalClose").addEventListener("click", ()=> closeBoardModal());
+    $("boardCancel").addEventListener("click", ()=> closeBoardModal());
+    boardModal.addEventListener("click", (e)=> { if(e.target===boardModal) closeBoardModal(); });
+
+    $("btnAddCol").addEventListener("click", ()=>{
+      const v = (colInput.value||"").trim();
+      if(!v) return;
+      addCol(v);
+      colInput.value="";
+    });
+    $("btnAddDefaults").addEventListener("click", ()=>{
+      const defs = BOARD_MODAL_TYPE==="agenda" ? DEFAULT_AGENDA_COLS : DEFAULT_CAMPAIGN_COLS;
+      defs.forEach(addCol);
+    });
+
+    function addCol(name){
+      const v = (name||"").trim();
+      if(!v) return;
+      if(COLUMNS_TMP.includes(v)) return;
+      COLUMNS_TMP.push(v);
+      renderColChips();
+    }
+    function removeCol(name){
+      COLUMNS_TMP = COLUMNS_TMP.filter(x=> x!==name);
+      renderColChips();
+    }
+    function renderColChips(){
+      colsChips.innerHTML = "";
+      if(!COLUMNS_TMP.length){
+        colsChips.innerHTML = `<div class="empty" style="padding:10px;font-size:12px">لم يتم إضافة أعمدة بعد.</div>`;
+        return;
+      }
+      COLUMNS_TMP.forEach(c=>{
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.innerHTML = `${escapeHtml(c)} <button type="button" title="حذف">✕</button>`;
+        chip.querySelector("button").addEventListener("click", ()=> removeCol(c));
+        colsChips.appendChild(chip);
+      });
+    }
+
+    function openBoardModal(type, mode, workspace=null){
+      BOARD_MODAL_TYPE = type;
+      BOARD_MODAL_MODE = mode;
+      BOARD_EDIT_ID = workspace?.id || null;
+
+      boardType.value = (type==="agenda" ? "أجندة (Tasks)" : "حملة (Campaign)");
+      $("boardModalTitle").textContent = mode==="create"
+        ? (type==="agenda" ? "إنشاء أجندة جديدة" : "إنشاء حملة جديدة")
+        : (type==="agenda" ? "تعديل الأجندة" : "تعديل الحملة");
+
+      campaignFields.style.display = (type==="campaign") ? "" : "none";
+
+      boardName.value = workspace?.name || "";
+      campaignDesc.value = workspace?.description || "";
+      campaignStart.value = workspace?.startDate || "";
+      campaignEnd.value = workspace?.endDate || "";
+
+      COLUMNS_TMP = Array.isArray(workspace?.columns) ? [...workspace.columns] : [];
+      renderColChips();
+
+      boardModal.classList.add("show");
+    }
+
+    function closeBoardModal(){
+      boardModal.classList.remove("show");
+      BOARD_EDIT_ID = null;
+      COLUMNS_TMP = [];
+      colInput.value = "";
+    }
+
+    $("boardSave").addEventListener("click", async ()=>{
+      const name = (boardName.value||"").trim();
+      if(!name) return toast("اكتب اسم الأجندة/الحملة");
+      if(!COLUMNS_TMP.length) return toast("أضف عمود واحد على الأقل");
+
+      const payload = {
+        type: BOARD_MODAL_TYPE,
+        name,
+        columns: COLUMNS_TMP,
+        active: true
+      };
+
+      if(BOARD_MODAL_TYPE==="campaign"){
+        payload.description = (campaignDesc.value||"").trim() || null;
+        payload.startDate = campaignStart.value || null;
+        payload.endDate = campaignEnd.value || null;
+      }
+
+      try{
+        if(BOARD_MODAL_MODE==="create"){
+          payload.createdAt = serverTimestamp();
+          payload.createdBy = CURRENT_USER?.uid || null;
+          await addDoc(collection(db,"workspaces"), payload);
+          toast("✅ تم إنشاء العنصر");
+        }else{
+          if(!BOARD_EDIT_ID) return toast("⚠️ لا يوجد ID للتعديل");
+          await updateDoc(doc(db,"workspaces", BOARD_EDIT_ID), payload);
+          toast("✅ تم التعديل");
+        }
+        closeBoardModal();
+      }catch(err){
+        console.error(err);
+        const msg = (err?.code ? (err.code + " — ") : "") + (err?.message || "");
+        toast("⚠️ فشل الحفظ: " + (msg || "تحقق من الصلاحيات (Firestore Rules)"));
+      }
+    });
+
+    async function deleteWorkspace(workspace){
+      if(!workspace?.id) return;
+      if(!confirm("تأكيد حذف (الأجندة/الحملة)؟ سيتم حذف اللوحة فقط، والتاسكات ستظل (إلا لو طلبت حذفها).")) return;
+
+      try{
+        await deleteDoc(doc(db,"workspaces", workspace.id));
+        toast("✅ تم الحذف");
+        openList(workspace.type);
+      }catch(err){
+        console.error(err);
+        toast("⚠️ فشل الحذف");
+      }
+    }
+
+    // Task modal
+    const taskModal = $("taskModal");
+    const taskSpecKey = $("taskSpecKey");
+const taskDesc = $("taskDesc");
+    // تم إلغاء تاريخ التسليم
+    const taskDue = $("taskDue");
+    const taskAssignee = $("taskAssignee");
+    const taskColumn = $("taskColumn");
+    const taskLinksWrap = $("taskLinksWrap");
+    const linkTitle = $("linkTitle");
+    const linkUrl = $("linkUrl");
+    const linksChips = $("linksChips");
+
+    let TASK_MODE = "create";
+    let TASK_CTX = null;
+    let LINKS_TMP = [];
+
+    $("taskModalClose").addEventListener("click", ()=> closeTaskModal());
+    $("taskCancel").addEventListener("click", ()=> closeTaskModal());
+    taskModal.addEventListener("click", (e)=> { if(e.target===taskModal) closeTaskModal(); });
+
+    function isSpecKeyAllowed(v){
+      const x = String(v||"").trim();
+      if(!x) return false;
+      return (SPEC_KEY_SET && SPEC_KEY_SET.has(x));
+    }
+
+    // منع كتابة Spec Key خارج القائمة (حتى لو كتبها يدويًا)
+    taskSpecKey.addEventListener("change", ()=>{
+      const v = (taskSpecKey.value||"").trim();
+      if(!v) return;
+      // السماح بقيمة التاسك الحالي أثناء التعديل
+      if(TASK_MODE!=="create" && CURRENT_TASK?.specKey && v===String(CURRENT_TASK.specKey).trim()) return;
+      if(!isSpecKeyAllowed(v)){
+        taskSpecKey.value = "";
+        toast("اختر Unique Spec Key من القائمة فقط");
+      }
+    });
+
+    taskSpecKey.addEventListener("blur", ()=>{
+      const v = (taskSpecKey.value||"").trim();
+      if(!v) return;
+      if(TASK_MODE!=="create" && CURRENT_TASK?.specKey && v===String(CURRENT_TASK.specKey).trim()) return;
+      if(!isSpecKeyAllowed(v)){
+        taskSpecKey.value = "";
+        toast("اختر Unique Spec Key من القائمة فقط");
+      }
+    });
+    $("btnAddLink").addEventListener("click", ()=>{
+      const t = (linkTitle.value||"").trim() || "رابط";
+      const u = (linkUrl.value||"").trim();
+      if(!u || !/^https?:\/\//i.test(u)) return toast("اكتب رابط يبدأ بـ http(s)://");
+      LINKS_TMP.push({ title:t, url:u });
+      linkTitle.value=""; linkUrl.value="";
+      renderLinksChips();
+    });
+
+    function renderLinksChips(){
+      linksChips.innerHTML="";
+      if(!LINKS_TMP.length){
+        linksChips.innerHTML = `<div class="empty" style="padding:10px;font-size:12px">لم يتم إضافة روابط بعد.</div>`;
+        return;
+      }
+      LINKS_TMP.forEach((l,idx)=>{
+        const chip = document.createElement("span");
+        chip.className="chip";
+        chip.innerHTML = `
+          🔗 ${escapeHtml(l.title)}
+          <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" style="color:var(--brown);text-decoration:underline;font-weight:800">فتح</a>
+          <button type="button" title="حذف">✕</button>
+        `;
+        chip.querySelector("button").addEventListener("click", ()=>{
+          LINKS_TMP.splice(idx,1);
+          renderLinksChips();
+        });
+        linksChips.appendChild(chip);
+      });
+    }
+
+    function openTaskModal(mode, ctxOrTask){
+      TASK_MODE = mode;
+
+      if(mode==="create"){
+        TASK_CTX = ctxOrTask; // {workspace, column}
+        CURRENT_TASK = null;
+
+        $("taskModalTitle").textContent = "تاسك جديد";
+        $("taskDelete").style.display="none";
+
+        taskColumn.value = TASK_CTX.column;
+        taskSpecKey.value = "";
+        taskDesc.value = "";
+        taskDue.value = "";
+        taskAssignee.value = "";
+
+        
+        const isCampaign = TASK_CTX.workspace.type==="campaign";
+        taskLinksWrap.style.display = isCampaign ? "" : "none";
+        LINKS_TMP = [];
+        renderLinksChips();
+      }else{
+        CURRENT_TASK = ctxOrTask;
+        TASK_CTX = { workspace: CURRENT_WORKSPACE, column: CURRENT_TASK.column };
+
+        $("taskModalTitle").textContent = "تعديل تاسك";
+        $("taskDelete").style.display="";
+
+        taskColumn.value = CURRENT_TASK.column || "";
+        taskSpecKey.value = CURRENT_TASK.specKey || "";
+        taskDesc.value = CURRENT_TASK.description || "";
+        taskDue.value = "";
+        taskAssignee.value = CURRENT_TASK.assigneeUid || "";
+
+        
+        const isCampaign = CURRENT_TASK.type==="campaign";
+        taskLinksWrap.style.display = isCampaign ? "" : "none";
+        LINKS_TMP = Array.isArray(CURRENT_TASK.links) ? [...CURRENT_TASK.links] : [];
+        renderLinksChips();
+      }
+
+      taskModal.classList.add("show");
+    }
+
+    function closeTaskModal(){
+      taskModal.classList.remove("show");
+      TASK_CTX = null;
+      LINKS_TMP = [];
+    }
+
+    $("taskSave").addEventListener("click", async ()=>{
+      const specKey = (taskSpecKey.value||"").trim();
+      const description = (taskDesc.value||"").trim() || null;
+      // تم إلغاء تاريخ التسليم
+      const due = null;
+      const assigneeUid = taskAssignee.value || null;
+      const assigneeObj = USERS.find(u=> u.uid===assigneeUid);
+      const assigneeName = assigneeObj?.name || null;
+
+      if(!specKey) return toast("اكتب Unique Spec Key");
+      // السماح فقط بالقيم الموجودة في القائمة (غير معمول لها مونتاج)
+      const allowed = (SPEC_KEY_SET && SPEC_KEY_SET.has(specKey));
+      const editingSame = (TASK_MODE!=="create" && CURRENT_TASK?.specKey && specKey===String(CURRENT_TASK.specKey).trim());
+      if(!allowed && !editingSame) return toast("اختر Unique Spec Key من القائمة فقط");
+      if(!TASK_CTX?.workspace?.id) return toast("⚠️ لا يوجد Workspace محدد");
+      if(!TASK_CTX?.column) return toast("⚠️ لا يوجد عمود");
+
+      const isCampaign = TASK_CTX.workspace.type==="campaign";
+
+      const payload = {
+        workspaceId: TASK_CTX.workspace.id,
+        type: TASK_CTX.workspace.type,
+        column: TASK_CTX.column,
+        specKey,
+        description,
+        // due removed
+        assigneeUid,
+        assigneeName
+      };
+
+      if(isCampaign) payload.links = LINKS_TMP.length ? LINKS_TMP : [];
+
+      try{
+        if(TASK_MODE==="create"){
+          payload.createdAt = serverTimestamp();
+          payload.createdBy = CURRENT_USER?.uid || null;
+          await addDoc(collection(db,"workspace_tasks"), payload);
+          toast("✅ تم حفظ التاسك");
+        }else{
+          if(!CURRENT_TASK?.id) return toast("⚠️ لا يوجد ID للتعديل");
+          await updateDoc(doc(db,"workspace_tasks", CURRENT_TASK.id), payload);
+          toast("✅ تم تعديل التاسك");
+        }
+        closeTaskModal();
+      }catch(err){
+        console.error(err);
+        const msg = (err?.code ? (err.code + " — ") : "") + (err?.message || "");
+        toast("⚠️ فشل حفظ التاسك: " + (msg || "تحقق من الصلاحيات (Firestore Rules)"));
+      }
+    });
+
+    $("taskDelete").addEventListener("click", async ()=>{
+      if(!CURRENT_TASK?.id) return;
+      if(!confirm("تأكيد حذف التاسك؟")) return;
+      try{
+        await deleteDoc(doc(db,"workspace_tasks", CURRENT_TASK.id));
+        toast("✅ تم حذف التاسك");
+        closeTaskModal();
+        closeDetail();
+      }catch(err){
+        console.error(err);
+        toast("⚠️ فشل حذف التاسك");
+      }
+    });
+
+    // Detail
+    const detailModal = $("detailModal");
+    function openTaskDetail(task){
+      CURRENT_TASK = task;
+
+      $("dSpecKey").value = task.specKey || "";
+      $("dDue").value = "";
+      $("dAssignee").value = task.assigneeName || "—";
+      $("dColumn").value = task.column || "";
+      $("dDesc").value = task.description || "";
+
+      const linksBlock = $("dLinksBlock");
+      const dLinks = $("dLinks");
+      dLinks.innerHTML="";
+
+      if(task.type==="campaign" && Array.isArray(task.links) && task.links.length){
+        linksBlock.style.display="";
+        task.links.forEach(l=>{
+          const chip = document.createElement("span");
+          chip.className="chip";
+          chip.innerHTML = `🔗 <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" style="color:var(--brown);text-decoration:underline;font-weight:900">${escapeHtml(l.title||l.url)}</a>`;
+          dLinks.appendChild(chip);
+        });
+      }else{
+        linksBlock.style.display="none";
+      }
+
+      detailModal.classList.add("show");
+    }
+    function closeDetail(){ detailModal.classList.remove("show"); }
+
+    $("detailClose").addEventListener("click", closeDetail);
+    $("detailOk").addEventListener("click", closeDetail);
+    detailModal.addEventListener("click", (e)=> { if(e.target===detailModal) closeDetail(); });
+
+    $("detailEdit").addEventListener("click", ()=>{
+      if(!CURRENT_TASK) return;
+      closeDetail();
+      openTaskModal("edit", CURRENT_TASK);
+    });
+
+    $("detailDelete").addEventListener("click", async ()=>{
+      if(!CURRENT_TASK?.id) return;
+      if(!confirm("تأكيد حذف التاسك؟")) return;
+      try{
+        await deleteDoc(doc(db,"workspace_tasks", CURRENT_TASK.id));
+        toast("✅ تم حذف التاسك");
+        closeDetail();
+      }catch(err){
+        console.error(err);
+        toast("⚠️ فشل حذف التاسك");
+      }
+    });
+    // ==================================================
+    // Stock Colors Modal + Finish Task Flow
+    // ==================================================
+
+    const colorsModal = $("colorsModal");
+    const cmSpecKey = $("cmSpecKey");
+    const cmExt = $("cmExt");
+    const cmInt = $("cmInt");
+
+    const finishModal = $("finishModal");
+    const fmSpecKey = $("fmSpecKey");
+    const fmMontageDetails = $("fmMontageDetails");
+    const fmColorsWrap = $("fmColorsWrap");
+    const fmAddColor = $("fmAddColor");
+
+    function uniqSorted(arr){
+      return Array.from(new Set((arr||[]).map(v=>String(v||"").trim()).filter(Boolean)))
+        .sort((a,b)=> a.localeCompare(b,"ar",{numeric:true,sensitivity:"base"}));
+    }
+
+    function getColorsForSpecKey(specKey){
+      const key = String(specKey||"").trim();
+      const arr = Array.isArray(AGENDA_STOCK) ? AGENDA_STOCK : [];
+      const filtered = arr.filter(r => !isExcludedByInventoryFilter(r));
+      const ext=[]; const intr=[];
+      for(const r of filtered){
+        const k = buildSpecKeyNoColors({
+          car: r.car ?? r["السيارة"],
+          variant: r.variant ?? r["البيان"],
+          modelYear: r.modelYear ?? r["الموديل"],
+        });
+        if(k !== key) continue;
+        const e = (r.extColor ?? r["اللون الخارجي"] ?? r.extcolor ?? r.colorExt ?? r["extColor"] ?? "");
+        const i = (r.intColor ?? r["اللون الداخلي"] ?? r.intcolor ?? r.colorInt ?? r["intColor"] ?? "");
+        if(e) ext.push(e);
+        if(i) intr.push(i);
+      }
+      return { ext: uniqSorted(ext), int: uniqSorted(intr) };
+    }
+
+    function renderChips(target, items){
+      if(!target) return;
+      const arr = items || [];
+      if(!arr.length){ target.innerHTML = `<span class="hint" style="color:var(--muted)">—</span>`; return; }
+      target.innerHTML = arr.map(v=> `<span class="chip">${escapeHtml(v)}</span>`).join("");
+    }
+
+    function openColorsModal(specKey){
+      const key = String(specKey||"").trim();
+      if(!key) return;
+      const c = getColorsForSpecKey(key);
+      cmSpecKey.value = key;
+      renderChips(cmExt, c.ext);
+      renderChips(cmInt, c.int);
+      colorsModal.classList.add("show");
+    }
+    function closeColorsModal(){ colorsModal.classList.remove("show"); }
+    $("colorsClose").addEventListener("click", closeColorsModal);
+    $("colorsOk").addEventListener("click", closeColorsModal);
+    colorsModal.addEventListener("click", (e)=>{ if(e.target===colorsModal) closeColorsModal(); });
+
+    // ----- Finish modal -----
+    let FINISH_COLORS = [];
+    let FINISH_COLORS_META = { ext:[], int:[] };
+
+    function colorRowTemplate(idx, extVal="", intVal=""){
+      const extOpts = [""].concat(FINISH_COLORS_META.ext).map(v=>
+        `<option value="${escapeAttr(v)}" ${v===extVal?"selected":""}>${v?escapeHtml(v):"-"}</option>`).join("");
+      const intOpts = [""].concat(FINISH_COLORS_META.int).map(v=>
+        `<option value="${escapeAttr(v)}" ${v===intVal?"selected":""}>${v?escapeHtml(v):"-"}</option>`).join("");
+      return `
+        <div class="card" data-color-row="${idx}" style="padding:12px;margin-bottom:10px">
+          <div class="grid2" style="align-items:end">
+            <div>
+              <label>اللون الخارجي</label>
+              <select class="fm-ext" data-idx="${idx}">${extOpts}</select>
+            </div>
+            <div>
+              <label>اللون الداخلي</label>
+              <select class="fm-int" data-idx="${idx}">${intOpts}</select>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:10px">
+            <button type="button" class="btn danger xs" data-remove-color="${idx}">حذف اللون</button>
+          </div>
+        </div>`;
+    }
+
+    function renderFinishColors(){
+      if(!fmColorsWrap) return;
+      if(!FINISH_COLORS.length){
+        fmColorsWrap.innerHTML = `<div class="hint" style="color:var(--muted)">لا توجد ألوان مضافة — اضغط "+ إضافة لون مستخدم"</div>`;
+        return;
+      }
+      fmColorsWrap.innerHTML = FINISH_COLORS.map((r,idx)=> colorRowTemplate(idx, r.extColor||"", r.intColor||"")).join("");
+    }
+
+    function openFinishModalForTask(task){
+      if(!task?.id) return;
+      const key = String(task.specKey||"").trim();
+      fmSpecKey.value = key;
+      fmMontageDetails.value = "";
+      FINISH_COLORS_META = getColorsForSpecKey(key);
+      FINISH_COLORS = [];
+      renderFinishColors();
+      finishModal.classList.add("show");
+    }
+    function closeFinishModal(){ finishModal.classList.remove("show"); }
+
+    $("finishClose").addEventListener("click", closeFinishModal);
+    $("finishCancel").addEventListener("click", closeFinishModal);
+    finishModal.addEventListener("click", (e)=>{ if(e.target===finishModal) closeFinishModal(); });
+
+    // زر تم الانتهاء داخل تفاصيل التاسك
+    $("detailDone").addEventListener("click", ()=>{
+      if(!CURRENT_TASK) return;
+      openFinishModalForTask(CURRENT_TASK);
+    });
+
+    fmAddColor.addEventListener("click", ()=>{
+      FINISH_COLORS.push({ extColor:"", intColor:"" });
+      renderFinishColors();
+    });
+
+    // Delegation داخل fmColorsWrap
+    fmColorsWrap.addEventListener("change", (e)=>{
+      const sel = e.target;
+      if(!(sel instanceof HTMLSelectElement)) return;
+      const idx = Number(sel.getAttribute("data-idx"));
+      if(Number.isNaN(idx) || !FINISH_COLORS[idx]) return;
+      if(sel.classList.contains("fm-ext")) FINISH_COLORS[idx].extColor = sel.value || "";
+      if(sel.classList.contains("fm-int")) FINISH_COLORS[idx].intColor = sel.value || "";
+    });
+    fmColorsWrap.addEventListener("click", (e)=>{
+      const btn = e.target.closest("[data-remove-color]");
+      if(!btn) return;
+      const idx = Number(btn.getAttribute("data-remove-color"));
+      if(Number.isNaN(idx)) return;
+      FINISH_COLORS = FINISH_COLORS.filter((_,i)=> i!=idx);
+      renderFinishColors();
+    });
+
+    async function saveStockTaskImmediate(specKey, patch){
+      const key = String(specKey||"").trim();
+      if(!key) return;
+      const prev = STOCK_TASKS_MAP.get(key) || { specKey:key };
+      const next = { ...prev, ...patch, specKey:key, updatedAt: serverTimestamp() };
+      STOCK_TASKS_MAP.set(key, next);
+      try{ applySpecKeyNotMontagedFilter(); }catch(_e){}
+      try{
+        await setDoc(doc(db, "stock_tasks", stockTaskDocId(key)), next, { merge:true });
+        await setDoc(doc(db, "stock_tasks_backup", stockTaskDocId(key)), next, { merge:true });
+      }catch(e){
+        console.warn("saveStockTaskImmediate", e);
+      }
+    }
+
+    $("finishSave").addEventListener("click", async ()=>{
+      if(!CURRENT_TASK?.id) return toast("⚠️ لا يوجد Task");
+      const key = String(fmSpecKey.value||"").trim();
+      if(!key) return toast("⚠️ لا يوجد Unique Spec Key");
+      const mdChoice = String(fmMontageDetails.value||"").trim();
+      if(!mdChoice) return toast("اختر تفاصيل المونتاج (نعم/لا)");
+
+      const usedColors = FINISH_COLORS
+        .map(r=>({ extColor:String(r.extColor||"").trim(), intColor:String(r.intColor||"").trim() }))
+        .filter(r=> r.extColor || r.intColor);
+
+      // 1) Update task as done + store used colors
+      try{
+        // Move task to a new green column derived from its current column
+        const prevCol = String(CURRENT_TASK.column || "قائمة");
+        const doneCol = /تم الانتهاء/.test(prevCol) ? prevCol : `${prevCol} — تم الانتهاء`;
+        // Ensure the column exists on the workspace board
+        try{
+          const cols = Array.isArray(CURRENT_WORKSPACE?.columns) ? CURRENT_WORKSPACE.columns.slice() : ["قائمة"];
+          if(!cols.includes(doneCol)){
+            cols.push(doneCol);
+            await updateDoc(doc(db,"workspaces", CURRENT_WORKSPACE.id), { columns: cols, updatedAt: serverTimestamp() });
+            CURRENT_WORKSPACE.columns = cols;
+          }
+        }catch(_e){}
+
+        await updateDoc(doc(db, "workspace_tasks", CURRENT_TASK.id), {
+          status: "تم الانتهاء",
+          column: doneCol,
+          doneAt: serverTimestamp(),
+          montageDetailsYN: mdChoice,
+          usedColors,
+          updatedAt: serverTimestamp()
+        });
+      }catch(e){
+        console.error(e);
+        return toast("⚠️ فشل إنهاء التاسك (صلاحيات/قواعد)");
+      }
+
+      // 2) Update Tab stock automatically: montage=yes + montageDetails
+      try{ CURRENT_TASK.column = (typeof doneCol!=="undefined" ? doneCol : CURRENT_TASK.column); }catch(_e){}
+
+      const stockMontageDetails = mdChoice === "نعم" ? "صور + ريل مواصفات: نعم" : "صور + ريل مواصفات: لا";
+      await saveStockTaskImmediate(key, { montage: "نعم", montageDetails: stockMontageDetails });
+
+      // 3) Update UI row if visible
+      const row = document.querySelector(`#stockTable tr[data-spec="${CSS.escape(key)}"]`);
+      if(row){
+        const mSel = row.querySelector('[data-field="montage"]');
+        const mdSel = row.querySelector('[data-field="montageDetails"]');
+        if(mSel){ mSel.value = "نعم"; }
+        if(mdSel){ mdSel.disabled = false; mdSel.value = stockMontageDetails; }
+      }
+
+      toast("✅ تم إنهاء التاسك وتحديث الاستوك");
+      closeFinishModal();
+      closeDetail();
+    });
+  </script>
+</body>
+</html>
