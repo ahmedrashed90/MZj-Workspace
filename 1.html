@@ -3,6 +3,8 @@
 
 
 
+
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -40,6 +42,21 @@
       font-size: 12px;
       color: var(--muted);
     }
+
+
+    /* Finish modal color rows */
+    .color-row{
+      display:flex;gap:10px;align-items:center;
+      background:#fff;
+      border:1px solid #e6ded6;
+      border-radius:12px;
+      padding:10px;
+      margin-top:10px;
+    }
+    .color-row .grow{flex:1;min-width:0;}
+    .color-row label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+    .color-row select{width:100%;height:42px;border-radius:12px}
+    .color-row .btn{white-space:nowrap}
     :root{
       --brown:#3e2420;
       --beige:#bc8f74;
@@ -183,57 +200,6 @@
     }
     .hint{font-size:12px;line-height:1.6}
 
-    /* ===== Dashboard ===== */
-    .dash-wrap{display:grid;gap:14px}
-    .dash-controls{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px;
-      box-shadow: 0 10px 24px rgba(62,36,32,.08);
-    }
-    .dash-kpis{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));}
-    .dash-table{width:100%;border-collapse:separate;border-spacing:0}
-    .dash-table th{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:10px;font-size:12px;text-align:right;color:var(--muted)}
-    .dash-table td{padding:10px;border-bottom:1px solid #f0ebe6;font-size:13px;vertical-align:top}
-    .pill-mini{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:800;font-size:12px}
-    .pill-mini.done{border-color:#86efac;background:#f0fdf4;color:#166534}
-    .pill-mini.open{border-color:#fde68a;background:#fffbeb;color:#92400e}
-
-    /* ===== Daily Tasks ===== */
-    .daily-grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
-    .week-card{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px;
-      box-shadow: 0 10px 24px rgba(62,36,32,.08);
-      min-height:260px;
-    }
-    .week-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-    .week-head strong{font-size:14px}
-    .week-cols{display:grid;gap:10px;grid-template-columns:1fr 1fr}
-    .week-col{border:1px dashed #e7dfd7;border-radius:16px;padding:10px;background:#fffaf3;min-height:140px}
-    .week-col h4{margin:0 0 10px;font-size:12px;color:var(--muted)}
-    .dtask{
-      background:#fff;
-      border:1px solid #efe7df;
-      border-radius:16px;
-      padding:10px;
-      margin-bottom:10px;
-    }
-    .dtask .top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .dtask .title{font-weight:900;font-size:13px}
-    .dtask .desc{font-size:12px;color:var(--muted);margin-top:6px;white-space:pre-wrap}
-    .dtask .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .dtask .notes{margin-top:10px}
-    .dtask textarea{width:100%;min-height:54px}
-
-    @media (max-width:980px){
-      .dash-kpis{grid-template-columns:1fr}
-      .daily-grid{grid-template-columns:1fr}
-    }
-
     /* ===== Main ===== */
     .main{padding:18px;min-width:0}
     .page-head{
@@ -341,6 +307,13 @@
       border-bottom:1px solid rgba(62,36,32,.06);
       padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;
     }
+
+
+    /* ===== Done Column (green) ===== */
+    .col.done-col{border-color: rgba(22,163,74,.35); box-shadow: 0 14px 34px rgba(22,163,74,.10)}
+    .col.done-col .col-head{background: linear-gradient(180deg, #f0fdf4, #ffffff); border-bottom-color: rgba(22,163,74,.20)}
+    .col.done-col .col-title{color:#166534}
+    .col.done-col .count-badge{border-color: rgba(22,163,74,.28); color:#166534}
     .col-title{
       font-weight:900;color:var(--brown);font-size:13px;
       display:flex;align-items:center;gap:8px;min-width:0;
@@ -370,6 +343,12 @@
     }
     .badge .dot{width:8px;height:8px;border-radius:999px;background:var(--beige)}
 
+
+    /* Done column (تم الانتهاء) */
+    .col.done-col{border-color: rgba(22,163,74,.35); box-shadow: 0 12px 34px rgba(22,163,74,.10);}
+    .col.done-col .col-head{background: linear-gradient(180deg, rgba(220,252,231,.9), #fff); border-bottom-color: rgba(22,163,74,.18);}
+    .col.done-col .col-title{color:#0f5a2a}
+    .col.done-col .count-badge{border-color: rgba(22,163,74,.35); color:#0f5a2a}
     /* ===== Modal ===== */
     .modal{
       position:fixed;inset:0;background:rgba(0,0,0,.40);
@@ -613,15 +592,15 @@
           <div class="sb-text">الحملات</div>
         </div>
 
+        <div class="sb-link" id="navDaily" style="display:none">
+          <div class="sb-ico">🗓️</div>
+          <div class="sb-text">Daily Task</div>
+        </div>
+
 
         <div class="sb-link" id="navStock">
           <div class="sb-ico">🚗</div>
           <div class="sb-text">stock</div>
-        </div>
-
-        <div class="sb-link" id="navDaily" style="display:none">
-          <div class="sb-ico">🗓️</div>
-          <div class="sb-text">Daily Task</div>
         </div>
 
         <div class="sb-link" id="navAdmin" style="display:none">
@@ -658,10 +637,68 @@
 
       <section class="panel" id="viewHome">
         <div class="head">
-          <strong>الداش بورد</strong>
-          <span class="muted" id="homeMeta">نظرة سريعة على الشغل + تقارير حسب الأجندة/الحملة/Daily Task</span>
+          <strong>اختر نوع الإدارة</strong>
+          <span class="muted" id="homeMeta">...</span>
         </div>
         <div class="body">
+          <!-- Dashboard (ملخص كل الشغل اللي بيحصل في Workspace) -->
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div>
+                <strong>الداش بورد</strong>
+                <span class="muted">ملخص سريع للمهام + إحصائيات الأعضاء + تصدير PDF</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <select id="dashModule" class="inp" style="min-width:240px">
+                  <option value="agenda">الأجندات</option>
+                  <option value="campaign">الحملات</option>
+                  <option value="daily" style="display:none">Daily Task</option>
+                </select>
+
+                <div id="dashDailyYM" style="display:none;gap:10px;align-items:center">
+                  <select id="dashDailyYear" class="inp" style="min-width:140px"></select>
+                  <select id="dashDailyMonth" class="inp" style="min-width:180px"></select>
+                </div>
+                <select id="dashAssignee" class="inp" style="min-width:220px">
+                  <option value="">كل الأعضاء</option>
+                </select>
+                <button class="btn secondary sm" id="btnDashPdf" type="button">⬇️ تصدير PDF</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="kpi-row" style="margin-top:0">
+                <div class="kpi">
+                  <div><strong>إجمالي المهام</strong><span class="muted">حسب الاختيار</span></div>
+                  <div class="num" id="dashTotal">0</div>
+                </div>
+                <div class="kpi">
+                  <div><strong>تم الانتهاء</strong><span class="muted">Done</span></div>
+                  <div class="num" id="dashDone">0</div>
+                </div>
+                <div class="kpi">
+                  <div><strong>لم يتم الانتهاء</strong><span class="muted">Remaining</span></div>
+                  <div class="num" id="dashRemain">0</div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="grid2" style="align-items:start">
+                <div>
+                  <label style="margin-bottom:8px">الأعضاء</label>
+                  <div class="table-wrap">
+                    <table class="stock-table" id="dashMembersTable"></table>
+                  </div>
+                </div>
+                <div>
+                  <label style="margin-bottom:8px">المهام</label>
+                  <div id="dashTasksList" class="list"></div>
+                  <div class="hint" id="dashTasksHint" style="margin-top:10px;color:var(--muted)"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="home-grid">
             <div class="hero-card" id="goAgendas">
               <div class="hero-left">
@@ -723,148 +760,6 @@
               </div>
             </div>
           </div>
-
-          <div class="divider"></div>
-
-          <div class="dash-wrap" id="dashWrap">
-            <div class="dash-controls">
-              <div class="grid2" style="gap:12px;align-items:end">
-                <div>
-                  <label>اختيار القسم</label>
-                  <select id="dashSource">
-                    <option value="agenda">الأجندات</option>
-                    <option value="campaign">الحملات</option>
-                    <option value="daily">Daily Task</option>
-                  </select>
-                </div>
-                <div id="dashPickBoardWrap">
-                  <label>اختيار (أجندة/حملة)</label>
-                  <select id="dashBoard"></select>
-                </div>
-              </div>
-
-              <div class="grid2" id="dashDailyWrap" style="gap:12px;align-items:end;margin-top:10px;display:none">
-                <div>
-                  <label>الشهر</label>
-                  <select id="dashDailyMonth">
-                    <option value="1">يناير</option><option value="2">فبراير</option><option value="3">مارس</option><option value="4">أبريل</option><option value="5">مايو</option><option value="6">يونيو</option><option value="7">يوليو</option><option value="8">أغسطس</option><option value="9">سبتمبر</option><option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
-                  </select>
-                </div>
-                <div>
-                  <label>السنة</label>
-                  <input id="dashDailyYear" type="number" value="2026" />
-                </div>
-              </div>
-
-              <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px">
-                <button class="btn secondary sm" id="btnDashRefresh" type="button">⟳ تحديث</button>
-                <button class="btn sm" id="btnDashPdf" type="button">🧾 تصدير PDF</button>
-              </div>
-            </div>
-
-            <div class="dash-kpis" id="dashKpis">
-              <div class="kpi">
-                <div>
-                  <strong>إجمالي المهام</strong>
-                  <span class="muted">كل الشغل</span>
-                </div>
-                <div class="num" id="dashTotal">0</div>
-              </div>
-              <div class="kpi">
-                <div>
-                  <strong>تم الانتهاء</strong>
-                  <span class="muted">Done</span>
-                </div>
-                <div class="num" id="dashDone">0</div>
-              </div>
-              <div class="kpi">
-                <div>
-                  <strong>لم يتم الانتهاء</strong>
-                  <span class="muted">Open</span>
-                </div>
-                <div class="num" id="dashOpen">0</div>
-              </div>
-            </div>
-
-            <div class="grid2" style="margin-top:14px">
-              <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-                  <div style="font-weight:900">الأعضاء</div>
-                  <span class="muted" style="font-size:12px">إجمالي/تم/باقي</span>
-                </div>
-                <div class="table-wrap" style="margin-top:10px">
-                  <table class="stock-table" id="dashMembers"></table>
-                </div>
-              </div>
-
-              <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-                  <div style="font-weight:900">المهام</div>
-                  <input id="dashTaskSearch" class="inp" style="min-width:220px" placeholder="بحث (SpecKey/وصف/مسؤول)" />
-                </div>
-                <div class="table-wrap" style="margin-top:10px">
-                  <table class="stock-table" id="dashTasks"></table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- Dashboard Analytics (Admin only) -->
-          <div id="dashWrap" style="display:none">
-            <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px">
-              <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
-                <select id="dashType" class="inp" style="min-width:160px">
-                  <option value="agenda">الأجندة</option>
-                  <option value="campaign">الحملة</option>
-                  <option value="daily">Daily Task</option>
-                </select>
-                <select id="dashWorkspace" class="inp" style="min-width:260px"></select>
-                <select id="dashMonth" class="inp" style="min-width:170px;display:none">
-                  <option value="1">يناير</option><option value="2">فبراير</option><option value="3">مارس</option><option value="4">أبريل</option>
-                  <option value="5">مايو</option><option value="6">يونيو</option><option value="7">يوليو</option><option value="8">أغسطس</option>
-                  <option value="9">سبتمبر</option><option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
-                </select>
-                <input id="dashYear" class="inp" type="number" style="min-width:120px;display:none" placeholder="السنة" value="2026"/>
-                <button class="btn secondary sm" id="btnDashRefresh" type="button">⟳ تحديث</button>
-              </div>
-              <button class="btn sm" id="btnDashPdf" type="button">⬇️ تصدير PDF</button>
-            </div>
-
-            <div class="kpi-row" style="margin:0 0 12px 0">
-              <div class="kpi">
-                <div><strong>إجمالي المهام</strong><span class="muted">All</span></div>
-                <div class="num" id="dashTotal">0</div>
-              </div>
-              <div class="kpi">
-                <div><strong>تم الانتهاء</strong><span class="muted">Done</span></div>
-                <div class="num" id="dashDone">0</div>
-              </div>
-              <div class="kpi">
-                <div><strong>لم يتم الانتهاء</strong><span class="muted">Pending</span></div>
-                <div class="num" id="dashPending">0</div>
-              </div>
-            </div>
-
-            <div class="grid2" style="align-items:start">
-              <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-                  <div style="font-weight:900">الأعضاء</div>
-                  <span class="muted" style="font-size:12px">إجمالي/تم/متبقي</span>
-                </div>
-                <div class="table-wrap" style="margin-top:12px">
-                  <table class="stock-table" id="dashMembersTable"></table>
-                </div>
-              </div>
-              <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
-                <div style="font-weight:900">المهام</div>
-                <div class="table-wrap" style="margin-top:12px">
-                  <table class="stock-table" id="dashTasksTable"></table>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -886,14 +781,41 @@
           <div>
             <strong id="boardTitle">...</strong>
             <div class="muted" id="boardSub" style="font-size:12px;margin-top:6px"></div>
+            <div id="boardFilterWrap" style="display:none;margin-top:10px">
+              <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">فلترة حسب المسؤول</label>
+              <select id="boardUserFilter" class="inp" style="min-width:260px">
+                <option value="">الكل</option>
+              </select>
+            </div>
           </div>
           <div class="actions">
             <button class="btn ghost sm" id="btnEditBoard" type="button">✏️ تعديل</button>
             <button class="btn danger sm" id="btnDeleteBoard" type="button">🗑️ حذف</button>
+            <button class="btn secondary sm" id="btnCampaignText" type="button" style="display:none">📝 محرر نصوص</button>
           </div>
         </div>
         <div class="body">
           <div class="board" id="boardCols"></div>
+        </div>
+      </section>
+
+      <!-- Daily Task (Admin) -->
+      <section class="panel" id="viewDaily" style="display:none">
+        <div class="head">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <strong>Daily Task</strong>
+            <span class="muted">مهام يومية مقسمة على 4 أسابيع (السبت → الخميس) مع عمود تم الانتهاء + ملاحظات</span>
+          </div>
+          <div class="actions">
+            <select id="dailyYear" class="inp" style="min-width:140px"></select>
+            <select id="dailyMonth" class="inp" style="min-width:180px"></select>
+            <button class="btn sm" id="btnDailyAdd" type="button">➕ مهمة يومية</button>
+            <button class="btn secondary sm" id="btnDailyRefresh" type="button">⟳ تحديث</button>
+          </div>
+        </div>
+        <div class="body">
+          <div id="dailyWeeks" class="home-grid" style="grid-template-columns:1fr;gap:12px"></div>
+          <div class="hint" id="dailyHint" style="margin-top:10px;color:var(--muted)"></div>
         </div>
       </section>
 
@@ -914,90 +836,70 @@
         </div>
       </section>
 
-      <!-- Daily Task (Admin only) -->
-      <section class="panel" id="viewDaily" style="display:none">
-        <div class="head">
-          <div class="stock-meta" style="flex-wrap:wrap">
-            <strong>Daily Task</strong>
-            <span class="muted">مهام يومية مقسمة 4 أسابيع (السبت → الخميس) + عمود تم الانتهاء</span>
-
-            <select id="dailyMonth" class="inp" style="min-width:170px">
-              <option value="1">يناير</option>
-              <option value="2">فبراير</option>
-              <option value="3">مارس</option>
-              <option value="4">أبريل</option>
-              <option value="5">مايو</option>
-              <option value="6">يونيو</option>
-              <option value="7">يوليو</option>
-              <option value="8">أغسطس</option>
-              <option value="9">سبتمبر</option>
-              <option value="10">أكتوبر</option>
-              <option value="11">نوفمبر</option>
-              <option value="12">ديسمبر</option>
-            </select>
-            <input id="dailyYear" class="inp" style="min-width:120px" type="number" placeholder="السنة" value="2026" />
-
-            <button class="btn secondary sm" id="btnDailyRefresh" type="button">⟳ تحديث</button>
-            <button class="btn sm" id="btnDailyNew" type="button">➕ مهمة يومية</button>
-          </div>
-        </div>
-        <div class="body">
-          <div class="daily-grid" id="dailyWeeks"></div>
-          <div class="empty" id="dailyEmpty" style="display:none">لا توجد مهام لهذا الشهر/السنة.</div>
-        </div>
-      </section>
-
-      <!-- Admin (Admin only) -->
       <section class="panel" id="viewAdmin" style="display:none">
         <div class="head">
-          <strong>admin</strong>
-          <div class="actions">
-            <button class="btn secondary sm" id="btnAdminRefresh" type="button">⟳ تحديث</button>
+          <div>
+            <strong>Admin</strong>
+            <span class="muted">إضافة مستخدم جديد وتحديد الصلاحية داخل نفس مشروع Firebase (mzj-workspace-c7d4e)</span>
           </div>
         </div>
         <div class="body">
-          <div class="grid2">
-            <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
-              <div style="font-weight:900;margin-bottom:10px">إضافة مستخدم جديد</div>
-              <div class="grid2" style="margin-top:10px">
+          <div class="card" style="max-width:720px">
+            <div class="card-head">
+              <strong>إضافة يوزر جديد</strong>
+              <span class="muted">سيتم إنشاء حساب Authentication (Email/Password) + إنشاء Document في users/{uid} بنفس المسار.</span>
+            </div>
+            <div class="card-body">
+              <div class="grid2">
                 <div>
-                  <label>البريد</label>
-                  <input id="adminNewEmail" placeholder="email@example.com" />
+                  <label>البريد الإلكتروني</label>
+                  <input id="adminNewEmail" placeholder="name@example.com" autocomplete="off"/>
                 </div>
                 <div>
                   <label>كلمة المرور</label>
-                  <input id="adminNewPass" type="password" placeholder="********" />
+                  <input id="adminNewPass" type="password" placeholder="********" autocomplete="new-password"/>
                 </div>
               </div>
               <div class="grid2" style="margin-top:10px">
                 <div>
-                  <label>الاسم (اختياري)</label>
-                  <input id="adminNewName" placeholder="اسم المستخدم" />
-                </div>
-                <div>
                   <label>الصلاحية</label>
                   <select id="adminNewRole">
-                    <option value="member">member</option>
-                    <option value="finisher">finisher</option>
-                    <option value="admin">admin</option>
+                    <option value="member">member (عضو)</option>
+                    <option value="finisher">finisher (ينهي فقط)</option>
+                    <option value="admin">admin (مدير)</option>
                   </select>
                 </div>
+                <div>
+                  <label>اسم اليوزر (اختياري)</label>
+                  <input id="adminNewName" placeholder="مثال: أحمد"/>
+                </div>
               </div>
-              <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
-                <button class="btn" id="btnAdminCreate" type="button">حفظ المستخدم</button>
-              </div>
-              <div class="hint" style="color:var(--muted);margin-top:10px">سيتم إنشاء المستخدم في Authentication + حفظ بياناته داخل <b>users/{uid}</b>.</div>
-            </div>
 
-            <div class="card" style="padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-                <div style="font-weight:900">الأعضاء</div>
-                <input id="adminUserSearch" class="inp" style="min-width:220px" placeholder="بحث (اسم/إيميل/UID)" />
+              <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+                <button class="btn secondary" id="adminClear" type="button">مسح</button>
+                <button class="btn" id="adminCreateUser" type="button">➕ إنشاء المستخدم</button>
               </div>
-              <div class="table-wrap" style="margin-top:12px">
+
+              <div class="hint" id="adminMsg" style="margin-top:10px;color:var(--muted)"></div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:14px">
+            <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div>
+                <strong>إدارة المستخدمين</strong>
+                <span class="muted">عرض كل الأعضاء وتعديل صلاحية أي يوزر (role) + إرسال رابط إعادة تعيين كلمة المرور.</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <input id="adminUserSearch" class="inp" style="min-width:240px" placeholder="بحث بالاسم أو الإيميل..." />
+                <button class="btn secondary sm" id="adminUsersRefresh" type="button">تحديث</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-wrap">
                 <table class="stock-table" id="adminUsersTable"></table>
               </div>
-              <div class="hint" style="color:var(--muted);margin-top:8px">تعديل الصلاحية يتم من الجدول ثم زر حفظ.</div>
+              <div class="hint" id="adminUsersMsg" style="margin-top:10px;color:var(--muted)"></div>
             </div>
           </div>
         </div>
@@ -1157,65 +1059,173 @@
       <div class="m-foot">
         <button class="btn secondary" id="detailEdit" type="button">تعديل</button>
         <button class="btn danger" id="detailDelete" type="button">حذف</button>
+        <button class="btn" id="detailDone" type="button">تم الانتهاء</button>
         <button class="btn" id="detailOk" type="button">تمام</button>
       </div>
     </div>
   </div>
 
-  <!-- Daily Task Modal (Admin only) -->
-  <div class="modal" id="dailyModal">
-    <div class="sheet">
+  
+
+  <!-- Stock Colors Modal (click count) -->
+  <div class="modal" id="colorsModal">
+    <div class="sheet" style="max-width:900px">
       <div class="m-head">
-        <strong>مهمة يومية</strong>
-        <button class="btn secondary xs" id="dailyClose" type="button">إغلاق</button>
+        <strong>ألوان السيارة (حسب Unique Spec Key)</strong>
+        <button class="btn secondary xs" id="colorsClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <label>Unique Spec Key</label>
+        <input id="cmSpecKey" readonly/>
+        <div class="grid2" style="margin-top:12px">
+          <div>
+            <label>الألوان الخارجية المتاحة</label>
+            <div class="chips" id="cmExt"></div>
+          </div>
+          <div>
+            <label>الألوان الداخلية المتاحة</label>
+            <div class="chips" id="cmInt"></div>
+          </div>
+        </div>
+        <div class="hint" style="color:var(--muted);margin-top:10px">* هذه الألوان يتم قراءتها من mzj-agenda (قراءة فقط).</div>
+      </div>
+      <div class="m-foot">
+        <button class="btn" id="colorsOk" type="button">تمام</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finish Task Modal -->
+  <div class="modal" id="finishModal">
+    <div class="sheet" style="max-width:980px">
+      <div class="m-head">
+        <strong>إنهاء التاسك</strong>
+        <button class="btn secondary xs" id="finishClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <label>Unique Spec Key</label>
+        <input id="fmSpecKey" readonly/>
+
+        <div class="grid2" style="margin-top:12px">
+          <div>
+            <label>تفاصيل المونتاج</label>
+            <select id="fmMontageDetails">
+              <option value="">-</option>
+              <option value="نعم">نعم</option>
+              <option value="لا">لا</option>
+            </select>
+            <div class="hint" style="color:var(--muted);margin-top:6px">سيتم تحديث Tab stock تلقائيًا: مونتاج = نعم + تفاصيل المونتاج حسب اختيارك.</div>
+          </div>
+          <div>
+            <label>الألوان المستخدمة في التاسك</label>
+            <button class="btn secondary sm" id="fmAddColor" type="button">+ إضافة لون مستخدم</button>
+          </div>
+        </div>
+
+        <div id="fmColorsWrap" style="margin-top:10px"></div>
+        <div class="hint" style="color:var(--muted);margin-top:10px">* اختيارات الألوان تُبنى حسب الألوان المتاحة لنفس Unique Spec Key (قراءة فقط من mzj-agenda).</div>
+      </div>
+      <div class="m-foot">
+        <button class="btn secondary" id="finishCancel" type="button">إلغاء</button>
+        <button class="btn" id="finishSave" type="button">تم الانتهاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Task Modal -->
+  <div class="modal" id="dailyModal">
+    <div class="sheet" style="max-width:780px">
+      <div class="m-head">
+        <strong id="dailyModalTitle">مهمة يومية</strong>
+        <button class="btn secondary xs" id="dailyModalClose" type="button">إغلاق</button>
       </div>
       <div class="m-body">
         <div class="grid2">
           <div>
             <label>الأسبوع</label>
-            <select id="dailyWeek">
-              <option value="1">الأسبوع 1</option>
-              <option value="2">الأسبوع 2</option>
-              <option value="3">الأسبوع 3</option>
-              <option value="4">الأسبوع 4</option>
-            </select>
+            <select id="dailyWeek" class="inp"></select>
           </div>
           <div>
             <label>اليوم</label>
-            <select id="dailyDay">
-              <option value="0">السبت</option>
-              <option value="1">الأحد</option>
-              <option value="2">الاثنين</option>
-              <option value="3">الثلاثاء</option>
-              <option value="4">الأربعاء</option>
-              <option value="5">الخميس</option>
-            </select>
+            <select id="dailyDay" class="inp"></select>
           </div>
         </div>
-        <label>عنوان المهمة</label>
-        <input id="dailyTitle" placeholder="مثال: متابعة تصوير فرع 1" />
+        <label style="margin-top:10px">عنوان المهمة</label>
+        <input id="dailyTitle" class="inp" placeholder="مثال: كتابة سكريبت ريل" />
+
         <label style="margin-top:10px">وصف المهمة</label>
-        <textarea id="dailyDesc" placeholder="اكتب تفاصيل المهمة..."></textarea>
+        <textarea id="dailyDesc" placeholder="اكتب الوصف..."></textarea>
+
         <label style="margin-top:10px">ملاحظات (اختياري)</label>
-        <textarea id="dailyNotes" placeholder="ملاحظات..."></textarea>
-        <div class="hint" style="color:var(--muted);margin-top:10px">الحفظ داخل: <b>daily_tasks</b> على مشروع <b>mzj-workspace-c7d4e</b>.</div>
+        <textarea id="dailyNotes" placeholder="ملاحظات داخلية..."></textarea>
+        <div class="hint" style="color:var(--muted);margin-top:10px">سيتم الحفظ داخل Collection: <b>daily_tasks</b> في مشروع <b>mzj-workspace-c7d4e</b>.</div>
       </div>
       <div class="m-foot">
+        <button class="btn danger" id="dailyDelete" style="display:none" type="button">حذف</button>
         <button class="btn secondary" id="dailyCancel" type="button">إلغاء</button>
         <button class="btn" id="dailySave" type="button">حفظ</button>
       </div>
     </div>
   </div>
 
-  <div class="toast" id="toast">...</div>
+  <!-- Campaign Text Editor Modal -->
+  <div class="modal" id="campaignTextModal">
+    <div class="sheet" style="max-width:980px">
+      <div class="m-head">
+        <strong>محرر نصوص الحملات</strong>
+        <button class="btn secondary xs" id="campaignTextClose" type="button">إغلاق</button>
+      </div>
+      <div class="m-body">
+        <div class="card" style="padding:12px;margin:0">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <select id="cteFont" class="inp" style="min-width:180px">
+              <option value="Tajawal">Tajawal</option>
+              <option value="Arial">Arial</option>
+              <option value="Tahoma">Tahoma</option>
+              <option value="Courier New">Courier New</option>
+            </select>
+            <select id="cteSize" class="inp" style="min-width:140px">
+              <option value="2">صغير</option>
+              <option value="3" selected>عادي</option>
+              <option value="4">كبير</option>
+              <option value="5">أكبر</option>
+            </select>
+            <input id="cteColor" type="color" class="inp" style="width:64px;min-width:64px;padding:6px" />
+
+            <button class="btn secondary sm" id="cteBold" type="button"><b>B</b></button>
+            <button class="btn secondary sm" id="cteItalic" type="button"><i>I</i></button>
+            <button class="btn secondary sm" id="cteUnderline" type="button"><u>U</u></button>
+            <button class="btn secondary sm" id="cteUl" type="button">• قائمة</button>
+            <button class="btn secondary sm" id="cteOl" type="button">1. قائمة</button>
+            <button class="btn ghost sm" id="cteClear" type="button">مسح التنسيق</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="card" style="padding:0;margin:0;border:1px solid #e6ded6">
+          <div id="cteEditor" contenteditable="true" style="min-height:320px;padding:14px;outline:none;background:#fff;border-radius:14px"></div>
+        </div>
+        <div class="hint" id="cteHint" style="color:var(--muted);margin-top:10px">احفظ النص وربطه بالحملة الحالية — يمكنك الرجوع له وتعديله أو حذفه في أي وقت.</div>
+      </div>
+      <div class="m-foot">
+        <button class="btn danger" id="cteDelete" type="button">حذف</button>
+        <button class="btn secondary" id="cteCancel" type="button">إلغاء</button>
+        <button class="btn" id="cteSave" type="button">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+<div class="toast" id="toast">...</div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script type="module">
     import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
     import {
       getAuth, onAuthStateChanged, signOut, signInAnonymously,
-      signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail,
-      setPersistence, browserLocalPersistence
+      signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, setPersistence, browserLocalPersistence
     } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
     import {
       getFirestore, collection, doc, getDoc, getDocs,
@@ -1249,9 +1259,10 @@
     const auth = getAuth();
     const db = getFirestore();
 
-    // Secondary auth instance (علشان إنشاء مستخدم جديد بدون ما يخرج الأدمن الحالي)
-    const secondaryApp = initializeApp(firebaseConfig, "secondary");
-    const secondaryAuth = getAuth(secondaryApp);
+    // Secondary app instance for creating users without affecting current session
+    const adminCreateApp = initializeApp(firebaseConfig, "adminCreate");
+    const adminCreateAuth = getAuth(adminCreateApp);
+
 
     // Agenda/Stock App (مشروع مختلف) — لتعبئة Unique Spec Key
     // ملاحظة: لازم Anonymous Auth يكون مفعّل في مشروع mzj-agenda + Rules تسمح بالقراءة.
@@ -1478,7 +1489,15 @@ function initials(name){
     });
     if(localStorage.getItem("ws_sb_collapsed")==="1") appEl.classList.add("collapsed");
 
-    const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard"), stock: $("viewStock"), daily: $("viewDaily"), admin: $("viewAdmin") };
+    const views = { home: $("viewHome"), list: $("viewList"), board: $("viewBoard"), daily: $("viewDaily"), stock: $("viewStock"), admin: $("viewAdmin") };
+
+    // Dashboard caches
+    let WORKSPACES_CACHE = [];
+    let TASKS_CACHE = [];
+
+    // Daily tasks
+    let DAILY_CACHE = [];
+    let unsubDaily = null;
 
     // Last rendered rows for Excel export (stock tab)
     let __LAST_STOCK_ROWS = [];
@@ -1539,23 +1558,46 @@ function initials(name){
       views[key].style.display="";
     }
 
-    // ===== حفظ/استرجاع آخر Tab (لما تعمل Refresh يفتح نفس اللي كنت فاتحه) =====
-    const LAST_STATE_KEY = "ws_last_state_v1";
-    function saveLastState(state){
-      try{ localStorage.setItem(LAST_STATE_KEY, JSON.stringify(state||{})); }catch(e){}
-    }
-    function readLastState(){
-      try{ return JSON.parse(localStorage.getItem(LAST_STATE_KEY) || "{}"); }catch(e){ return {}; }
-    }
-
     let CURRENT_USER = null;
     let CURRENT_ROLE = "member";
     let USERS = [];
 
-    let MODE = "home";
+    // ===== Persist last opened tab (refresh keeps same tab) =====
+    const LAST_VIEW_KEY = "ws_last_view";
+    function saveLastView(view, extra={}){
+      try{ localStorage.setItem(LAST_VIEW_KEY, JSON.stringify({view, ...extra})); }catch(e){}
+    }
+    async function restoreLastView(){
+      let state=null;
+      try{ state = JSON.parse(localStorage.getItem(LAST_VIEW_KEY)||"null"); }catch(e){ state=null; }
+      if(!state || !state.view){ openHome(); return; }
+
+      if(state.view==="home") return openHome();
+      if(state.view==="list") return openList(state.type||"agenda");
+      if(state.view==="stock") return openStock();
+      if(state.view==="admin") return openAdmin();
+      if(state.view==="daily") return openDaily();
+      if(state.view==="board"){
+        try{
+          if(state.workspaceId){
+            const snap = await getDoc(doc(db,"workspaces", state.workspaceId));
+            if(snap.exists()) return openBoard({id:snap.id, ...(snap.data()||{})});
+          }
+        }catch(e){}
+        return openHome();
+      }
+      return openHome();
+    }
+
+let MODE = "home";
     let LIST_TYPE = null;
     let CURRENT_WORKSPACE = null;
     let CURRENT_TASK = null;
+
+    // Board tasks filter (agenda only)
+    let BOARD_USER_FILTER_UID = "";
+    let BOARD_TASKS_ALL = [];
+
     let unsubWorkspaces = null;
     let unsubTasks = null;
 
@@ -1567,7 +1609,7 @@ function initials(name){
     });
 
     function setNavActive(which){
-      ["navHome","navAgendas","navCampaigns","navStock","navDaily","navAdmin"].forEach(id=>{
+      ["navHome","navAgendas","navCampaigns","navDaily","navStock","navAdmin"].forEach(id=>{
         $(id).classList.toggle("active", id===which);
       });
     }
@@ -1575,9 +1617,10 @@ function initials(name){
     $("navAgendas").addEventListener("click", ()=> openList("agenda"));
     $("navCampaigns").addEventListener("click", ()=> openList("campaign"));
 
+    $("navDaily").addEventListener("click", ()=> openDaily());
+
     $("navStock").addEventListener("click", ()=> openStock());
 
-    $("navDaily").addEventListener("click", ()=> openDaily());
     $("navAdmin").addEventListener("click", ()=> openAdmin());
 
     $("goAgendas").addEventListener("click", ()=> openList("agenda"));
@@ -1638,52 +1681,35 @@ function initials(name){
 
       $("whoName").textContent = displayName;
       $("whoRole").textContent = (CURRENT_ROLE==="admin" ? "مدير" : "عضو");
-      $("avatar").textContent = initials(displayName);
-
-      // إظهار/إخفاء Tabs حسب الصلاحية
+      // show Admin tab for admins only
+      try{ $("navAdmin").style.display = (CURRENT_ROLE==="admin" ? "" : "none"); }catch(e){}
+      // Daily Task tab: للمدير فقط
+      try{ $("navDaily").style.display = (CURRENT_ROLE==="admin" ? "" : "none"); }catch(e){}
+      // Dashboard module option: Daily Task للمدير فقط
       try{
-        const isAdmin = (CURRENT_ROLE==="admin");
-        $("navHome").style.display = isAdmin ? "" : "none"; // الداش بورد للأدمن فقط
-        $("navAdmin").style.display = isAdmin ? "" : "none";
-        $("navDaily").style.display = isAdmin ? "" : "none";
-        // للأعضاء: فقط الأجندات + الحملات + stock
-        $("dashWrap").style.display = isAdmin ? "" : "none";
+        const opt = document.querySelector('#dashModule option[value="daily"]');
+        if(opt) opt.style.display = (CURRENT_ROLE==="admin" ? "" : "none");
       }catch(e){}
+      $("avatar").textContent = initials(displayName);
 
       await loadUsers();
       // مهام Tab stock (لا تمس mzj-agenda) — نحتاجها لتصفية Unique Spec Key "بدون مونتاج"
       await loadStockTasksOnce();
-
-      // استرجاع آخر Tab بعد الـ Refresh (مع احترام الصلاحيات)
-      const st = readLastState();
-      const canAdmin = (CURRENT_ROLE==="admin");
-      if(st.view==="board" && st.workspaceId){
-        try{
-          const w = await getDoc(doc(db,"workspaces", st.workspaceId));
-          if(w.exists()){
-            openBoard({id:w.id, ...(w.data()||{})});
-          }else{
-            canAdmin ? openHome() : openList("agenda");
-          }
-        }catch{
-          canAdmin ? openHome() : openList("agenda");
-        }
-      }else if(st.view==="list" && (st.listType==="agenda" || st.listType==="campaign")){
-        openList(st.listType);
-      }else if(st.view==="stock"){
-        openStock();
-      }else if(st.view==="daily" && canAdmin){
-        openDaily();
-      }else if(st.view==="admin" && canAdmin){
-        openAdmin();
-      }else{
-        canAdmin ? openHome() : openList("agenda");
-      }
+      restoreLastView();
       listenKPIs();
+
+      // Preload Daily tasks for dashboard (admin only)
+      try{
+        if(CURRENT_ROLE==="admin"){
+          initDailySelectors();
+          refreshDaily();
+        }
+      }catch(e){}
 
       // مصادر الـ Spec Key (1) كاش محلي داخل مشروع الـ Workspace + (2) مصدر حي من مشروع الـ Agenda
       initLocalSpecCache();
       initSpecKeySource();
+      wireAdminTab();
     });
 
     async function loadUsers(){
@@ -1696,7 +1722,9 @@ function initials(name){
             uid: d.id,
             name: u.name || u.username || u.email || d.id.slice(0,6),
             role: u.role || "member",
-            email: u.email || null
+            email: u.email || null,
+            createdAt: u.createdAt || null,
+            active: (u.active !== false)
           });
         });
       }catch(err){ console.warn("users load failed", err); }
@@ -1711,272 +1739,850 @@ function initials(name){
       });
     }
 
-    let unsubKpiWs=null, unsubKpiTasks=null;
+    
+
+    // ===== Admin Tab: Create new user (Auth + users/{uid}) =====
+    function setAdminMsg(msg, isErr=false){
+      const el = $("adminMsg");
+      if(!el) return;
+      el.style.color = isErr ? "var(--danger)" : "var(--muted)";
+      el.textContent = msg || "";
+    }
+
+    function setAdminUsersMsg(msg, isErr=false){
+      const el = $("adminUsersMsg");
+      if(!el) return;
+      el.style.color = isErr ? "var(--danger)" : "var(--muted)";
+      el.textContent = msg || "";
+    }
+
+    function fmtDateAny(v){
+      try{
+        if(!v) return "";
+        if(typeof v === "object" && typeof v.toDate === "function"){
+          const d = v.toDate();
+          return d.toLocaleDateString('ar-SA') + " " + d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+        }
+        if(typeof v === "number"){
+          const d = new Date(v);
+          return d.toLocaleDateString('ar-SA') + " " + d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+        }
+      }catch(e){}
+      return "";
+    }
+
+    function renderAdminUsersTable(){
+      const table = $("adminUsersTable");
+      if(!table) return;
+
+      const q = String($("adminUserSearch")?.value || "").trim().toLowerCase();
+      const list = USERS
+        .slice()
+        .filter(u=>{
+          const a = (u.name||"").toLowerCase();
+          const b = (u.email||"").toLowerCase();
+          const c = (u.uid||"").toLowerCase();
+          return !q || a.includes(q) || b.includes(q) || c.includes(q);
+        })
+        .sort((a,b)=> ((a.name||a.email||a.uid)||"").localeCompare((b.name||b.email||b.uid)||"", "ar"));
+
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th style="width:52px">#</th>
+            <th>الاسم</th>
+            <th>الإيميل</th>
+            <th style="width:160px">الصلاحية</th>
+            <th style="width:200px">تاريخ الإنشاء</th>
+            <th style="width:260px">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+
+      const tbody = table.querySelector('tbody');
+      if(!list.length){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="6" style="text-align:center;color:var(--muted);padding:18px">لا يوجد مستخدمين.</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      list.forEach((u, idx)=>{
+        const tr = document.createElement('tr');
+        const created = fmtDateAny(u.createdAt);
+        tr.innerHTML = `
+          <td>${idx+1}</td>
+          <td><b>${escapeHtml(u.name||"-")}</b></td>
+          <td>${escapeHtml(u.email||"-")}</td>
+          <td>
+            <select class="inp" data-role-sel="${escapeHtml(u.uid)}" style="min-width:140px">
+              <option value="member">member</option>
+              <option value="finisher">finisher</option>
+              <option value="admin">admin</option>
+            </select>
+          </td>
+          <td>${created || "-"}</td>
+          <td>
+            <div style="display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap">
+              <button class="btn sm" data-save-user="${escapeHtml(u.uid)}" type="button">حفظ</button>
+              <button class="btn secondary sm" data-reset-pass="${escapeHtml(u.uid)}" type="button">إعادة تعيين كلمة المرور</button>
+              <span class="pill" style="align-self:center">UID: ${escapeHtml(String(u.uid).slice(0,8))}…</span>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        // set default role
+        const sel = tr.querySelector(`[data-role-sel="${CSS.escape(u.uid)}"]`);
+        if(sel) sel.value = (u.role||"member");
+      });
+    }
+
+    function wireAdminTab(){
+      const btn = $("adminCreateUser");
+      if(!btn) return;
+
+      // Users list controls
+      const search = $("adminUserSearch");
+      const refresh = $("adminUsersRefresh");
+
+      const repaintUsers = () => {
+        renderAdminUsersTable();
+        setAdminUsersMsg(`الإجمالي: ${USERS.length} مستخدم`);
+      };
+
+      if(search){
+        search.addEventListener("input", ()=> repaintUsers());
+      }
+      if(refresh){
+        refresh.addEventListener("click", async ()=>{
+          if(CURRENT_ROLE !== "admin"){ setAdminUsersMsg("غير مسموح.", true); return; }
+          refresh.disabled = true;
+          try{
+            await loadUsers();
+            repaintUsers();
+            toast("✅ تم تحديث المستخدمين");
+          }catch(e){
+            setAdminUsersMsg("⚠️ فشل تحديث المستخدمين", true);
+          }finally{ refresh.disabled = false; }
+        });
+      }
+      $("adminClear").addEventListener("click", ()=>{
+        $("adminNewEmail").value = "";
+        $("adminNewPass").value = "";
+        $("adminNewName").value = "";
+        $("adminNewRole").value = "member";
+        setAdminMsg("");
+      });
+
+      btn.addEventListener("click", async ()=>{
+        if(CURRENT_ROLE !== "admin"){
+          setAdminMsg("غير مسموح — هذه الصفحة للمدير فقط.", true);
+          return;
+        }
+
+        const email = String($("adminNewEmail").value||"").trim().toLowerCase();
+        const pass  = String($("adminNewPass").value||"").trim();
+        const role  = String($("adminNewRole").value||"member").trim();
+        const name  = String($("adminNewName").value||"").trim();
+
+        if(!email || !pass){
+          setAdminMsg("اكتب البريد وكلمة المرور.", true);
+          return;
+        }
+        if(pass.length < 6){
+          setAdminMsg("كلمة المرور لازم تكون 6 أحرف أو أكثر.", true);
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "جاري الإنشاء...";
+        setAdminMsg("");
+
+        try{
+          // Create auth user via secondary auth instance (does NOT sign out current admin)
+          const cred = await createUserWithEmailAndPassword(adminCreateAuth, email, pass);
+          const newUser = cred.user;
+
+          // Create users/{uid} document in same workspace Firestore
+          await setDoc(doc(db, "users", newUser.uid), {
+            email,
+            name: name || email.split("@")[0],
+            role: role || "member",
+            createdAt: serverTimestamp(),
+            createdBy: CURRENT_USER?.uid || null
+          }, { merge: true });
+
+          setAdminMsg(`✅ تم إنشاء المستخدم وحفظ الصلاحية: ${role}`);
+          toast("✅ تم إنشاء المستخدم");
+          await loadUsers();
+          repaintUsers();
+
+          // keep secondary auth clean
+          try{ await signOut(adminCreateAuth); }catch(e){}
+
+        }catch(err){
+          console.warn("admin create user failed", err);
+          const code = err?.code || "";
+          let msg = "فشل إنشاء المستخدم.";
+          if(code.includes("auth/email-already-in-use")) msg = "هذا البريد موجود بالفعل.";
+          if(code.includes("auth/invalid-email")) msg = "البريد غير صالح.";
+          if(code.includes("auth/weak-password")) msg = "كلمة المرور ضعيفة.";
+          setAdminMsg("⚠️ " + msg, true);
+        }finally{
+          btn.disabled = false;
+          btn.textContent = "➕ إنشاء المستخدم";
+        }
+      });
+
+      // Table actions (save role / reset password)
+      const table = $("adminUsersTable");
+      if(table){
+        table.addEventListener("click", async (e)=>{
+          const saveBtn = e.target.closest("[data-save-user]");
+          const resetBtn = e.target.closest("[data-reset-pass]");
+
+          if(saveBtn){
+            if(CURRENT_ROLE !== "admin"){ setAdminUsersMsg("غير مسموح.", true); return; }
+            const uid = saveBtn.getAttribute("data-save-user");
+            const sel = table.querySelector(`[data-role-sel="${CSS.escape(uid)}"]`);
+            const newRole = String(sel?.value || "member");
+            saveBtn.disabled = true;
+            try{
+              await updateDoc(doc(db,"users", uid), { role: newRole, updatedAt: serverTimestamp(), updatedBy: CURRENT_USER?.uid || null });
+              // update local cache
+              const i = USERS.findIndex(x=> x.uid===uid);
+              if(i>=0) USERS[i].role = newRole;
+              toast("✅ تم حفظ الصلاحية");
+              setAdminUsersMsg("تم تحديث الصلاحيات بنجاح");
+              // refresh assignee dropdown labels
+              await loadUsers();
+              repaintUsers();
+            }catch(err){
+              console.warn("save user role failed", err);
+              setAdminUsersMsg("⚠️ فشل حفظ الصلاحية (راجع القواعد)", true);
+            }finally{
+              saveBtn.disabled = false;
+            }
+            return;
+          }
+
+          if(resetBtn){
+            if(CURRENT_ROLE !== "admin"){ setAdminUsersMsg("غير مسموح.", true); return; }
+            const uid = resetBtn.getAttribute("data-reset-pass");
+            const u = USERS.find(x=> x.uid===uid);
+            const email = (u?.email || "").trim();
+            if(!email){ setAdminUsersMsg("لا يوجد إيميل محفوظ لهذا المستخدم.", true); return; }
+            resetBtn.disabled = true;
+            try{
+              await sendPasswordResetEmail(auth, email);
+              toast("✅ تم إرسال رابط إعادة التعيين");
+              setAdminUsersMsg(`تم إرسال رابط إعادة تعيين كلمة المرور إلى: ${email}`);
+            }catch(err){
+              console.warn("reset pass failed", err);
+              setAdminUsersMsg("⚠️ فشل إرسال رابط إعادة التعيين", true);
+            }finally{ resetBtn.disabled = false; }
+            return;
+          }
+        });
+      }
+
+      // initial paint
+      repaintUsers();
+    }
+
+let unsubKpiWs=null, unsubKpiTasks=null;
     function listenKPIs(){
       if(unsubKpiWs) unsubKpiWs();
       if(unsubKpiTasks) unsubKpiTasks();
 
       unsubKpiWs = onSnapshot(collection(db,"workspaces"), (snap)=>{
+        WORKSPACES_CACHE = [];
         let agendas=0, campaigns=0;
         snap.forEach(d=>{
           const x = d.data()||{};
+          WORKSPACES_CACHE.push({ id:d.id, ...x });
           if(x.active===false) return;
           if(x.type==="agenda") agendas++;
           if(x.type==="campaign") campaigns++;
         });
         $("kpiAgendas").textContent = agendas;
         $("kpiCampaigns").textContent = campaigns;
+        try{ if(MODE==="home") renderDashboard(); }catch(e){}
       });
 
       unsubKpiTasks = onSnapshot(collection(db,"workspace_tasks"), (snap)=>{
+        TASKS_CACHE = [];
         let a=0,c=0;
         snap.forEach(d=>{
           const t=d.data()||{};
+          TASKS_CACHE.push({ id:d.id, ...t });
           if(t.type==="agenda") a++;
           if(t.type==="campaign") c++;
         });
         $("kpiAgendaTasks").textContent = a;
         $("kpiCampaignTasks").textContent = c;
+        try{ if(MODE==="home") renderDashboard(); }catch(e){}
       });
     }
 
-    // ===== Dashboard (Admin only) =====
-    let DASH_READY = false;
-    let DASH_BOARDS_CACHE = { agenda: [], campaign: [] };
+    // =====================
+    // Dashboard (Home)
+    // =====================
+    const dashModuleEl = $("dashModule");
+    const dashAssigneeEl = $("dashAssignee");
+    const dashMembersTable = $("dashMembersTable");
+    const dashTasksList = $("dashTasksList");
+    const dashTasksHint = $("dashTasksHint");
+    const dashDailyYM = $("dashDailyYM");
+    const dashDailyYear = $("dashDailyYear");
+    const dashDailyMonth = $("dashDailyMonth");
+    const btnDashPdf = $("btnDashPdf");
 
-    function initDashboardUI(){
-      if(DASH_READY) return;
-      DASH_READY = true;
+    function monthNameAr(m){
+      const names = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+      return names[m-1] || String(m);
+    }
 
-      const src = $("dashSource");
-      const board = $("dashBoard");
-      const pickWrap = $("dashPickBoardWrap");
-      const dailyWrap = $("dashDailyWrap");
+    function initDashAssignees(){
+      if(!dashAssigneeEl) return;
+      const current = dashAssigneeEl.value || "";
+      dashAssigneeEl.innerHTML = `<option value="">كل الأعضاء</option>` + USERS
+        .map(u=> `<option value="${escapeAttr(u.uid)}">${escapeHtml(u.name||u.email||u.uid)}</option>`)
+        .join("");
+      dashAssigneeEl.value = current;
+    }
 
-      const setMode = ()=>{
-        const v = src.value;
-        if(v==='daily'){
-          pickWrap.style.display='none';
-          dailyWrap.style.display='grid';
+    function initDashDailySelectors(){
+      if(!dashDailyYear || !dashDailyMonth) return;
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth()+1;
+      const years = [y-1, y, y+1];
+      dashDailyYear.innerHTML = years.map(v=> `<option value="${v}">${v}</option>`).join("");
+      dashDailyMonth.innerHTML = Array.from({length:12},(_,i)=>{
+        const mm=i+1;
+        return `<option value="${mm}">${monthNameAr(mm)}</option>`;
+      }).join("");
+      dashDailyYear.value = String(y);
+      dashDailyMonth.value = String(m);
+    }
+
+    async function exportDashboardToPdf(){
+      const card = document.querySelector('#viewHome .card');
+      if(!card){ toast('⚠️ لا يوجد محتوى للتصدير'); return; }
+      try{
+        const canvas = await html2canvas(card, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p','mm','a4');
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        const imgW = pageW;
+        const imgH = (canvas.height * imgW) / canvas.width;
+        let y = 0;
+        if(imgH <= pageH){
+          pdf.addImage(imgData, 'PNG', 0, 0, imgW, imgH);
         }else{
-          pickWrap.style.display='block';
-          dailyWrap.style.display='none';
+          // multi-page
+          let remaining = imgH;
+          while(remaining > 0){
+            pdf.addImage(imgData, 'PNG', 0, y, imgW, imgH);
+            remaining -= pageH;
+            if(remaining > 0){ pdf.addPage(); y -= pageH; }
+          }
         }
-      };
-
-      src.addEventListener('change', async ()=>{
-        setMode();
-        await populateDashBoards();
-        await refreshDashboard();
-      });
-
-      board.addEventListener('change', ()=> refreshDashboard());
-      $("btnDashRefresh").addEventListener('click', ()=> refreshDashboard());
-      $("dashDailyMonth").addEventListener('change', ()=> refreshDashboard());
-      $("dashDailyYear").addEventListener('input', ()=> refreshDashboard());
-      $("btnDashPdf").addEventListener('click', ()=> exportDashboardPDF());
-
-      setMode();
-      populateDashBoards().then(()=> refreshDashboard());
+        pdf.save(`dashboard_${Date.now()}.pdf`);
+      }catch(err){
+        console.error(err);
+        toast('⚠️ فشل تصدير PDF');
+      }
     }
 
-    async function populateDashBoards(){
-      const src = $("dashSource").value;
-      const sel = $("dashBoard");
-      if(src==='daily') return;
+    if(dashModuleEl){
+      dashModuleEl.addEventListener('change', ()=>{ try{ renderDashboard(); }catch(e){} });
+    }
+    if(dashAssigneeEl){
+      dashAssigneeEl.addEventListener('change', ()=>{ try{ renderDashboard(); }catch(e){} });
+    }
+    if(dashDailyYear){ dashDailyYear.addEventListener('change', ()=>{ try{ renderDashboard(); }catch(e){} }); }
+    if(dashDailyMonth){ dashDailyMonth.addEventListener('change', ()=>{ try{ renderDashboard(); }catch(e){} }); }
+    if(btnDashPdf){ btnDashPdf.addEventListener('click', exportDashboardToPdf); }
 
-      if(!DASH_BOARDS_CACHE[src]?.length){
-        try{
-          const qy = query(collection(db,'workspaces'), where('type','==', src));
-          const snap = await getDocs(qy);
-          const items=[];
-          snap.forEach(d=>{
-            const w=d.data()||{};
-            if(w.active===false) return;
-            items.push({ id:d.id, ...(w) });
-          });
-          items.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
-          DASH_BOARDS_CACHE[src]=items;
-        }catch(err){ console.error(err); toast('⚠️ فشل تحميل قائمة الداش بورد'); }
+    function isDoneTask(t){
+      const col = String(t.column||'');
+      const st = String(t.status||'');
+      return /تم الانتهاء/.test(col) || st === 'تم الانتهاء';
+    }
+
+    function renderDashboard(){
+      if(!dashModuleEl || MODE !== 'home') return;
+      initDashAssignees();
+      initDashDailySelectors();
+
+      const module = dashModuleEl.value || 'agenda';
+      const assignee = dashAssigneeEl.value || '';
+
+      // Daily selectors visibility
+      if(dashDailyYM){
+        dashDailyYM.style.display = (module==='daily' ? 'flex' : 'none');
       }
 
-      const items = DASH_BOARDS_CACHE[src] || [];
-      sel.innerHTML = items.map(w=> `<option value="${escapeHtml(w.id)}">${escapeHtml(w.name||w.id)}</option>`).join('');
-    }
-
-    async function refreshDashboard(){
-      if(CURRENT_ROLE!=="admin") return;
-      const src = $("dashSource").value;
-      let tasks=[];
-
-      if(src==='daily'){
-        const month = Number($("dashDailyMonth").value||1);
-        const year = Number($("dashDailyYear").value||new Date().getFullYear());
-        try{
-          const qy = query(collection(db,'daily_tasks'), where('month','==', month), where('year','==', year));
-          const snap = await getDocs(qy);
-          snap.forEach(d=> tasks.push({ id:d.id, ...(d.data()||{}), __src:'daily' }));
-        }catch(err){ console.error(err); toast('⚠️ فشل تحميل Daily Task'); }
+      let tasks = [];
+      if(module === 'daily'){
+        const y = Number(dashDailyYear?.value || new Date().getFullYear());
+        const m = Number(dashDailyMonth?.value || (new Date().getMonth()+1));
+        tasks = DAILY_CACHE.filter(t=> Number(t.year)===y && Number(t.month)===m);
+        if(assignee) tasks = tasks.filter(t=> (t.createdBy||'') === assignee || (t.assigneeUid||'')===assignee);
       }else{
-        const boardId = $("dashBoard").value;
-        if(!boardId){ setDashNumbers([]); renderDashMembers([]); renderDashTasks([]); return; }
-        try{
-          const qy = query(collection(db,'workspace_tasks'), where('workspaceId','==', boardId));
-          const snap = await getDocs(qy);
-          snap.forEach(d=> tasks.push({ id:d.id, ...(d.data()||{}), __src:'ws' }));
-        }catch(err){ console.error(err); toast('⚠️ فشل تحميل المهام'); }
+        // agenda/campaign
+        const wsIds = new Set(WORKSPACES_CACHE.filter(w=> w.active!==false && w.type===module).map(w=> w.id));
+        tasks = TASKS_CACHE.filter(t=> wsIds.has(t.workspaceId) && t.type===module);
+        if(assignee) tasks = tasks.filter(t=> (t.assigneeUid||'') === assignee);
       }
 
-      // Done vs Open
-      const isDone = (t)=>{
-        const s = String(t.status||'').toLowerCase();
-        if(s==='done' || s==='completed' || s==='تم الانتهاء' || s==='true') return true;
-        const c = String(t.column||'');
-        if(c.includes('تم الانتهاء')) return true;
-        return false;
-      };
-      const done = tasks.filter(isDone);
-      const open = tasks.filter(t=> !isDone(t));
+      const total = tasks.length;
+      const done = tasks.filter(isDoneTask).length;
+      const remain = total - done;
+      try{ $("dashTotal").textContent = String(total); }catch(e){}
+      try{ $("dashDone").textContent = String(done); }catch(e){}
+      try{ $("dashRemain").textContent = String(remain); }catch(e){}
 
-      $("dashTotal").textContent = tasks.length;
-      $("dashDone").textContent = done.length;
-      $("dashOpen").textContent = open.length;
+      // members table
+      if(dashMembersTable){
+        const rows = USERS.map(u=>{
+          const uTasks = (module==='daily')
+            ? tasks.filter(t=> (t.createdBy||'')===u.uid || (t.assigneeUid||'')===u.uid)
+            : tasks.filter(t=> (t.assigneeUid||'')===u.uid);
+          const uTotal = uTasks.length;
+          const uDone = uTasks.filter(isDoneTask).length;
+          const uRemain = uTotal - uDone;
+          return { name: u.name||u.email||u.uid, total:uTotal, done:uDone, remain:uRemain };
+        }).filter(r=> r.total>0 || total===0);
 
-      // Member stats
-      const byUser = new Map();
-      tasks.forEach(t=>{
-        const uid = t.userId || t.assigneeUid || t.createdByUid || t.createdBy || '—';
-        if(!byUser.has(uid)) byUser.set(uid, { uid, total:0, done:0, open:0 });
-        const row = byUser.get(uid);
-        row.total++;
-        if(isDone(t)) row.done++; else row.open++;
-      });
-      const memRows = Array.from(byUser.values()).map(r=>{
-        const u = USERS.find(x=> x.uid===r.uid) || {};
-        return {
-          uid: r.uid,
-          name: u.name || u.email || (r.uid==='—'?'—': String(r.uid).slice(0,6)),
-          role: u.role || '',
-          total: r.total,
-          done: r.done,
-          open: r.open
+        dashMembersTable.innerHTML = `
+          <thead>
+            <tr>
+              <th style="width:40%">العضو</th>
+              <th>إجمالي</th>
+              <th>تم</th>
+              <th>باقي</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td>${escapeHtml(r.name)}</td>
+                <td>${r.total}</td>
+                <td>${r.done}</td>
+                <td>${r.remain}</td>
+              </tr>
+            `).join('')}
+          </tbody>`;
+      }
+
+      // tasks list
+      if(dashTasksList){
+        const max = 40;
+        const show = tasks.slice(0, max);
+        dashTasksList.innerHTML = show.map(t=>{
+          if(module==='daily'){
+            const label = `${monthNameAr(Number(t.month)||0)} ${t.year||''} — أسبوع ${t.week||''} — ${t.day||''}`;
+            const st = isDoneTask(t) ? '✅ تم الانتهاء' : '⏳ جاري';
+            return `<div class="li">
+              <div class="li-main">
+                <div class="li-title">${escapeHtml(t.title||'—')} <span class="muted" style="font-size:12px">${escapeHtml(st)}</span></div>
+                <div class="li-sub muted">${escapeHtml(label)}</div>
+                ${t.description ? `<div class="muted" style="margin-top:6px">${escapeHtml(t.description)}</div>` : ''}
+              </div>
+            </div>`;
+          }
+          const st = isDoneTask(t) ? '✅ تم الانتهاء' : '⏳ جاري';
+          return `<div class="li">
+            <div class="li-main">
+              <div class="li-title">${escapeHtml(t.specKey||'—')} <span class="muted" style="font-size:12px">${escapeHtml(st)}</span></div>
+              <div class="li-sub muted">${escapeHtml(t.column||'—')} — ${escapeHtml(t.assigneeName||'بدون مسؤول')}</div>
+              ${t.description ? `<div class="muted" style="margin-top:6px">${escapeHtml(t.description)}</div>` : ''}
+            </div>
+          </div>`;
+        }).join('');
+
+        if(dashTasksHint){
+          dashTasksHint.textContent = total > max ? `عرض ${max} من أصل ${total} مهمة.` : (total? '' : 'لا توجد مهام حالياً في هذا الاختيار.');
+        }
+      }
+    }
+
+    // =====================
+    // Daily Task (Admin)
+    // =====================
+    const dailyYearEl = $("dailyYear");
+    const dailyMonthEl = $("dailyMonth");
+    const dailyWeeksEl = $("dailyWeeks");
+    const dailyHintEl = $("dailyHint");
+
+    function initDailySelectors(){
+      if(!dailyYearEl || !dailyMonthEl) return;
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth()+1;
+      const years = [y-1, y, y+1];
+      dailyYearEl.innerHTML = years.map(v=> `<option value="${v}">${v}</option>`).join("");
+      dailyMonthEl.innerHTML = Array.from({length:12},(_,i)=>{
+        const mm=i+1;
+        return `<option value="${mm}">${monthNameAr(mm)}</option>`;
+      }).join("");
+      if(!dailyYearEl.value) dailyYearEl.value = String(y);
+      if(!dailyMonthEl.value) dailyMonthEl.value = String(m);
+    }
+
+    function dailyDoneState(t){
+      const st = String(t.status||'');
+      return st==='done' || st==='تم الانتهاء';
+    }
+
+    function renderDaily(){
+      if(!dailyWeeksEl) return;
+      const y = Number(dailyYearEl?.value || new Date().getFullYear());
+      const m = Number(dailyMonthEl?.value || (new Date().getMonth()+1));
+      const tasks = DAILY_CACHE.filter(t=> Number(t.year)===y && Number(t.month)===m);
+
+      const days = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"];
+      const weeks = [1,2,3,4];
+
+      dailyWeeksEl.innerHTML = weeks.map(w=>{
+        const wt = tasks.filter(t=> Number(t.week)===w);
+        const open = wt.filter(t=> !dailyDoneState(t));
+        const done = wt.filter(t=> dailyDoneState(t));
+        const renderCard = (t, isDone)=>{
+          const st = isDone ? '✅ تم الانتهاء' : '⏳ جاري';
+          return `
+            <div class="card" style="padding:12px;margin-bottom:10px" data-daily-card="${escapeAttr(t.id)}">
+              <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
+                <div>
+                  <strong>${escapeHtml(t.day||'—')} — ${escapeHtml(t.title||'—')}</strong>
+                  <div class="muted" style="margin-top:4px;font-size:12px">${escapeHtml(st)}</div>
+                  ${t.description ? `<div style="margin-top:6px">${escapeHtml(t.description)}</div>` : ''}
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                  <button class="btn secondary xs" type="button" data-daily-edit="${escapeAttr(t.id)}">✏️ تعديل</button>
+                  ${isDone
+                    ? `<button class="btn ghost xs" type="button" data-daily-undone="${escapeAttr(t.id)}">↩️ رجوع</button>`
+                    : `<button class="btn xs" type="button" data-daily-done="${escapeAttr(t.id)}">تم الانتهاء</button>`
+                  }
+                </div>
+              </div>
+              <div style="margin-top:10px">
+                <label style="font-size:12px;color:var(--muted)">ملاحظات</label>
+                <textarea data-daily-notes="${escapeAttr(t.id)}" placeholder="اكتب ملاحظات..." style="min-height:64px">${escapeHtml(t.notes||'')}</textarea>
+              </div>
+            </div>`;
         };
-      }).sort((a,b)=> b.total-a.total);
-      renderDashMembers(memRows);
 
-      // Tasks list
-      const taskRows = tasks.map(t=>({
-        title: t.title || t.name || t.specKey || t.uniqueSpecKey || '',
-        specKey: t.specKey || t.uniqueSpecKey || t.uniqueSpec || '',
-        column: t.column || (isDone(t)?'تم الانتهاء':'قيد العمل'),
-        status: isDone(t)?'done':'open',
-        user: (USERS.find(x=> x.uid===(t.userId||t.assigneeUid))?.name) || '',
-        notes: t.notes || t.note || '',
-        week: t.week || '',
-        day: (t.day!=null ? DAYS[Number(t.day)] : ''),
-        desc: t.description || t.desc || ''
-      }));
-      renderDashTasks(taskRows);
-    }
+        return `
+          <div class="card" style="padding:0">
+            <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div>
+                <strong>الأسبوع ${w}</strong>
+                <span class="muted">(السبت → الخميس)</span>
+              </div>
+              <div class="muted" style="font-size:12px">${open.length} جاري — ${done.length} تم</div>
+            </div>
+            <div class="card-body">
+              <div class="grid2" style="align-items:start">
+                <div>
+                  <label style="margin-bottom:8px">المهام</label>
+                  ${open.length ? open.map(t=> renderCard(t,false)).join('') : `<div class="hint" style="color:var(--muted)">لا توجد مهام.</div>`}
+                </div>
+                <div>
+                  <label style="margin-bottom:8px">تم الانتهاء</label>
+                  ${done.length ? done.map(t=> renderCard(t,true)).join('') : `<div class="hint" style="color:var(--muted)">لا توجد مهام مكتملة.</div>`}
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
 
-    function renderDashMembers(rows){
-      const t = $("dashMembersTable");
-      t.innerHTML = `
-        <thead><tr>
-          <th style="min-width:180px">العضو</th>
-          <th style="min-width:90px">الإجمالي</th>
-          <th style="min-width:90px">تم</th>
-          <th style="min-width:110px">باقي</th>
-        </tr></thead>
-        <tbody></tbody>
-      `;
-      const tb = t.querySelector('tbody');
-      rows.forEach(r=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML = `
-          <td><b>${escapeHtml(r.name||'—')}</b> <span class="muted">${escapeHtml(r.role||'')}</span></td>
-          <td>${r.total||0}</td>
-          <td><span class="pill-mini done">${r.done||0}</span></td>
-          <td><span class="pill-mini open">${r.open||0}</span></td>
-        `;
-        tb.appendChild(tr);
-      });
-      if(!rows.length){
-        const tr=document.createElement('tr');
-        tr.innerHTML = `<td colspan="4" class="muted">لا توجد بيانات.</td>`;
-        tb.appendChild(tr);
+      if(dailyHintEl){
+        dailyHintEl.textContent = tasks.length ? `إجمالي مهام هذا الشهر: ${tasks.length}` : 'لا توجد مهام لهذا الشهر.';
       }
     }
 
-    function renderDashTasks(rows){
-      const t = $("dashTasksTable");
-      t.innerHTML = `
-        <thead><tr>
-          <th style="min-width:200px">المهمة</th>
-          <th style="min-width:220px">Unique Spec Key</th>
-          <th style="min-width:140px">الحالة/العمود</th>
-          <th style="min-width:160px">العضو</th>
-          <th style="min-width:220px">ملاحظات</th>
-        </tr></thead>
-        <tbody></tbody>
-      `;
-      const tb = t.querySelector('tbody');
-      rows.forEach(r=>{
-        const tr=document.createElement('tr');
-        const badge = r.status==='done' ? '<span class="pill-mini done">تم</span>' : '<span class="pill-mini open">باقي</span>';
-        tr.innerHTML = `
-          <td><b>${escapeHtml(r.title||'—')}</b>${r.desc?`<div class="muted" style="margin-top:6px">${escapeHtml(r.desc)}</div>`:''}</td>
-          <td>${escapeHtml(r.specKey||'')}</td>
-          <td>${badge} <span class="muted">${escapeHtml(r.column||'')}</span></td>
-          <td>${escapeHtml(r.user||'')}</td>
-          <td>${escapeHtml(r.notes||'')}</td>
-        `;
-        tb.appendChild(tr);
+    function refreshDaily(){
+      if(unsubDaily){ unsubDaily(); unsubDaily = null; }
+      const y = Number(dailyYearEl?.value || new Date().getFullYear());
+      const m = Number(dailyMonthEl?.value || (new Date().getMonth()+1));
+      const qy = query(
+        collection(db, "daily_tasks"),
+        where("year","==",y),
+        where("month","==",m)
+      );
+      unsubDaily = onSnapshot(qy, (snap)=>{
+        DAILY_CACHE = [];
+        snap.forEach(d=> DAILY_CACHE.push({ id:d.id, ... (d.data()||{}) }));
+        renderDaily();
+        if(MODE==='home') renderDashboard();
       });
-      if(!rows.length){
-        const tr=document.createElement('tr');
-        tr.innerHTML = `<td colspan="5" class="muted">لا توجد مهام.</td>`;
-        tb.appendChild(tr);
+    }
+
+    // Daily view UI events
+    if($("btnDailyRefresh")) $("btnDailyRefresh").addEventListener('click', ()=>{ try{ refreshDaily(); }catch(e){} });
+    if(dailyYearEl) dailyYearEl.addEventListener('change', ()=>{ try{ refreshDaily(); }catch(e){} });
+    if(dailyMonthEl) dailyMonthEl.addEventListener('change', ()=>{ try{ refreshDaily(); }catch(e){} });
+
+    // =====================
+    // Daily Modal CRUD
+    // =====================
+    const dailyModal = $("dailyModal");
+    const dailyWeekSel = $("dailyWeek");
+    const dailyDaySel = $("dailyDay");
+    const dailyTitleInp = $("dailyTitle");
+    const dailyDescInp = $("dailyDesc");
+    const dailyNotesInp = $("dailyNotes");
+    const dailyDeleteBtn = $("dailyDelete");
+
+    let DAILY_MODE = 'create';
+    let CURRENT_DAILY = null;
+
+    function openDailyModal(mode, task=null){
+      DAILY_MODE = mode;
+      CURRENT_DAILY = task;
+      $("dailyModalTitle").textContent = (mode==='edit' ? 'تعديل مهمة' : 'مهمة يومية');
+
+      // week/day options
+      if(dailyWeekSel){
+        dailyWeekSel.innerHTML = [1,2,3,4].map(w=> `<option value="${w}">الأسبوع ${w}</option>`).join('');
+      }
+      if(dailyDaySel){
+        const days = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"];
+        dailyDaySel.innerHTML = days.map(d=> `<option value="${escapeAttr(d)}">${escapeHtml(d)}</option>`).join('');
+      }
+
+      if(mode==='edit' && task){
+        dailyWeekSel.value = String(task.week||1);
+        dailyDaySel.value = String(task.day||'السبت');
+        dailyTitleInp.value = task.title || '';
+        dailyDescInp.value = task.description || '';
+        dailyNotesInp.value = task.notes || '';
+        dailyDeleteBtn.style.display = '';
+      }else{
+        dailyWeekSel.value = '1';
+        dailyDaySel.value = 'السبت';
+        dailyTitleInp.value = '';
+        dailyDescInp.value = '';
+        dailyNotesInp.value = '';
+        dailyDeleteBtn.style.display = 'none';
+      }
+
+      dailyModal.classList.add('show');
+    }
+
+    function closeDailyModal(){
+      dailyModal.classList.remove('show');
+      CURRENT_DAILY = null;
+    }
+
+    if($("btnDailyAdd")) $("btnDailyAdd").addEventListener('click', ()=> openDailyModal('create'));
+    if($("dailyModalClose")) $("dailyModalClose").addEventListener('click', closeDailyModal);
+    if($("dailyCancel")) $("dailyCancel").addEventListener('click', closeDailyModal);
+    if(dailyModal) dailyModal.addEventListener('click', (e)=>{ if(e.target===dailyModal) closeDailyModal(); });
+
+    if($("dailySave")) $("dailySave").addEventListener('click', async ()=>{
+      const title = String(dailyTitleInp.value||'').trim();
+      const desc = String(dailyDescInp.value||'').trim();
+      const notes = String(dailyNotesInp.value||'').trim();
+      const week = Number(dailyWeekSel.value||1);
+      const day = String(dailyDaySel.value||'السبت');
+      const y = Number(dailyYearEl?.value || new Date().getFullYear());
+      const m = Number(dailyMonthEl?.value || (new Date().getMonth()+1));
+      if(!title) return toast('اكتب عنوان المهمة');
+
+      const payload = {
+        year: y,
+        month: m,
+        week,
+        day,
+        title,
+        description: desc || null,
+        notes: notes || null,
+        status: (CURRENT_DAILY && dailyDoneState(CURRENT_DAILY)) ? 'done' : 'open',
+        updatedAt: serverTimestamp(),
+        updatedBy: CURRENT_USER?.uid || null
+      };
+
+      try{
+        if(DAILY_MODE==='create'){
+          payload.createdAt = serverTimestamp();
+          payload.createdBy = CURRENT_USER?.uid || null;
+          await addDoc(collection(db,'daily_tasks'), payload);
+          toast('✅ تم حفظ المهمة');
+        }else{
+          if(!CURRENT_DAILY?.id) return toast('⚠️ لا يوجد ID');
+          await updateDoc(doc(db,'daily_tasks', CURRENT_DAILY.id), payload);
+          toast('✅ تم تعديل المهمة');
+        }
+        closeDailyModal();
+      }catch(err){
+        console.error(err);
+        toast('⚠️ فشل الحفظ (راجع قواعد Firestore)');
+      }
+    });
+
+    if(dailyDeleteBtn) dailyDeleteBtn.addEventListener('click', async ()=>{
+      if(!CURRENT_DAILY?.id) return;
+      if(!confirm('تأكيد حذف المهمة؟')) return;
+      try{
+        await deleteDoc(doc(db,'daily_tasks', CURRENT_DAILY.id));
+        toast('✅ تم حذف المهمة');
+        closeDailyModal();
+      }catch(err){
+        console.error(err);
+        toast('⚠️ فشل الحذف');
+      }
+    });
+
+    // Daily actions delegation
+    if(dailyWeeksEl){
+      let notesTimer = null;
+      dailyWeeksEl.addEventListener('click', async (e)=>{
+        const edit = e.target.closest('[data-daily-edit]');
+        const done = e.target.closest('[data-daily-done]');
+        const undo = e.target.closest('[data-daily-undone]');
+        const id = (edit||done||undo)?.getAttribute(edit? 'data-daily-edit' : done? 'data-daily-done' : 'data-daily-undone');
+        if(!id) return;
+
+        const t = DAILY_CACHE.find(x=> x.id===id);
+        if(edit){
+          return openDailyModal('edit', t);
+        }
+        if(done){
+          try{
+            await updateDoc(doc(db,'daily_tasks', id), { status:'done', doneAt: serverTimestamp(), updatedAt: serverTimestamp(), updatedBy: CURRENT_USER?.uid||null });
+            toast('✅ تم نقلها لتم الانتهاء');
+          }catch(err){ console.error(err); toast('⚠️ فشل تحديث الحالة'); }
+          return;
+        }
+        if(undo){
+          try{
+            await updateDoc(doc(db,'daily_tasks', id), { status:'open', updatedAt: serverTimestamp(), updatedBy: CURRENT_USER?.uid||null });
+            toast('✅ تم إرجاعها لقائمة المهام');
+          }catch(err){ console.error(err); toast('⚠️ فشل تحديث الحالة'); }
+          return;
+        }
+      });
+
+      dailyWeeksEl.addEventListener('input', (e)=>{
+        const ta = e.target;
+        if(!(ta instanceof HTMLTextAreaElement)) return;
+        const id = ta.getAttribute('data-daily-notes');
+        if(!id) return;
+        const val = ta.value;
+        clearTimeout(notesTimer);
+        notesTimer = setTimeout(async ()=>{
+          try{
+            await updateDoc(doc(db,'daily_tasks', id), { notes: val, updatedAt: serverTimestamp(), updatedBy: CURRENT_USER?.uid||null });
+          }catch(err){ console.warn(err); }
+        }, 400);
+      });
+    }
+
+    // =====================
+    // Campaign Text Editor
+    // =====================
+    const btnCampaignText = $("btnCampaignText");
+    const campaignTextModal = $("campaignTextModal");
+    const cteEditor = $("cteEditor");
+
+    async function openCampaignTextEditor(workspace){
+      if(!workspace || workspace.type !== 'campaign') return;
+      CURRENT_WORKSPACE = workspace; // ensure
+      if(!campaignTextModal) return;
+      // load existing
+      const data = await loadCampaignText(workspace.id);
+      if(cteEditor) cteEditor.innerHTML = (data?.html || '');
+      openCampaignTextModal();
+    }
+
+    async function loadCampaignText(workspaceId){
+      if(!workspaceId) return null;
+      try{
+        const snap = await getDoc(doc(db,'campaign_texts', workspaceId));
+        if(!snap.exists()) return null;
+        return snap.data() || null;
+      }catch(err){
+        console.warn(err);
+        return null;
       }
     }
 
-    function exportDashboardPDF(){
-      if(CURRENT_ROLE!=="admin") return;
-      const title = $("dashSource").value==='daily' ? 'Daily Task' : ($("dashSource").value==='agenda' ? 'الأجندة' : 'الحملة');
-      const selName = $("dashSource").value==='daily'
-        ? `${$("dashDailyMonth").selectedOptions[0]?.textContent||''} ${$("dashDailyYear").value||''}`
-        : ($("dashBoard").selectedOptions[0]?.textContent||'');
-      const html = `
-        <html dir="rtl" lang="ar"><head><meta charset="utf-8" />
-        <title>Dashboard Report</title>
-        <style>body{font-family:Tahoma,Arial;}
-        h1{margin:0 0 8px}
-        .muted{color:#666}
-        table{width:100%;border-collapse:collapse;margin-top:12px}
-        th,td{border:1px solid #ddd;padding:8px;font-size:12px;vertical-align:top;text-align:right}
-        th{background:#f7f7f7}
-        </style></head><body>
-          <h1>تقرير الداش بورد</h1>
-          <div class="muted">${title} — ${selName}</div>
-          <div style="margin-top:10px">إجمالي المهام: <b>${$("dashTotal").textContent}</b> | تم: <b>${$("dashDone").textContent}</b> | باقي: <b>${$("dashOpen").textContent}</b></div>
-          <h3 style="margin:18px 0 8px">الأعضاء</h3>
-          ${$("dashMembersTable").outerHTML}
-          <h3 style="margin:18px 0 8px">المهام</h3>
-          ${$("dashTasksTable").outerHTML}
-          <script>window.onload=()=>{window.print();}</script>
-        </body></html>
-      `;
-      const w = window.open('', '_blank');
-      if(!w) return toast('افتح Popups علشان التصدير');
-      w.document.open();
-      w.document.write(html);
-      w.document.close();
+    function openCampaignTextModal(){
+      if(!CURRENT_WORKSPACE || CURRENT_WORKSPACE.type !== 'campaign') return;
+      if(!campaignTextModal) return;
+      campaignTextModal.classList.add('show');
     }
+
+    function closeCampaignTextModal(){
+      if(!campaignTextModal) return;
+      campaignTextModal.classList.remove('show');
+    }
+
+    function exec(cmd, val=null){
+      try{ document.execCommand(cmd,false,val); }catch(e){}
+      cteEditor?.focus();
+    }
+
+    if($("campaignTextClose")) $("campaignTextClose").addEventListener('click', closeCampaignTextModal);
+    if($("cteCancel")) $("cteCancel").addEventListener('click', closeCampaignTextModal);
+    if(campaignTextModal) campaignTextModal.addEventListener('click', (e)=>{ if(e.target===campaignTextModal) closeCampaignTextModal(); });
+
+    if($("cteBold")) $("cteBold").addEventListener('click', ()=> exec('bold'));
+    if($("cteItalic")) $("cteItalic").addEventListener('click', ()=> exec('italic'));
+    if($("cteUnderline")) $("cteUnderline").addEventListener('click', ()=> exec('underline'));
+    if($("cteUl")) $("cteUl").addEventListener('click', ()=> exec('insertUnorderedList'));
+    if($("cteOl")) $("cteOl").addEventListener('click', ()=> exec('insertOrderedList'));
+    if($("cteClear")) $("cteClear").addEventListener('click', ()=> exec('removeFormat'));
+    if($("cteFont")) $("cteFont").addEventListener('change', (e)=> exec('fontName', e.target.value));
+    if($("cteSize")) $("cteSize").addEventListener('change', (e)=> exec('fontSize', e.target.value));
+    if($("cteColor")) $("cteColor").addEventListener('input', (e)=> exec('foreColor', e.target.value));
+
+    if($("cteSave")) $("cteSave").addEventListener('click', async ()=>{
+      if(!CURRENT_WORKSPACE || CURRENT_WORKSPACE.type!=='campaign') return toast('⚠️ اختر حملة أولاً');
+      const html = (cteEditor?.innerHTML || '').trim();
+      try{
+        await setDoc(doc(db,'campaign_texts', CURRENT_WORKSPACE.id), {
+          workspaceId: CURRENT_WORKSPACE.id,
+          html,
+          updatedAt: serverTimestamp(),
+          updatedBy: CURRENT_USER?.uid||null
+        }, { merge:true });
+        toast('✅ تم حفظ النص');
+        closeCampaignTextModal();
+      }catch(err){
+        console.error(err);
+        toast('⚠️ فشل حفظ النص');
+      }
+    });
+
+    if($("cteDelete")) $("cteDelete").addEventListener('click', async ()=>{
+      if(!CURRENT_WORKSPACE || CURRENT_WORKSPACE.type!=='campaign') return;
+      if(!confirm('تأكيد حذف النص؟')) return;
+      try{
+        await deleteDoc(doc(db,'campaign_texts', CURRENT_WORKSPACE.id));
+        if(cteEditor) cteEditor.innerHTML = '';
+        toast('✅ تم حذف النص');
+        closeCampaignTextModal();
+      }catch(err){
+        console.error(err);
+        toast('⚠️ فشل حذف النص');
+      }
+    });
 
 
 
     function openStock(){
       MODE="stock"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      saveLastView("stock");
       if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
       if(unsubTasks){unsubTasks();unsubTasks=null;}
 
@@ -1989,346 +2595,41 @@ function initials(name){
 
       showView("stock");
       renderStockTab();
-      saveLastState({view:"stock"});
     }
 
-    // ===== Daily Task (Admin Only) =====
-    let unsubDaily = null;
-    const DAYS = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"];
-
-    function openDaily(){
-      MODE="daily"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
-      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
-      if(unsubTasks){unsubTasks();unsubTasks=null;}
-      if(unsubDaily){unsubDaily();unsubDaily=null;}
-
-      setNavActive("navDaily");
-      $("pageTitle").textContent = "Daily Task";
-      $("pageDesc").textContent = "إنشاء مهام يومية مقسمة على 4 أسابيع (السبت → الخميس) مع ملاحظات وعمود تم الانتهاء.";
-      $("btnBack").style.display="none";
-      $("btnCreateAgenda").style.display="none";
-      $("btnCreateCampaign").style.display="none";
-      showView("daily");
-      saveLastState({view:"daily"});
-      listenDaily();
-    }
-
-    function dailyKey(){
-      const month = Number($("dailyMonth").value||1);
-      const year = Number($("dailyYear").value||new Date().getFullYear());
-      return {month, year};
-    }
-
-    $("btnDailyRefresh").addEventListener("click", ()=> listenDaily(true));
-    $("btnDailyNew").addEventListener("click", ()=> openDailyModal());
-
-    function listenDaily(force=false){
-      if(unsubDaily){unsubDaily();unsubDaily=null;}
-      const {month, year} = dailyKey();
-      const qy = query(
-        collection(db,"daily_tasks"),
-        where("month","==", month),
-        where("year","==", year)
-      );
-      unsubDaily = onSnapshot(qy, (snap)=>{
-        const items=[];
-        snap.forEach(d=> items.push({id:d.id, ...(d.data()||{})}));
-        // ترتيب ثابت: الأسبوع ثم اليوم ثم التاريخ
-        items.sort((a,b)=>{
-          const wa = Number(a.week||1), wb = Number(b.week||1);
-          if(wa!==wb) return wa-wb;
-          const da = Number(a.day||0), dbb = Number(b.day||0);
-          if(da!==dbb) return da-dbb;
-          return (a.createdAt?.seconds||0) - (b.createdAt?.seconds||0);
-        });
-        renderDaily(items, month, year);
-      }, (err)=>{
-        console.error(err);
-        toast("⚠️ فشل تحميل Daily Task");
-      });
-    }
-
-    function renderDaily(items, month, year){
-      const wrap = $("dailyWeeks");
-      wrap.innerHTML = "";
-      $("dailyEmpty").style.display = (!items.length) ? "" : "none";
-
-      for(let w=1; w<=4; w++){
-        const weekItems = items.filter(x=> Number(x.week||1)===w);
-        const openItems = weekItems.filter(x=> (x.status||"open")!=="done");
-        const doneItems = weekItems.filter(x=> (x.status||"open")==="done");
-
-        const card = document.createElement("div");
-        card.className = "week-card";
-        card.innerHTML = `
-          <div class="week-head">
-            <strong>الأسبوع ${w} — ${year}/${String(month).padStart(2,'0')}</strong>
-            <span class="pill-mini">${openItems.length} مفتوح • ${doneItems.length} تم</span>
-          </div>
-          <div class="week-cols">
-            <div class="week-col" data-week="${w}" data-bucket="open">
-              <h4>المهام</h4>
-            </div>
-            <div class="week-col" data-week="${w}" data-bucket="done">
-              <h4>تم الانتهاء</h4>
-            </div>
-          </div>
-        `;
-
-        wrap.appendChild(card);
-
-        const openCol = card.querySelector('[data-bucket="open"]');
-        const doneCol = card.querySelector('[data-bucket="done"]');
-
-        (openItems.length?openItems:[null]).forEach(t=>{
-          if(!t){
-            const e=document.createElement('div');
-            e.className='hint';
-            e.style.color='var(--muted)';
-            e.textContent='لا توجد مهام مفتوحة.';
-            openCol.appendChild(e);
-            return;
-          }
-          openCol.appendChild(renderDailyTaskCard(t));
-        });
-
-        (doneItems.length?doneItems:[null]).forEach(t=>{
-          if(!t){
-            const e=document.createElement('div');
-            e.className='hint';
-            e.style.color='var(--muted)';
-            e.textContent='لا توجد مهام مكتملة.';
-            doneCol.appendChild(e);
-            return;
-          }
-          doneCol.appendChild(renderDailyTaskCard(t, true));
-        });
-      }
-    }
-
-    function renderDailyTaskCard(t, isDone=false){
-      const el = document.createElement('div');
-      el.className = 'dtask';
-      const dayName = DAYS[Number(t.day||0)] || '—';
-      const statusPill = isDone
-        ? `<span class="pill-mini done">تم الانتهاء</span>`
-        : `<span class="pill-mini open">مفتوح</span>`;
-
-      el.innerHTML = `
-        <div class="top">
-          <div>
-            <div class="title">${escapeHtml(t.title||'بدون عنوان')}</div>
-            <div class="meta">
-              ${statusPill}
-              <span class="pill-mini">${escapeHtml(dayName)}</span>
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-            ${isDone ? '' : `<button class="btn sm" data-act="done">تم الانتهاء</button>`}
-          </div>
-        </div>
-        <div class="desc">${escapeHtml(t.description||'')}</div>
-        <div class="notes">
-          <label style="font-size:12px;color:var(--muted)">ملاحظات</label>
-          <textarea data-act="notes" placeholder="اكتب ملاحظات...">${escapeHtml(t.notes||'')}</textarea>
-        </div>
-      `;
-
-      // حفظ الملاحظات
-      const notesTa = el.querySelector('textarea[data-act="notes"]');
-      let notesTimer=null;
-      notesTa.addEventListener('input', ()=>{
-        if(notesTimer) clearTimeout(notesTimer);
-        notesTimer = setTimeout(async ()=>{
-          try{ await updateDoc(doc(db,'daily_tasks', t.id), { notes: notesTa.value || '' , updatedAt: serverTimestamp()}); }
-          catch(err){ console.error(err); toast('⚠️ فشل حفظ الملاحظات'); }
-        }, 450);
-      });
-
-      // تم الانتهاء
-      const doneBtn = el.querySelector('button[data-act="done"]');
-      if(doneBtn){
-        doneBtn.addEventListener('click', async ()=>{
-          try{
-            await updateDoc(doc(db,'daily_tasks', t.id), { status: 'done', doneAt: serverTimestamp(), updatedAt: serverTimestamp() });
-            toast('✅ تم إنهاء المهمة');
-          }catch(err){ console.error(err); toast('⚠️ فشل إنهاء المهمة'); }
-        });
-      }
-
-      return el;
-    }
-
-    // Daily Modal
-    const dailyModal = $("dailyModal");
-    function openDailyModal(){
-      $("dailyTitle").value = "";
-      $("dailyDesc").value = "";
-      $("dailyNotes").value = "";
-      $("dailyWeek").value = "1";
-      $("dailyDay").value = "0";
-      dailyModal.classList.add('show');
-    }
-    function closeDailyModal(){ dailyModal.classList.remove('show'); }
-    $("dailyClose").addEventListener('click', closeDailyModal);
-    $("dailyCancel").addEventListener('click', closeDailyModal);
-    dailyModal.addEventListener('click', (e)=>{ if(e.target===dailyModal) closeDailyModal(); });
-
-    $("dailySave").addEventListener('click', async ()=>{
-      const title = ($("dailyTitle").value||"").trim();
-      const description = ($("dailyDesc").value||"").trim();
-      const notes = ($("dailyNotes").value||"").trim();
-      const week = Number($("dailyWeek").value||1);
-      const day = Number($("dailyDay").value||0);
-      const {month, year} = dailyKey();
-      if(!title) return toast('اكتب عنوان المهمة');
-      try{
-        await addDoc(collection(db,'daily_tasks'), {
-          month, year,
-          week, day,
-          title,
-          description: description || null,
-          notes: notes || '',
-          status: 'open',
-          createdAt: serverTimestamp(),
-          createdBy: CURRENT_USER?.uid || null
-        });
-        toast('✅ تم حفظ المهمة');
-        closeDailyModal();
-      }catch(err){ console.error(err); toast('⚠️ فشل حفظ المهمة'); }
-    });
-
-    // ===== Admin (Admin Only) =====
-    let ADMIN_USERS_CACHE = [];
     function openAdmin(){
       MODE="admin"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
       if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
       if(unsubTasks){unsubTasks();unsubTasks=null;}
-      if(unsubDaily){unsubDaily();unsubDaily=null;}
 
-      setNavActive('navAdmin');
-      $("pageTitle").textContent = 'admin';
-      $("pageDesc").textContent = 'إدارة الأعضاء (إضافة / تعديل الصلاحيات)';
-      $("btnBack").style.display='none';
-      $("btnCreateAgenda").style.display='none';
-      $("btnCreateCampaign").style.display='none';
-      showView('admin');
-      saveLastState({view:"admin"});
-      loadAdminUsers();
+      saveLastView("admin");
+      setNavActive("navAdmin");
+      $("pageTitle").textContent = "admin";
+      $("pageDesc").textContent  = "";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+
+      showView("admin");
     }
 
-    async function loadAdminUsers(){
-      try{
-        const snap = await getDocs(collection(db,'users'));
-        const rows=[];
-        snap.forEach(d=>{
-          const u=d.data()||{};
-          rows.push({ uid:d.id, email:u.email||'', name:u.name||u.username||'', role:u.role||'member' });
-        });
-        rows.sort((a,b)=> (a.role===b.role ? (a.email||'').localeCompare(b.email||'') : (a.role||'').localeCompare(b.role||'')));
-        ADMIN_USERS_CACHE = rows;
-        renderAdminUsers(rows);
-      }catch(err){ console.error(err); toast('⚠️ فشل تحميل الأعضاء'); }
+    function openDaily(){
+      MODE="daily"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      saveLastView("daily");
+      if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
+      if(unsubTasks){unsubTasks();unsubTasks=null;}
+
+      setNavActive("navDaily");
+      $("pageTitle").textContent = "Daily Task";
+      $("pageDesc").textContent  = "مهام يومية مقسمة على 4 أسابيع مع عمود تم الانتهاء + ملاحظات.";
+      $("btnBack").style.display="none";
+      $("btnCreateAgenda").style.display="none";
+      $("btnCreateCampaign").style.display="none";
+
+      showView("daily");
+      try{ initDailySelectors(); refreshDaily(); }catch(e){}
     }
 
-    function renderAdminUsers(rows){
-      const t = $("adminUsersTable");
-      t.innerHTML = `
-        <thead>
-          <tr>
-            <th style="min-width:220px">البريد</th>
-            <th style="min-width:160px">الاسم</th>
-            <th style="min-width:130px">الصلاحية</th>
-            <th style="min-width:120px">إجراءات</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      `;
-      const tb = t.querySelector('tbody');
-      rows.forEach(u=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${escapeHtml(u.email||'')}</td>
-          <td>${escapeHtml(u.name||'')}</td>
-          <td>
-            <select class="inp" data-uid="${escapeHtml(u.uid)}" data-act="role" style="min-width:120px">
-              <option value="member" ${u.role==='member'?'selected':''}>member</option>
-              <option value="finisher" ${u.role==='finisher'?'selected':''}>finisher</option>
-              <option value="admin" ${u.role==='admin'?'selected':''}>admin</option>
-            </select>
-          </td>
-          <td style="white-space:nowrap">
-            <button class="btn secondary sm" data-act="save" data-uid="${escapeHtml(u.uid)}">حفظ</button>
-            <button class="btn ghost sm" data-act="reset" data-email="${escapeHtml(u.email)}">Reset</button>
-          </td>
-        `;
-        tb.appendChild(tr);
-      });
-
-      tb.addEventListener('click', async (ev)=>{
-        const btn = ev.target.closest('button');
-        if(!btn) return;
-        const act = btn.getAttribute('data-act');
-        if(act==='save'){
-          const uid = btn.getAttribute('data-uid');
-          const sel = t.querySelector(`select[data-act="role"][data-uid="${CSS.escape(uid)}"]`);
-          const role = sel?.value || 'member';
-          try{
-            await setDoc(doc(db,'users', uid), { role }, { merge: true });
-            toast('✅ تم حفظ الصلاحية');
-          }catch(err){ console.error(err); toast('⚠️ فشل حفظ الصلاحية'); }
-        }
-        if(act==='reset'){
-          const email = btn.getAttribute('data-email');
-          if(!email) return toast('لا يوجد بريد');
-          try{
-            await sendPasswordResetEmail(auth, email);
-            toast('✅ تم إرسال رابط إعادة تعيين');
-          }catch(err){ console.error(err); toast('⚠️ فشل إرسال Reset'); }
-        }
-      }, { once: true });
-    }
-
-    $("btnAdminRefresh").addEventListener('click', ()=> loadAdminUsers());
-
-    $("adminUserSearch").addEventListener('input', ()=>{
-      const q = String($("adminUserSearch").value||"").trim().toLowerCase();
-      if(!q) return renderAdminUsers(ADMIN_USERS_CACHE);
-      const f = ADMIN_USERS_CACHE.filter(u=>
-        (u.email||'').toLowerCase().includes(q) || (u.name||'').toLowerCase().includes(q) || (u.uid||'').toLowerCase().includes(q)
-      );
-      renderAdminUsers(f);
-    });
-
-    $("btnAdminCreate").addEventListener('click', async ()=>{
-      const email = String($("adminNewEmail").value||"").trim();
-      const pass = String($("adminNewPass").value||"").trim();
-      const name = String($("adminNewName").value||"").trim();
-      const role = $("adminNewRole").value || 'member';
-      if(!email || !pass) return toast('اكتب البريد وكلمة المرور');
-      try{
-        const cred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-        const uid = cred.user.uid;
-        await setDoc(doc(db,'users', uid), {
-          email,
-          name: name || null,
-          role,
-          createdAt: serverTimestamp(),
-          createdBy: CURRENT_USER?.uid || null
-        }, { merge: true });
-        $("adminNewEmail").value='';
-        $("adminNewPass").value='';
-        $("adminNewName").value='';
-        $("adminNewRole").value='member';
-        toast('✅ تم إنشاء المستخدم');
-        loadAdminUsers();
-      }catch(err){
-        console.error(err);
-        const code = err?.code || '';
-        if(code.includes('auth/email-already-in-use')) return toast('⚠️ هذا البريد موجود بالفعل');
-        toast('⚠️ فشل إنشاء المستخدم');
-      }
-    });
 
     // نفس منطق فلتر صفحة المخزون:
     // استبعاد السيارات اللي مكانها يحتوي على:
@@ -2573,7 +2874,11 @@ function initials(name){
                 <span class="stock-badge-mini">نسخ</span>
               </button>
             </td>
-            <td class="center"><span class="stock-badge-mini stock-count">${r.count}</span></td>
+            <td class="center">
+              <button type="button" class="btn secondary xs stock-count-btn" data-show-colors="1" title="عرض الألوان" style="min-width:44px;justify-content:center">
+                <span class="stock-badge-mini stock-count">${r.count}</span>
+              </button>
+            </td>
             <td>
               <select class="stock-ctrl" data-field="photo">${yesNoOptions(photo)}</select>
             </td>
@@ -2604,12 +2909,21 @@ function initials(name){
 
       // Delegation: copy + save
       tableEl.onclick = (ev)=>{
-        const btn = ev.target.closest('[data-copy]');
-        if(!btn) return;
-        const tr = btn.closest('tr');
+        const tr = ev.target.closest('tr');
         const key = tr?.getAttribute('data-spec') || '';
-        if(key){
-          navigator.clipboard.writeText(key).then(()=> toast('تم النسخ')).catch(()=> toast('لم يتم النسخ'));
+
+        const copyBtn = ev.target.closest('[data-copy]');
+        if(copyBtn){
+          if(key){
+            navigator.clipboard.writeText(key).then(()=> toast('تم النسخ')).catch(()=> toast('لم يتم النسخ'));
+          }
+          return;
+        }
+
+        const colorsBtn = ev.target.closest('[data-show-colors]');
+        if(colorsBtn){
+          if(key) openColorsModal(key);
+          return;
         }
       };
 
@@ -2664,29 +2978,35 @@ function initials(name){
 
     function openHome(){
       MODE="home"; LIST_TYPE=null; CURRENT_WORKSPACE=null;
+      saveLastView("home");
       if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
       if(unsubTasks){unsubTasks();unsubTasks=null;}
 
       setNavActive("navHome");
       $("pageTitle").textContent = "الداش بورد";
-      $("pageDesc").textContent = "متابعة كل الشغل داخل Workspace (الأجندات / الحملات / Daily Task) + تقارير وأرقام.";
+      $("pageDesc").textContent = "ملخص شامل لكل الشغل داخل Workspace + إحصائيات الأعضاء + تصدير PDF.";
       $("btnBack").style.display="none";
       $("btnCreateAgenda").style.display="";
       $("btnCreateCampaign").style.display="";
       $("homeMeta").textContent = "متصل بقاعدة البيانات الجديدة (mzj-workspace-c7d4e)";
       showView("home");
-      saveLastState({view:"home"});
-      // تجهيز الداش بورد للأدمن
-      if(CURRENT_ROLE==="admin"){
-        $("dashWrap").style.display="";
-        initDashboardUI();
-      }
+      // refresh dashboard after switching view
+      try{ renderDashboard(); }catch(e){}
     }
 
     $("btnRefresh").addEventListener("click", ()=> { if(LIST_TYPE) openList(LIST_TYPE); });
 
+    // Board filter (agenda): show tasks for selected user
+    $("boardUserFilter").addEventListener("change", (e)=>{
+      BOARD_USER_FILTER_UID = String(e.target.value||"");
+      if(MODE==="board" && CURRENT_WORKSPACE){
+        renderBoardColumns(CURRENT_WORKSPACE, applyBoardUserFilter(BOARD_TASKS_ALL));
+      }
+    });
+
     function openList(type){
       MODE = type==="agenda" ? "agendas" : "campaigns";
+      saveLastView("list", {type});
       LIST_TYPE = type;
       CURRENT_WORKSPACE = null;
       if(unsubTasks){unsubTasks();unsubTasks=null;}
@@ -2706,7 +3026,6 @@ function initials(name){
 
       showView("list");
       listenWorkspaces(type);
-      saveLastState({view:"list", listType:type});
     }
 
     function listenWorkspaces(type){
@@ -2774,7 +3093,7 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
     function openBoard(workspace){
       MODE="board";
       CURRENT_WORKSPACE = workspace;
-      saveLastState({view:"board", workspaceId: workspace.id});
+      saveLastView("board", {workspaceId: workspace.id});
 
       $("btnBack").style.display="";
       $("btnCreateAgenda").style.display="none";
@@ -2793,15 +3112,51 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
         $("boardSub").textContent = `عدد الأعمدة: ${(workspace.columns||[]).length}`;
       }
 
+      // Agenda-only: filter tasks by assignee
+      const bfWrap = $("boardFilterWrap");
+      const bfSel = $("boardUserFilter");
+      if(workspace.type === "agenda"){
+        bfWrap.style.display = "";
+        // rebuild options each time (users may update)
+        const cur = BOARD_USER_FILTER_UID || "";
+        bfSel.innerHTML = `<option value="">الكل</option>`;
+        USERS.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||"","ar")).forEach(u=>{
+          const opt = document.createElement("option");
+          opt.value = u.uid;
+          opt.textContent = u.name;
+          bfSel.appendChild(opt);
+        });
+        bfSel.value = cur;
+      }else{
+        bfWrap.style.display = "none";
+        BOARD_USER_FILTER_UID = "";
+      }
+
+      // Campaign-only: Text editor
+      try{
+        if($("btnCampaignText")){
+          $("btnCampaignText").style.display = (workspace.type==="campaign" ? "" : "none");
+        }
+      }catch(e){}
+
       // show VIN for the selected spec key
       
       showView("board");
 
       $("btnEditBoard").onclick = ()=> openBoardModal(workspace.type, "edit", workspace);
       $("btnDeleteBoard").onclick = ()=> deleteWorkspace(workspace);
+      try{ $("btnCampaignText").onclick = ()=> openCampaignTextEditor(workspace); }catch(e){}
 
       renderBoardColumns(workspace, []);
       listenTasksForWorkspace(workspace.id);
+    }
+
+    function applyBoardUserFilter(tasks){
+      const arr = Array.isArray(tasks)?tasks:[];
+      if(!CURRENT_WORKSPACE || CURRENT_WORKSPACE.type!=="agenda") return arr;
+      const uid = String(BOARD_USER_FILTER_UID||"");
+      if(!uid) return arr;
+      return arr.filter(t=> String(t.assigneeUid||"") === uid);
     }
 
     function renderBoardColumns(workspace, tasks){
@@ -2820,6 +3175,8 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
       cols.forEach(colName=>{
         const col = document.createElement("section");
         col.className = "col";
+        if(String(colName||'').includes('تم الانتهاء')) col.classList.add('done-col');
+        if(/تم الانتهاء/.test(colName)) col.classList.add("done-col");
 
         const list = byCol[colName] || [];
         const head = document.createElement("div");
@@ -2885,7 +3242,8 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
         snap.forEach(d=> tasks.push({ id:d.id, ...(d.data()||{}) }));
         // ترتيب محلي بالأحدث (createdAt)
         tasks.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
-        renderBoardColumns(CURRENT_WORKSPACE, tasks);
+        BOARD_TASKS_ALL = tasks;
+        renderBoardColumns(CURRENT_WORKSPACE, applyBoardUserFilter(tasks));
       }, (err)=>{
         console.error(err);
         const msg = (err?.code ? (err.code + " — ") : "") + (err?.message || "");
@@ -3280,6 +3638,221 @@ const taskDesc = $("taskDesc");
         console.error(err);
         toast("⚠️ فشل حذف التاسك");
       }
+    });
+    // ==================================================
+    // Stock Colors Modal + Finish Task Flow
+    // ==================================================
+
+    const colorsModal = $("colorsModal");
+    const cmSpecKey = $("cmSpecKey");
+    const cmExt = $("cmExt");
+    const cmInt = $("cmInt");
+
+    const finishModal = $("finishModal");
+    const fmSpecKey = $("fmSpecKey");
+    const fmMontageDetails = $("fmMontageDetails");
+    const fmColorsWrap = $("fmColorsWrap");
+    const fmAddColor = $("fmAddColor");
+
+    function uniqSorted(arr){
+      return Array.from(new Set((arr||[]).map(v=>String(v||"").trim()).filter(Boolean)))
+        .sort((a,b)=> a.localeCompare(b,"ar",{numeric:true,sensitivity:"base"}));
+    }
+
+    function getColorsForSpecKey(specKey){
+      const key = String(specKey||"").trim();
+      const arr = Array.isArray(AGENDA_STOCK) ? AGENDA_STOCK : [];
+      const filtered = arr.filter(r => !isExcludedByInventoryFilter(r));
+      const ext=[]; const intr=[];
+      for(const r of filtered){
+        const k = buildSpecKeyNoColors({
+          car: r.car ?? r["السيارة"],
+          variant: r.variant ?? r["البيان"],
+          modelYear: r.modelYear ?? r["الموديل"],
+        });
+        if(k !== key) continue;
+        const e = (r.extColor ?? r["اللون الخارجي"] ?? r.extcolor ?? r.colorExt ?? r["extColor"] ?? "");
+        const i = (r.intColor ?? r["اللون الداخلي"] ?? r.intcolor ?? r.colorInt ?? r["intColor"] ?? "");
+        if(e) ext.push(e);
+        if(i) intr.push(i);
+      }
+      return { ext: uniqSorted(ext), int: uniqSorted(intr) };
+    }
+
+    function renderChips(target, items){
+      if(!target) return;
+      const arr = items || [];
+      if(!arr.length){ target.innerHTML = `<span class="hint" style="color:var(--muted)">—</span>`; return; }
+      target.innerHTML = arr.map(v=> `<span class="chip">${escapeHtml(v)}</span>`).join("");
+    }
+
+    function openColorsModal(specKey){
+      const key = String(specKey||"").trim();
+      if(!key) return;
+      const c = getColorsForSpecKey(key);
+      cmSpecKey.value = key;
+      renderChips(cmExt, c.ext);
+      renderChips(cmInt, c.int);
+      colorsModal.classList.add("show");
+    }
+    function closeColorsModal(){ colorsModal.classList.remove("show"); }
+    $("colorsClose").addEventListener("click", closeColorsModal);
+    $("colorsOk").addEventListener("click", closeColorsModal);
+    colorsModal.addEventListener("click", (e)=>{ if(e.target===colorsModal) closeColorsModal(); });
+
+    // ----- Finish modal -----
+    let FINISH_COLORS = [];
+    let FINISH_COLORS_META = { ext:[], int:[] };
+
+    function colorRowTemplate(idx, extVal="", intVal=""){
+      const extOpts = [""].concat(FINISH_COLORS_META.ext).map(v=>
+        `<option value="${escapeAttr(v)}" ${v===extVal?"selected":""}>${v?escapeHtml(v):"-"}</option>`).join("");
+      const intOpts = [""].concat(FINISH_COLORS_META.int).map(v=>
+        `<option value="${escapeAttr(v)}" ${v===intVal?"selected":""}>${v?escapeHtml(v):"-"}</option>`).join("");
+      return `
+        <div class="card" data-color-row="${idx}" style="padding:12px;margin-bottom:10px">
+          <div class="grid2" style="align-items:end">
+            <div>
+              <label>اللون الخارجي</label>
+              <select class="fm-ext" data-idx="${idx}">${extOpts}</select>
+            </div>
+            <div>
+              <label>اللون الداخلي</label>
+              <select class="fm-int" data-idx="${idx}">${intOpts}</select>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:10px">
+            <button type="button" class="btn danger xs" data-remove-color="${idx}">حذف اللون</button>
+          </div>
+        </div>`;
+    }
+
+    function renderFinishColors(){
+      if(!fmColorsWrap) return;
+      if(!FINISH_COLORS.length){
+        fmColorsWrap.innerHTML = `<div class="hint" style="color:var(--muted)">لا توجد ألوان مضافة — اضغط "+ إضافة لون مستخدم"</div>`;
+        return;
+      }
+      fmColorsWrap.innerHTML = FINISH_COLORS.map((r,idx)=> colorRowTemplate(idx, r.extColor||"", r.intColor||"")).join("");
+    }
+
+    function openFinishModalForTask(task){
+      if(!task?.id) return;
+      const key = String(task.specKey||"").trim();
+      fmSpecKey.value = key;
+      fmMontageDetails.value = "";
+      FINISH_COLORS_META = getColorsForSpecKey(key);
+      FINISH_COLORS = [];
+      renderFinishColors();
+      finishModal.classList.add("show");
+    }
+    function closeFinishModal(){ finishModal.classList.remove("show"); }
+
+    $("finishClose").addEventListener("click", closeFinishModal);
+    $("finishCancel").addEventListener("click", closeFinishModal);
+    finishModal.addEventListener("click", (e)=>{ if(e.target===finishModal) closeFinishModal(); });
+
+    // زر تم الانتهاء داخل تفاصيل التاسك
+    $("detailDone").addEventListener("click", ()=>{
+      if(!CURRENT_TASK) return;
+      openFinishModalForTask(CURRENT_TASK);
+    });
+
+    fmAddColor.addEventListener("click", ()=>{
+      FINISH_COLORS.push({ extColor:"", intColor:"" });
+      renderFinishColors();
+    });
+
+    // Delegation داخل fmColorsWrap
+    fmColorsWrap.addEventListener("change", (e)=>{
+      const sel = e.target;
+      if(!(sel instanceof HTMLSelectElement)) return;
+      const idx = Number(sel.getAttribute("data-idx"));
+      if(Number.isNaN(idx) || !FINISH_COLORS[idx]) return;
+      if(sel.classList.contains("fm-ext")) FINISH_COLORS[idx].extColor = sel.value || "";
+      if(sel.classList.contains("fm-int")) FINISH_COLORS[idx].intColor = sel.value || "";
+    });
+    fmColorsWrap.addEventListener("click", (e)=>{
+      const btn = e.target.closest("[data-remove-color]");
+      if(!btn) return;
+      const idx = Number(btn.getAttribute("data-remove-color"));
+      if(Number.isNaN(idx)) return;
+      FINISH_COLORS = FINISH_COLORS.filter((_,i)=> i!=idx);
+      renderFinishColors();
+    });
+
+    async function saveStockTaskImmediate(specKey, patch){
+      const key = String(specKey||"").trim();
+      if(!key) return;
+      const prev = STOCK_TASKS_MAP.get(key) || { specKey:key };
+      const next = { ...prev, ...patch, specKey:key, updatedAt: serverTimestamp() };
+      STOCK_TASKS_MAP.set(key, next);
+      try{ applySpecKeyNotMontagedFilter(); }catch(_e){}
+      try{
+        await setDoc(doc(db, "stock_tasks", stockTaskDocId(key)), next, { merge:true });
+        await setDoc(doc(db, "stock_tasks_backup", stockTaskDocId(key)), next, { merge:true });
+      }catch(e){
+        console.warn("saveStockTaskImmediate", e);
+      }
+    }
+
+    $("finishSave").addEventListener("click", async ()=>{
+      if(!CURRENT_TASK?.id) return toast("⚠️ لا يوجد Task");
+      const key = String(fmSpecKey.value||"").trim();
+      if(!key) return toast("⚠️ لا يوجد Unique Spec Key");
+      const mdChoice = String(fmMontageDetails.value||"").trim();
+      if(!mdChoice) return toast("اختر تفاصيل المونتاج (نعم/لا)");
+
+      const usedColors = FINISH_COLORS
+        .map(r=>({ extColor:String(r.extColor||"").trim(), intColor:String(r.intColor||"").trim() }))
+        .filter(r=> r.extColor || r.intColor);
+
+      // 1) Update task as done + store used colors
+      try{
+        // Move task to a new green column derived from its current column
+        const prevCol = String(CURRENT_TASK.column || "قائمة");
+        const doneCol = /تم الانتهاء/.test(prevCol) ? prevCol : `${prevCol} — تم الانتهاء`;
+        // Ensure the column exists on the workspace board
+        try{
+          const cols = Array.isArray(CURRENT_WORKSPACE?.columns) ? CURRENT_WORKSPACE.columns.slice() : ["قائمة"];
+          if(!cols.includes(doneCol)){
+            cols.push(doneCol);
+            await updateDoc(doc(db,"workspaces", CURRENT_WORKSPACE.id), { columns: cols, updatedAt: serverTimestamp() });
+            CURRENT_WORKSPACE.columns = cols;
+          }
+        }catch(_e){}
+
+        await updateDoc(doc(db, "workspace_tasks", CURRENT_TASK.id), {
+          status: "تم الانتهاء",
+          column: doneCol,
+          doneAt: serverTimestamp(),
+          montageDetailsYN: mdChoice,
+          usedColors,
+          updatedAt: serverTimestamp()
+        });
+      }catch(e){
+        console.error(e);
+        return toast("⚠️ فشل إنهاء التاسك (صلاحيات/قواعد)");
+      }
+
+      // 2) Update Tab stock automatically: montage=yes + montageDetails
+      try{ CURRENT_TASK.column = (typeof doneCol!=="undefined" ? doneCol : CURRENT_TASK.column); }catch(_e){}
+
+      const stockMontageDetails = mdChoice === "نعم" ? "صور + ريل مواصفات: نعم" : "صور + ريل مواصفات: لا";
+      await saveStockTaskImmediate(key, { montage: "نعم", montageDetails: stockMontageDetails });
+
+      // 3) Update UI row if visible
+      const row = document.querySelector(`#stockTable tr[data-spec="${CSS.escape(key)}"]`);
+      if(row){
+        const mSel = row.querySelector('[data-field="montage"]');
+        const mdSel = row.querySelector('[data-field="montageDetails"]');
+        if(mSel){ mSel.value = "نعم"; }
+        if(mdSel){ mdSel.disabled = false; mdSel.value = stockMontageDetails; }
+      }
+
+      toast("✅ تم إنهاء التاسك وتحديث الاستوك");
+      closeFinishModal();
+      closeDetail();
     });
   </script>
 </body>
