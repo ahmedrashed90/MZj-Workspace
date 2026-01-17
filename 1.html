@@ -3881,14 +3881,6 @@ const taskDesc = $("taskDesc");
       return out;
     }
 
-    function isTaskDone(t){
-      const col = String(t.column||t.columnName||'');
-      const st  = t.status;
-      if(/تم الانتهاء/.test(col)) return true;
-      if(st===true) return true;
-      const s = String(st||'').toLowerCase();
-      return (s==='done' || s==='completed' || s==='تم الانتهاء');
-    }
 
     function renderDashWorkspaceCard(ws, tasks){
       const el = document.createElement('div');
