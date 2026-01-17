@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1423,6 +1424,7 @@ function initials(name){
       stockSaveTimers.set(key, setTimeout(async ()=>{
         try{
           await setDoc(doc(db, "stock_tasks", stockTaskDocId(key)), next, { merge:true });
+          await setDoc(doc(db, "stock_tasks_backup", stockTaskDocId(key)), next, { merge:true });
         }catch(e){
           console.warn('saveStockTask', e);
         }
