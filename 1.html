@@ -538,40 +538,90 @@
     }
     .day-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
     .day-top .dname{font-weight:900;color:var(--brown);font-size:12px}
-    .day-cols{display:grid;grid-template-columns: 1fr 1fr;gap:8px}
+    /* واحد: قائمة المهام (الملاحظات تظهر داخل المهمة عند فتحها) */
+    .day-cols{display:grid;grid-template-columns: 1fr;gap:8px}
     .day-col{
       border:1px dashed rgba(62,36,32,.14);
       border-radius:12px;
       padding:8px;
       background:#fff8ef;
+      width:100%;
       min-height:58px;
       display:grid;
       gap:8px;
       align-content:start;
     }
-    .day-col.notes{background:#fff;border-style:solid;border-color: rgba(62,36,32,.10)}
+    /* NOTE: تم إزالة عمود الملاحظات الجانبي بناءً على الطلب */
     .day-col.done{background:#f0fdf4;border-color: rgba(22,163,74,.22)}
     .day-col .col-label{font-size:11px;color:var(--muted);font-weight:900}
 
     
-    .daily-task{
+     .daily-task{
+      width:100%;
       background:#fff;
       border:1px solid rgba(62,36,32,.10);
       border-radius:12px;
-      padding:8px;
+      padding:10px;
       display:grid;
       gap:8px;
+      cursor:pointer;
+      user-select:none;
     }
+    .daily-task .mini{display:flex;align-items:center;justify-content:space-between;gap:10px}
     .daily-task .tt{font-weight:900;color:var(--brown);font-size:12px;line-height:1.5}
+    .daily-task .chev{color:var(--muted);font-size:12px}
+    .daily-task .details{display:none;gap:8px;user-select:text}
+    .daily-task.open .details{display:grid}
     .daily-task .td{font-size:12px;color:var(--muted);line-height:1.7}
-    .daily-task .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .daily-task .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
     .daily-task textarea{
-      min-height:44px;
-      height:44px;
+      min-height:54px;
+      height:54px;
       resize:vertical;
-      padding:8px 10px;
+      padding:10px 10px;
       border-radius:12px;
     }
+
+
+    /* ===== Week Notes ===== */
+    .week-notes{
+      border:1px solid rgba(62,36,32,.10);
+      border-radius:14px;
+      background:#fff;
+      margin: 12px 10px 14px;
+      overflow:hidden;
+    }
+    .week-notes .hd{
+      padding:10px 12px;
+      background: linear-gradient(180deg, #fff, #fff8ef);
+      border-bottom:1px solid rgba(62,36,32,.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .week-notes .hd .ttl{font-weight:900;color:var(--brown);font-size:12px}
+    .week-notes textarea{
+      width:100%;
+      min-height:90px;
+      resize:vertical;
+      border:0;
+      outline:0;
+      padding:12px;
+      font-size:13px;
+      background:#fff;
+      line-height:1.7;
+    }
+    .week-notes .ft{
+      padding:10px 12px;
+      border-top:1px solid rgba(62,36,32,.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:#fff;
+    }
+    .week-notes .ft .muted{font-size:11px;color:var(--muted);font-weight:900}
 
 
 
@@ -691,20 +741,12 @@
     @media(max-width:980px){#dashAgendas, #dashCampaigns{grid-template-columns:1fr}}
 
     /* =========================
-       Daily Task tweaks (Notes column + Rich Text editor)
+       Daily Task tweaks (Full width task list)
+       - نخلي "قائمة المهام" تمتد بعرض اليوم بالكامل
+       - الملاحظات صارت تحت الأسبوع (Week Notes) وليس داخل اليوم
     ========================= */
-    .day-cols{grid-template-columns:1fr 1fr 1fr}
-    @media(max-width:980px){.day-cols{grid-template-columns:1fr}}
-    .day-col.notes{background:#fff;border-style:dashed}
-    .daily-note{background:#fff;border:1px solid rgba(62,36,32,.10);border-radius:12px;padding:8px;display:grid;gap:8px}
-    .daily-note .tt{font-weight:900;color:var(--brown);font-size:12px;line-height:1.5}
-    .daily-note .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-    .daily-note textarea{min-height:44px;height:44px;resize:vertical;padding:8px 10px;border-radius:12px}
-    .rtf-badge{font-size:11px;font-weight:900;border:1px solid rgba(188,143,116,.35);background:rgba(188,143,116,.10);color:var(--brown);border-radius:999px;padding:4px 8px}
-    .rtf-editor{min-height:220px;border:1px solid #e7ddd5;border-radius:14px;padding:12px;background:#fff;outline:none}
-    .rtf-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-    .rtf-toolbar select,.rtf-toolbar input[type=color]{height:38px;border-radius:12px;border:1px solid #e7ddd5;background:#fff;padding:0 10px;outline:none}
-    .rtf-toolbar .btn{box-shadow:none}
+    .day-cols{grid-template-columns:1fr !important}
+    @media(max-width:980px){.day-cols{grid-template-columns:1fr !important}}
   </style>
 </head>
 
@@ -2242,7 +2284,9 @@ let unsubKpiWs=null, unsubKpiTasks=null;
 
     // ===== Daily Task =====
     let unsubDaily = null;
+    let unsubDailyNotes = null;
     let DAILY_DOCS = [];
+    let DAILY_WEEK_NOTES = new Map();
     let DAILY_CTX = null;
 
     function fillDailyYearOptions(){
@@ -2267,7 +2311,7 @@ let unsubKpiWs=null, unsubKpiTasks=null;
       if(unsubWorkspaces){unsubWorkspaces();unsubWorkspaces=null;}
       if(unsubTasks){unsubTasks();unsubTasks=null;}
       if(unsubDaily){unsubDaily();unsubDaily=null;}
-      if(unsubDaily){unsubDaily();unsubDaily=null;}
+      if(unsubDailyNotes){unsubDailyNotes();unsubDailyNotes=null;}
 
       setNavActive("navDaily");
       $("pageTitle").textContent = "Daily Task";
@@ -2290,7 +2334,9 @@ let unsubKpiWs=null, unsubKpiTasks=null;
       const weeksWrap = $("dailyWeeks");
       if(!key){
         if(unsubDaily){unsubDaily();unsubDaily=null;}
+        if(unsubDailyNotes){unsubDailyNotes();unsubDailyNotes=null;}
         DAILY_DOCS = [];
+        DAILY_WEEK_NOTES = new Map();
         emptyEl.textContent = "اختر الشهر والسنة لعرض الأسابيع.";
         emptyEl.style.display = "";
         weeksWrap.style.display = "none";
@@ -2300,7 +2346,10 @@ let unsubKpiWs=null, unsubKpiTasks=null;
       emptyEl.style.display = "none";
       weeksWrap.style.display = "";
 
+      DAILY_CTX = { monthKey: key };
+
       if(unsubDaily){unsubDaily();unsubDaily=null;}
+      if(unsubDailyNotes){unsubDailyNotes();unsubDailyNotes=null;}
 
       const qy = query(
         collection(db,"daily_tasks"),
@@ -2311,17 +2360,39 @@ let unsubKpiWs=null, unsubKpiTasks=null;
         snap.forEach(d=> items.push({id:d.id, ...(d.data()||{})}));
         items.sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
         DAILY_DOCS = items;
-        renderDailyWeeks(key, items);
+        renderDailyWeeks(key, items, DAILY_WEEK_NOTES);
       }, (err)=>{
         console.error(err);
         toast("⚠️ فشل تحميل Daily Task");
       });
+
+      const qn = query(
+        collection(db,"daily_week_notes"),
+        where("monthKey","==", key)
+      );
+      unsubDailyNotes = onSnapshot(qn, (snap)=>{
+        const m = new Map();
+        snap.forEach(d=>{
+          const data = d.data()||{};
+          const w = Number(data.weekIndex||0);
+          m.set(w, { id:d.id, ...(data||{}) });
+        });
+        DAILY_WEEK_NOTES = m;
+        // Re-render if we are still on same month
+        if(DAILY_CTX && DAILY_CTX.monthKey===key){
+          renderDailyWeeks(key, DAILY_DOCS, DAILY_WEEK_NOTES);
+        }
+      }, (err)=>{
+        console.error(err);
+      });
     }
 
-    function renderDailyWeeks(monthKey, docs){
+    function renderDailyWeeks(monthKey, docs, weekNotesMap){
       const weeksWrap = $("dailyWeeks");
       const emptyEl = $("dailyEmpty");
       if(!weeksWrap) return;
+
+      weekNotesMap = weekNotesMap || new Map();
 
       const days = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"];
 
@@ -2357,6 +2428,7 @@ let unsubKpiWs=null, unsubKpiTasks=null;
           const list = (byWeekDay[`${w}-${di}`]||[]);
           const todo = list.filter(x=> String(x.status||"todo")!=="done");
 
+          // مهمة مضغوطة + تفتح عند الضغط (بدون ملاحظات داخل المهمة)
           const renderTask = (t, isDone)=>{
             const title = escapeHtml(t.title||"");
             const desc  = escapeHtml(t.desc||"");
@@ -2364,27 +2436,20 @@ let unsubKpiWs=null, unsubKpiTasks=null;
               ? `<span class="badge" style="background:#f0fdf4;border-color:rgba(22,163,74,.22);color:#0f5a2a"><span class="dot" style="background:#16a34a"></span>تم</span>`
               : `<button class="btn sm" data-act="done" data-id="${escapeAttr(t.id)}" type="button">تم الانتهاء</button>`;
             return `
-              <div class="daily-task" data-task="${escapeAttr(t.id)}">
-                <div class="tt">${title}</div>
-                ${desc ? `<div class="td">${desc}</div>` : ``}
-                <div class="row">${doneBtn}</div>
-              </div>
-            `;
-          };
-
-          const renderNote = (t)=>{
-            const title = escapeHtml(t.title||"");
-            const notes = escapeHtml(t.notes||"");
-            return `
-              <div class="daily-note" data-task="${escapeAttr(t.id)}">
-                <div class="tt">${title}</div>
-                <textarea class="inp" data-act="note" data-id="${escapeAttr(t.id)}" placeholder="ملاحظات...">${notes}</textarea>
+              <div class="daily-task" data-task="${escapeAttr(t.id)}" title="اضغط لفتح/إغلاق">
+                <div class="mini">
+                  <div class="tt">${title || "(بدون عنوان)"}</div>
+                  <div class="chev">▾</div>
+                </div>
+                <div class="details">
+                  ${desc ? `<div class="td">${desc}</div>` : ``}
+                  <div class="row">${doneBtn}</div>
+                </div>
               </div>
             `;
           };
 
           const todoHtml = todo.map(t=> renderTask(t,false)).join("") || `<div class="hint" style="color:var(--muted)">—</div>`;
-          const notesHtml = list.map(t=> renderNote(t)).join("") || `<div class="hint" style="color:var(--muted)">—</div>`;
 
           return `
             <div class="day-block">
@@ -2396,10 +2461,6 @@ let unsubKpiWs=null, unsubKpiTasks=null;
                 <div class="day-col">
                   <div class="col-label">قائمة المهام</div>
                   ${todoHtml}
-                </div>
-                <div class="day-col notes">
-                  <div class="col-label">ملاحظات</div>
-                  ${notesHtml}
                 </div>
               </div>
             </div>
@@ -2420,6 +2481,17 @@ let unsubKpiWs=null, unsubKpiTasks=null;
               <div class="items">${weekDoneHtml}</div>
             </div>
             <div class="week-body">${daysHtml}</div>
+            <div class="week-notes">
+              <div class="hd">
+                <div class="ttl">ملاحظات الأسبوع</div>
+                <div class="muted">اختياري</div>
+              </div>
+              <textarea class="inp" data-act="weeknote" data-week="${w}" data-doc="${escapeAttr((weekNotesMap.get(w)||{}).id||"")}" placeholder="اكتب ملاحظات الأسبوع هنا...">${escapeHtml((weekNotesMap.get(w)||{}).notes||"")}</textarea>
+              <div class="ft">
+                <div class="muted">تُحفظ تلقائياً</div>
+                <div class="muted">—</div>
+              </div>
+            </div>
           </div>
         `;
       }).join("");
@@ -2440,6 +2512,16 @@ let unsubKpiWs=null, unsubKpiTasks=null;
         });
       });
 
+      // Toggle open/close task (so list stays compact, and notes appear under)
+      wrap.querySelectorAll(".daily-task").forEach(card=>{
+        card.addEventListener("click", (e)=>{
+          if(e.target.closest("button") || e.target.closest("textarea") || e.target.closest("a")) return;
+          card.classList.toggle("open");
+          const chev = card.querySelector('.chev');
+          if(chev) chev.textContent = card.classList.contains('open') ? '▴' : '▾';
+        });
+      });
+
       wrap.querySelectorAll("[data-act='done']").forEach(btn=>{
         btn.addEventListener("click", async ()=>{
           const id = btn.getAttribute("data-id");
@@ -2457,23 +2539,87 @@ let unsubKpiWs=null, unsubKpiTasks=null;
         });
       });
 
-      // Notes (simple debounce)
-      const timers = new Map();
-      wrap.querySelectorAll("textarea[data-act='note']").forEach(tx=>{
+      // Week Notes (save تحت الأسبوع)
+      const wTimers = new Map();
+      wrap.querySelectorAll("textarea[data-act='weeknote']").forEach(tx=>{
         tx.addEventListener("input", ()=>{
-          const id = tx.getAttribute("data-id");
-          if(!id) return;
-          if(timers.has(id)) clearTimeout(timers.get(id));
+          const week = Number(tx.getAttribute('data-week')||'0');
+          const docId = tx.getAttribute('data-doc')||'';
+          if(!week) return;
+          const key = String(week);
+          if(wTimers.has(key)) clearTimeout(wTimers.get(key));
           const t = setTimeout(async ()=>{
-            try{ await updateDoc(doc(db,"daily_tasks", id), { notes: tx.value||"" }); }catch(e){ console.warn(e); }
+            try{
+              const monthKey = (DAILY_CTX && DAILY_CTX.monthKey) ? DAILY_CTX.monthKey : '';
+              if(!monthKey) return;
+              if(docId){
+                await updateDoc(doc(db, 'daily_week_notes', docId), { notes: tx.value||'', updatedAt: serverTimestamp() });
+              }else{
+                await addDoc(collection(db,'daily_week_notes'), { monthKey, weekIndex: week, notes: tx.value||'', createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+              }
+            }catch(e){ console.warn(e); }
           }, 550);
-          timers.set(id, t);
+          wTimers.set(key, t);
         });
       });
 
     }
 
-    function openDailyTaskModal(ctx){
+    
+
+    async function bindWeekNotes(monthKey){
+      const wrap = $("dailyWeeks");
+      if(!wrap) return;
+
+      const col = collection(db, "daily_week_notes");
+
+      // Preload existing notes for the shown month (4 weeks)
+      try{
+        const qn = query(col, where("monthKey","==", monthKey));
+        const snap = await getDocs(qn);
+        const map = new Map();
+        snap.forEach(d=>{ map.set(String(d.data().weekIndex||""), d.data()); });
+
+        wrap.querySelectorAll("textarea[data-act='week-note']").forEach(tx=>{
+          const w = String(tx.getAttribute('data-week')||"");
+          const data = map.get(w);
+          if(data && typeof data.notes === 'string') tx.value = data.notes;
+        });
+      }catch(e){
+        console.warn(e);
+      }
+
+      const timers = new Map();
+      wrap.querySelectorAll("textarea[data-act='week-note']").forEach(tx=>{
+        tx.addEventListener('input', ()=>{
+          const w = Number(tx.getAttribute('data-week')||'0');
+          if(!w) return;
+          const statusEl = wrap.querySelector(`[data-week-note-status='${w}']`);
+          if(statusEl) statusEl.textContent = '...';
+
+          if(timers.has(w)) clearTimeout(timers.get(w));
+          const t = setTimeout(async ()=>{
+            try{
+              const id = `${monthKey}__week${w}`;
+              await setDoc(doc(db,"daily_week_notes", id), {
+                monthKey,
+                weekIndex: w,
+                notes: tx.value||"",
+                updatedAt: serverTimestamp(),
+              }, { merge:true });
+              if(statusEl) statusEl.textContent = 'تم الحفظ';
+              setTimeout(()=>{ if(statusEl && statusEl.textContent==='تم الحفظ') statusEl.textContent=''; }, 1200);
+            }catch(e){
+              console.warn(e);
+              if(statusEl) statusEl.textContent = 'خطأ';
+            }
+          }, 550);
+          timers.set(w, t);
+        });
+      });
+    }
+
+function openDailyTaskModal(ctx){
       DAILY_CTX = ctx;
       $("dailyTaskTitle").value = "";
       $("dailyTaskDesc").value = "";
