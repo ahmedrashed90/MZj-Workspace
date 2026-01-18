@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1291,24 +1292,9 @@
         <label>Unique Spec Key</label>
         <input id="fmSpecKey" readonly/>
 
-        <div class="grid2" style="margin-top:12px">
-          <div>
-            <label>تفاصيل المونتاج</label>
-            <select id="fmMontageDetails">
-              <option value="">-</option>
-              <option value="نعم">نعم</option>
-              <option value="لا">لا</option>
-            </select>
-            <div class="hint" style="color:var(--muted);margin-top:6px">سيتم تحديث Tab stock تلقائيًا: مونتاج = نعم + تفاصيل المونتاج حسب اختيارك.</div>
-          </div>
-          <div>
-            <label>الألوان المستخدمة في التاسك</label>
-            <button class="btn secondary sm" id="fmAddColor" type="button">+ إضافة لون مستخدم</button>
-          </div>
+        <div class="hint" style="color:var(--muted);margin-top:10px">
+          سيتم إنهاء التاسك داخل الـ Workspace فقط — بدون أي علاقة بالمونتاج أو الألوان وبدون أي تحديث على Tab Stock.
         </div>
-
-        <div id="fmColorsWrap" style="margin-top:10px"></div>
-        <div class="hint" style="color:var(--muted);margin-top:10px">* اختيارات الألوان تُبنى حسب الألوان المتاحة لنفس Unique Spec Key (قراءة فقط من mzj-agenda).</div>
       </div>
       <div class="m-foot">
         <button class="btn secondary" id="finishCancel" type="button">إلغاء</button>
@@ -1586,6 +1572,8 @@
     // اللي هنظهره داخل الداتا ليست
     let SPEC_KEY_OPTIONS = []
     let SPEC_KEY_SET = new Set();
+    // وضع الداتا ليست: filtered (افتراضي) أو all (للحملات)
+    let SPEC_KEY_MODE = "filtered";
     let agendaUnsub = null;
 
     let AGENDA_STOCK = [];
@@ -1650,8 +1638,14 @@
     function renderSpecKeyDatalist(){
       const dl = document.getElementById(SPEC_DATALIST_ID);
       if(!dl) return;
-      SPEC_KEY_SET = new Set((SPEC_KEY_OPTIONS||[]).map(k=>String(k).trim()));
-      dl.innerHTML = SPEC_KEY_OPTIONS.map(k=> `<option value="${escapeAttr(k)}"></option>`).join("");
+      const list = (SPEC_KEY_MODE === "all") ? (SPEC_KEY_ALL || []) : (SPEC_KEY_OPTIONS || []);
+      SPEC_KEY_SET = new Set(list.map(k=>String(k).trim()));
+      dl.innerHTML = list.map(k=> `<option value="${escapeAttr(k)}"></option>`).join("");
+    }
+
+    function setSpecKeyMode(mode){
+      SPEC_KEY_MODE = (mode === "all") ? "all" : "filtered";
+      renderSpecKeyDatalist();
     }
 
     // init live source
@@ -4148,6 +4142,8 @@ const taskDesc = $("taskDesc");
 
         
         const isCampaign = TASK_CTX.workspace.type==="campaign";
+        // الحملات: اعرض كل السيارات حتى لو اتعملها مونتاج قبل كده
+        setSpecKeyMode(isCampaign ? "all" : "filtered");
         taskLinksWrap.style.display = isCampaign ? "" : "none";
         LINKS_TMP = [];
         renderLinksChips();
@@ -4166,6 +4162,7 @@ const taskDesc = $("taskDesc");
 
         
         const isCampaign = CURRENT_TASK.type==="campaign";
+        setSpecKeyMode(isCampaign ? "all" : "filtered");
         taskLinksWrap.style.display = isCampaign ? "" : "none";
         LINKS_TMP = Array.isArray(CURRENT_TASK.links) ? [...CURRENT_TASK.links] : [];
         renderLinksChips();
@@ -4178,6 +4175,8 @@ const taskDesc = $("taskDesc");
       taskModal.classList.remove("show");
       TASK_CTX = null;
       LINKS_TMP = [];
+      // رجّع الوضع الافتراضي للأجندة
+      setSpecKeyMode("filtered");
     }
 
     $("taskSave").addEventListener("click", async ()=>{
@@ -4190,7 +4189,7 @@ const taskDesc = $("taskDesc");
       const assigneeName = assigneeObj?.name || null;
 
       if(!specKey) return toast("اكتب Unique Spec Key");
-      // السماح فقط بالقيم الموجودة في القائمة (غير معمول لها مونتاج)
+      // السماح فقط بالقيم الموجودة في القائمة
       const allowed = (SPEC_KEY_SET && SPEC_KEY_SET.has(specKey));
       const editingSame = (TASK_MODE!=="create" && CURRENT_TASK?.specKey && specKey===String(CURRENT_TASK.specKey).trim());
       if(!allowed && !editingSame) return toast("اختر Unique Spec Key من القائمة فقط");
@@ -4309,9 +4308,6 @@ const taskDesc = $("taskDesc");
 
     const finishModal = $("finishModal");
     const fmSpecKey = $("fmSpecKey");
-    const fmMontageDetails = $("fmMontageDetails");
-    const fmColorsWrap = $("fmColorsWrap");
-    const fmAddColor = $("fmAddColor");
 
     function uniqSorted(arr){
       return Array.from(new Set((arr||[]).map(v=>String(v||"").trim()).filter(Boolean)))
@@ -4359,50 +4355,10 @@ const taskDesc = $("taskDesc");
     $("colorsOk").addEventListener("click", closeColorsModal);
     colorsModal.addEventListener("click", (e)=>{ if(e.target===colorsModal) closeColorsModal(); });
 
-    // ----- Finish modal -----
-    let FINISH_COLORS = [];
-    let FINISH_COLORS_META = { ext:[], int:[] };
-
-    function colorRowTemplate(idx, extVal="", intVal=""){
-      const extOpts = [""].concat(FINISH_COLORS_META.ext).map(v=>
-        `<option value="${escapeAttr(v)}" ${v===extVal?"selected":""}>${v?escapeHtml(v):"-"}</option>`).join("");
-      const intOpts = [""].concat(FINISH_COLORS_META.int).map(v=>
-        `<option value="${escapeAttr(v)}" ${v===intVal?"selected":""}>${v?escapeHtml(v):"-"}</option>`).join("");
-      return `
-        <div class="card" data-color-row="${idx}" style="padding:12px;margin-bottom:10px">
-          <div class="grid2" style="align-items:end">
-            <div>
-              <label>اللون الخارجي</label>
-              <select class="fm-ext" data-idx="${idx}">${extOpts}</select>
-            </div>
-            <div>
-              <label>اللون الداخلي</label>
-              <select class="fm-int" data-idx="${idx}">${intOpts}</select>
-            </div>
-          </div>
-          <div style="display:flex;justify-content:flex-end;margin-top:10px">
-            <button type="button" class="btn danger xs" data-remove-color="${idx}">حذف اللون</button>
-          </div>
-        </div>`;
-    }
-
-    function renderFinishColors(){
-      if(!fmColorsWrap) return;
-      if(!FINISH_COLORS.length){
-        fmColorsWrap.innerHTML = `<div class="hint" style="color:var(--muted)">لا توجد ألوان مضافة — اضغط "+ إضافة لون مستخدم"</div>`;
-        return;
-      }
-      fmColorsWrap.innerHTML = FINISH_COLORS.map((r,idx)=> colorRowTemplate(idx, r.extColor||"", r.intColor||"")).join("");
-    }
-
     function openFinishModalForTask(task){
       if(!task?.id) return;
       const key = String(task.specKey||"").trim();
       fmSpecKey.value = key;
-      fmMontageDetails.value = "";
-      FINISH_COLORS_META = getColorsForSpecKey(key);
-      FINISH_COLORS = [];
-      renderFinishColors();
       finishModal.classList.add("show");
     }
     function closeFinishModal(){ finishModal.classList.remove("show"); }
@@ -4417,56 +4373,12 @@ const taskDesc = $("taskDesc");
       openFinishModalForTask(CURRENT_TASK);
     });
 
-    fmAddColor.addEventListener("click", ()=>{
-      FINISH_COLORS.push({ extColor:"", intColor:"" });
-      renderFinishColors();
-    });
-
-    // Delegation داخل fmColorsWrap
-    fmColorsWrap.addEventListener("change", (e)=>{
-      const sel = e.target;
-      if(!(sel instanceof HTMLSelectElement)) return;
-      const idx = Number(sel.getAttribute("data-idx"));
-      if(Number.isNaN(idx) || !FINISH_COLORS[idx]) return;
-      if(sel.classList.contains("fm-ext")) FINISH_COLORS[idx].extColor = sel.value || "";
-      if(sel.classList.contains("fm-int")) FINISH_COLORS[idx].intColor = sel.value || "";
-    });
-    fmColorsWrap.addEventListener("click", (e)=>{
-      const btn = e.target.closest("[data-remove-color]");
-      if(!btn) return;
-      const idx = Number(btn.getAttribute("data-remove-color"));
-      if(Number.isNaN(idx)) return;
-      FINISH_COLORS = FINISH_COLORS.filter((_,i)=> i!=idx);
-      renderFinishColors();
-    });
-
-    async function saveStockTaskImmediate(specKey, patch){
-      const key = String(specKey||"").trim();
-      if(!key) return;
-      const prev = STOCK_TASKS_MAP.get(key) || { specKey:key };
-      const next = { ...prev, ...patch, specKey:key, updatedAt: serverTimestamp() };
-      STOCK_TASKS_MAP.set(key, next);
-      try{ applySpecKeyNotMontagedFilter(); }catch(_e){}
-      try{
-        await setDoc(doc(db, "stock_tasks", stockTaskDocId(key)), next, { merge:true });
-        await setDoc(doc(db, "stock_tasks_backup", stockTaskDocId(key)), next, { merge:true });
-      }catch(e){
-        console.warn("saveStockTaskImmediate", e);
-      }
-    }
-
     $("finishSave").addEventListener("click", async ()=>{
       if(!CURRENT_TASK?.id) return toast("⚠️ لا يوجد Task");
       const key = String(fmSpecKey.value||"").trim();
       if(!key) return toast("⚠️ لا يوجد Unique Spec Key");
-      const mdChoice = String(fmMontageDetails.value||"").trim();
-      if(!mdChoice) return toast("اختر تفاصيل المونتاج (نعم/لا)");
 
-      const usedColors = FINISH_COLORS
-        .map(r=>({ extColor:String(r.extColor||"").trim(), intColor:String(r.intColor||"").trim() }))
-        .filter(r=> r.extColor || r.intColor);
-
-      // 1) Update task as done + store used colors
+      // Update task as done داخل الـ Workspace فقط (بدون مونتاج/ألوان/Stock)
       try{
         // Move task to a new green column derived from its current column
         const prevCol = String(CURRENT_TASK.column || "قائمة");
@@ -4485,8 +4397,6 @@ const taskDesc = $("taskDesc");
           status: "تم الانتهاء",
           column: doneCol,
           doneAt: serverTimestamp(),
-          montageDetailsYN: mdChoice,
-          usedColors,
           updatedAt: serverTimestamp()
         });
       }catch(e){
@@ -4494,22 +4404,7 @@ const taskDesc = $("taskDesc");
         return toast("⚠️ فشل إنهاء التاسك (صلاحيات/قواعد)");
       }
 
-      // 2) Update Tab stock automatically: montage=yes + montageDetails
-      try{ CURRENT_TASK.column = (typeof doneCol!=="undefined" ? doneCol : CURRENT_TASK.column); }catch(_e){}
-
-      const stockMontageDetails = mdChoice === "نعم" ? "صور + ريل مواصفات: نعم" : "صور + ريل مواصفات: لا";
-      await saveStockTaskImmediate(key, { montage: "نعم", montageDetails: stockMontageDetails });
-
-      // 3) Update UI row if visible
-      const row = document.querySelector(`#stockTable tr[data-spec="${CSS.escape(key)}"]`);
-      if(row){
-        const mSel = row.querySelector('[data-field="montage"]');
-        const mdSel = row.querySelector('[data-field="montageDetails"]');
-        if(mSel){ mSel.value = "نعم"; }
-        if(mdSel){ mdSel.disabled = false; mdSel.value = stockMontageDetails; }
-      }
-
-      toast("✅ تم إنهاء التاسك وتحديث الاستوك");
+      toast("✅ تم إنهاء التاسك");
       closeFinishModal();
       closeDetail();
     });
