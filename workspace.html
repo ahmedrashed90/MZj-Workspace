@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -747,6 +748,24 @@
     ========================= */
     .day-cols{grid-template-columns:1fr !important}
     @media(max-width:980px){.day-cols{grid-template-columns:1fr !important}}
+
+    /* ===== Campaign Description Rich Text (Word-like) ===== */
+    .rte-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 8px}
+    .rte-editor{
+      min-height:110px;
+      border:1px solid rgba(62,36,32,.14);
+      background:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+      outline:none;
+      line-height:1.9;
+    }
+    .rte-editor:empty:before{
+      content: attr(data-placeholder);
+      color: var(--muted);
+    }
+    .t-sub{margin:4px 0 0;font-size:12px;color:var(--muted);line-height:1.6}
+
   </style>
 </head>
 
@@ -1116,7 +1135,13 @@
 
         <div id="campaignFields" style="display:none">
           <label>وصف الحملة</label>
-          <textarea id="campaignDesc" placeholder="اكتب وصف الحملة بشكل واضح..."></textarea>
+          <div class="rte-toolbar" id="campaignDescToolbar">
+            <button class="btn secondary xs" type="button" data-cmd="bold"><b>B</b></button>
+            <button class="btn secondary xs" type="button" data-cmd="italic"><i>I</i></button>
+            <button class="btn secondary xs" type="button" data-cmd="underline"><u>U</u></button>
+            <button class="btn secondary xs" type="button" data-cmd="insertUnorderedList">• List</button>
+          </div>
+          <div id="campaignDesc" class="rte-editor" contenteditable="true" data-placeholder="اكتب وصف الحملة بشكل واضح..."></div>
           <div class="grid2">
             <div>
               <label>تاريخ بداية الحملة</label>
@@ -1167,6 +1192,11 @@
             <input id="taskSpecKey" list="specKeyList" placeholder="ابحث واختر (السيارة | البيان | الموديل)…"/>
             <datalist id="specKeyList"></datalist>
             <div class="hint" style="color:var(--muted)">* يتم جلب الخيارات تلقائيًا من صفحة/قاعدة Unique Spec Key (المخزون) — بدون إضافة أي صفحة في السايد بار.</div>
+          </div>
+          
+          <div class="speckey-full">
+            <label>اسم التاسك</label>
+            <input id="taskTitle" type="text" placeholder="اكتب اسم التاسك..."/>
           </div>
           <!-- تم إلغاء تاريخ التسليم حسب الطلب -->
           <div style="display:none">
@@ -1518,6 +1548,16 @@
     }
     
     
+    function stripHtml(html){
+      try{
+        const tmp = document.createElement("div");
+        tmp.innerHTML = String(html||"");
+        return (tmp.textContent || tmp.innerText || "").trim();
+      }catch(_e){}
+      return String(html||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim();
+    }
+
+
     // Admin emails (للصلاحيات + مزامنة نسخة المخزون داخل قاعدة بيانات الـ Workspace)
     const ADMIN_EMAILS = [
       "hossamzayan10@gmail.com",
@@ -3729,7 +3769,8 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
           sub = `الفترة: ${s} → ${e} | أعمدة: ${columnsCount}`;
         }
 
-        const desc = type==="campaign" ? (x.description||"") : "";
+        const descHtml = type==="campaign" ? (x.description||"") : "";
+        const desc = descHtml ? stripHtml(descHtml) : "";
         el.innerHTML = `
           <div class="li-main">
             <p class="li-title">${escapeHtml(x.name||"بدون اسم")}</p>
@@ -3768,7 +3809,7 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
         const s = workspace.startDate || "—";
         const e = workspace.endDate || "—";
         const d = workspace.description ? workspace.description : "لا يوجد وصف";
-        $("boardSub").textContent = `الفترة: ${s} → ${e} | ${d}`;
+        $("boardSub").innerHTML = `الفترة: ${s} → ${e} | ${d}`;
       }else{
         $("boardSub").textContent = `عدد الأعمدة: ${(workspace.columns||[]).length}`;
       }
@@ -3865,7 +3906,8 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
             const specKey = t.specKey || "—";
 
             card.innerHTML = `
-              <p class="t-title">${escapeHtml(specKey)}</p>
+              <p class="t-title">${escapeHtml((t.title||"").trim() || specKey)}</p>
+              <p class="t-sub">${escapeHtml(specKey)}</p>
               <div class="t-meta">
                 <span class="badge"><span class="dot"></span>${escapeHtml(assignee)}</span>
                 <span class="badge" style="background:#fff;border-color:rgba(62,36,32,.10)"><span class="dot" style="background:#6b7280"></span>📅 ${escapeHtml(due)}</span>
@@ -3910,6 +3952,20 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
     const boardName = $("boardName");
     const campaignFields = $("campaignFields");
     const campaignDesc = $("campaignDesc");
+    // Rich text toolbar (campaign description)
+    (function(){
+      const tb = document.getElementById("campaignDescToolbar");
+      if(!tb || !campaignDesc) return;
+      tb.querySelectorAll("[data-cmd]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          try{
+            campaignDesc.focus();
+            document.execCommand(btn.getAttribute("data-cmd"), false, null);
+          }catch(_e){}
+        });
+      });
+    })();
+
     const campaignStart = $("campaignStart");
     const campaignEnd = $("campaignEnd");
     const colInput = $("colInput");
@@ -3977,7 +4033,7 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
       campaignFields.style.display = (type==="campaign") ? "" : "none";
 
       boardName.value = workspace?.name || "";
-      campaignDesc.value = workspace?.description || "";
+      campaignDesc.innerHTML = workspace?.description || "";
       campaignStart.value = workspace?.startDate || "";
       campaignEnd.value = workspace?.endDate || "";
 
@@ -3992,6 +4048,7 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
       BOARD_EDIT_ID = null;
       COLUMNS_TMP = [];
       colInput.value = "";
+      if(campaignDesc) campaignDesc.innerHTML = "";
     }
 
     $("boardSave").addEventListener("click", async ()=>{
@@ -4007,7 +4064,7 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
       };
 
       if(BOARD_MODAL_TYPE==="campaign"){
-        payload.description = (campaignDesc.value||"").trim() || null;
+        payload.description = (campaignDesc.innerHTML||"").trim() || null;
         payload.startDate = campaignStart.value || null;
         payload.endDate = campaignEnd.value || null;
       }
@@ -4048,7 +4105,8 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
     // Task modal
     const taskModal = $("taskModal");
     const taskSpecKey = $("taskSpecKey");
-const taskDesc = $("taskDesc");
+    const taskTitle = $("taskTitle");
+    const taskDesc = $("taskDesc");
     // تم إلغاء تاريخ التسليم
     const taskDue = $("taskDue");
     const taskAssignee = $("taskAssignee");
@@ -4136,6 +4194,7 @@ const taskDesc = $("taskDesc");
 
         taskColumn.value = TASK_CTX.column;
         taskSpecKey.value = "";
+          taskTitle.value = "";
         taskDesc.value = "";
         taskDue.value = "";
         taskAssignee.value = "";
@@ -4156,6 +4215,7 @@ const taskDesc = $("taskDesc");
 
         taskColumn.value = CURRENT_TASK.column || "";
         taskSpecKey.value = CURRENT_TASK.specKey || "";
+          taskTitle.value = CURRENT_TASK.title || "";
         taskDesc.value = CURRENT_TASK.description || "";
         taskDue.value = "";
         taskAssignee.value = CURRENT_TASK.assigneeUid || "";
@@ -4181,6 +4241,8 @@ const taskDesc = $("taskDesc");
 
     $("taskSave").addEventListener("click", async ()=>{
       const specKey = (taskSpecKey.value||"").trim();
+      const titleRaw = (taskTitle?.value||"").trim();
+      const title = titleRaw || (TASK_MODE==="create" ? "" : (CURRENT_TASK?.title||"").trim()) || specKey;
       const description = (taskDesc.value||"").trim() || null;
       // تم إلغاء تاريخ التسليم
       const due = null;
@@ -4189,6 +4251,7 @@ const taskDesc = $("taskDesc");
       const assigneeName = assigneeObj?.name || null;
 
       if(!specKey) return toast("اكتب Unique Spec Key");
+      if(TASK_MODE==="create" && !title) return toast("اكتب اسم التاسك");
       // السماح فقط بالقيم الموجودة في القائمة
       const allowed = (SPEC_KEY_SET && SPEC_KEY_SET.has(specKey));
       const editingSame = (TASK_MODE!=="create" && CURRENT_TASK?.specKey && specKey===String(CURRENT_TASK.specKey).trim());
@@ -4202,6 +4265,7 @@ const taskDesc = $("taskDesc");
         workspaceId: TASK_CTX.workspace.id,
         type: TASK_CTX.workspace.type,
         column: TASK_CTX.column,
+        title,
         specKey,
         description,
         // due removed
