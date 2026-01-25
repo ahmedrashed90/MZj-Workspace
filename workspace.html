@@ -4250,23 +4250,38 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
       const assigneeObj = USERS.find(u=> u.uid===assigneeUid);
       const assigneeName = assigneeObj?.name || null;
 
-      if(!specKey) return toast("اكتب Unique Spec Key");
-      if(TASK_MODE==="create" && !title) return toast("اكتب اسم التاسك");
-      // السماح فقط بالقيم الموجودة في القائمة
-      const allowed = (SPEC_KEY_SET && SPEC_KEY_SET.has(specKey));
-      const editingSame = (TASK_MODE!=="create" && CURRENT_TASK?.specKey && specKey===String(CURRENT_TASK.specKey).trim());
-      if(!allowed && !editingSame) return toast("اختر Unique Spec Key من القائمة فقط");
       if(!TASK_CTX?.workspace?.id) return toast("⚠️ لا يوجد Workspace محدد");
       if(!TASK_CTX?.column) return toast("⚠️ لا يوجد عمود");
 
       const isCampaign = TASK_CTX.workspace.type==="campaign";
+
+      // اسم التاسك إلزامي دائمًا
+      if(!title) return toast("اكتب اسم التاسك");
+
+      const hasSpecKey = !!specKey;
+
+      // الأجندة: Unique Spec Key إلزامي
+      if(!isCampaign){
+        if(!hasSpecKey) return toast("اكتب Unique Spec Key");
+        // السماح فقط بالقيم الموجودة في القائمة
+        const allowed = (SPEC_KEY_SET && SPEC_KEY_SET.has(specKey));
+        const editingSame = (TASK_MODE!=="create" && CURRENT_TASK?.specKey && specKey===String(CURRENT_TASK.specKey).trim());
+        if(!allowed && !editingSame) return toast("اختر Unique Spec Key من القائمة فقط");
+      }else{
+        // الحملات: Unique Spec Key اختياري
+        if(hasSpecKey){
+          const allowed = (SPEC_KEY_SET && SPEC_KEY_SET.has(specKey));
+          const editingSame = (TASK_MODE!=="create" && CURRENT_TASK?.specKey && specKey===String(CURRENT_TASK.specKey).trim());
+          if(!allowed && !editingSame) return toast("اختر Unique Spec Key من القائمة فقط");
+        }
+      }
 
       const payload = {
         workspaceId: TASK_CTX.workspace.id,
         type: TASK_CTX.workspace.type,
         column: TASK_CTX.column,
         title,
-        specKey,
+        specKey: hasSpecKey ? specKey : null,
         description,
         // due removed
         assigneeUid,
@@ -4439,8 +4454,6 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
 
     $("finishSave").addEventListener("click", async ()=>{
       if(!CURRENT_TASK?.id) return toast("⚠️ لا يوجد Task");
-      const key = String(fmSpecKey.value||"").trim();
-      if(!key) return toast("⚠️ لا يوجد Unique Spec Key");
 
       // Update task as done داخل الـ Workspace فقط (بدون مونتاج/ألوان/Stock)
       try{
