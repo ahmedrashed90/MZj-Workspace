@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1250,11 +1251,12 @@
   <div class="modal" id="detailModal">
     <div class="sheet">
       <div class="m-head">
-        <strong>تفاصيل التاسك</strong>
+        <strong id="detailModalTitle">تفاصيل التاسك</strong>
         <button class="btn secondary xs" id="detailClose" type="button">إغلاق</button>
       </div>
       <div class="m-body">
         <div class="grid2">
+          <div><label>اسم التاسك</label><input id="dTitle" readonly/></div>
           <div><label>Unique Spec Key</label><input id="dSpecKey" readonly/></div>
           <!-- تم إلغاء تاريخ التسليم حسب الطلب -->
           <div style="display:none"><label>تاريخ التسليم</label><input id="dDue" readonly/></div>
@@ -2666,7 +2668,8 @@ function openDailyTaskModal(ctx){
 
     $("dailyTaskClose").addEventListener("click", closeDailyTaskModal);
     $("dailyTaskCancel").addEventListener("click", closeDailyTaskModal);
-    $("dailyTaskModal").addEventListener("click", (e)=>{ if(e.target===$("dailyTaskModal")) closeDailyTaskModal(); });
+    // ملاحظة: لا نغلق المودال عند الضغط خارج الشيت — الإغلاق فقط عبر زر "إغلاق" أو ESC
+    // $("dailyTaskModal").addEventListener("click", (e)=>{ if(e.target===$("dailyTaskModal")) closeDailyTaskModal(); });
 
     $("dailyTaskSave").addEventListener("click", async ()=>{
       const title = (($("dailyTaskTitle").value)||"").trim();
@@ -4122,7 +4125,17 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
 
     $("taskModalClose").addEventListener("click", ()=> closeTaskModal());
     $("taskCancel").addEventListener("click", ()=> closeTaskModal());
-    taskModal.addEventListener("click", (e)=> { if(e.target===taskModal) closeTaskModal(); });
+    // ملاحظة: لا نغلق المودال عند الضغط خارج الشيت — الإغلاق فقط عبر زر "إغلاق" أو ESC
+    // taskModal.addEventListener("click", (e)=> { if(e.target===taskModal) closeTaskModal(); });
+
+    // ESC: إغلاق المودالات المطلوبة (الحملات + الأجندات)
+    document.addEventListener("keydown", (e)=>{
+      if(e.key !== "Escape") return;
+      try{
+        if($("taskModal")?.classList.contains("show")) return closeTaskModal();
+        if($("dailyTaskModal")?.classList.contains("show")) return closeDailyTaskModal();
+      }catch(_){ /* noop */ }
+    });
 
     function isSpecKeyAllowed(v){
       const x = String(v||"").trim();
@@ -4328,11 +4341,17 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
     function openTaskDetail(task){
       CURRENT_TASK = task;
 
+      $("dTitle").value = task.title || "";
       $("dSpecKey").value = task.specKey || "";
       $("dDue").value = "";
       $("dAssignee").value = task.assigneeName || "—";
       $("dColumn").value = task.column || "";
       $("dDesc").value = task.description || "";
+
+      // عنوان المودال يظهر اسم التاسك
+      const t = (task.title || "").trim();
+      const head = $("detailModalTitle");
+      if(head) head.textContent = t ? `تفاصيل التاسك — ${t}` : "تفاصيل التاسك";
 
       const linksBlock = $("dLinksBlock");
       const dLinks = $("dLinks");
@@ -4350,6 +4369,7 @@ unsubWorkspaces = onSnapshot(qy, (snap)=>{
         linksBlock.style.display="none";
       }
 
+      $("detailModalTitle").textContent = task.title ? (`تفاصيل التاسك — ${task.title}`) : "تفاصيل التاسك";
       detailModal.classList.add("show");
     }
     function closeDetail(){ detailModal.classList.remove("show"); }
